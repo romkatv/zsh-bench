@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+
+cp -r -- ./skel/*(D) ~/
+cd
+git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git

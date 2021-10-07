@@ -1,0 +1,14 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return -o extended_glob
+
+cp -r -- ./skel/*(D) ~/
+
+git clone -q --depth=1 --recursive https://github.com/sorin-ionescu/prezto.git ~/.zprezto &>/dev/null
+
+() {
+  local rc
+  for rc in ~/.zprezto/runcoms/^(README.md|zpreztorc)(.); do
+    <$rc >>~/.${rc:t}
+  done
+}

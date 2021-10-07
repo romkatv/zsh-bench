@@ -1,0 +1,31 @@
+#!/usr/bin/env zsh
+
+builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
+
+builtin typeset -gr  _zb_benchmark_prompt_output_file=$1
+builtin typeset -gir _zb_benchmark_prompt_max_iters=$2
+
+builtin typeset -gir _zb_benchmark_prompt_buffer_sec=1
+builtin typeset -gFr _zb_benchmark_prompt_duration_sec=1
+
+builtin typeset -gi  _zb_benchmark_prompt_n=0
+builtin typeset -gF  _zb_benchmark_prompt_start_time=0
+
+builtin zmodload zsh/datetime
+builtin typeset -ga precmd_functions
+precmd_functions+=(-zb-benchmark-prompt-precmd)
+
+-zb-benchmark-prompt-precmd() {
+  if (( ++_zb_benchmark_prompt_n > _zb_benchmark_prompt_max_iters ||
+        EPOCHREALTIME >= _zb_benchmark_prompt_start_time + _zb_benchmark_prompt_duration_sec )); then
+    if (( _zb_benchmark_prompt_start_time )); then
+      builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
+      builtin local -F3 t='1e3 * (EPOCHREALTIME - _zb_benchmark_prompt_start_time) / (_zb_benchmark_prompt_n - 1)'
+      builtin print -rn -- " $t" >>| $_zb_benchmark_prompt_output_file
+      builtin exit 0
+    else
+      builtin command sleep $_zb_benchmark_prompt_buffer_sec
+      builtin typeset -gFr _zb_benchmark_prompt_start_time=EPOCHREALTIME
+    fi
+  fi
+}

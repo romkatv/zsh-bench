@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return -o pipe_fail
+
+curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh >/dev/null

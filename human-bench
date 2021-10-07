@@ -1,0 +1,105 @@
+#!/usr/bin/env zsh
+
+'builtin' 'emulate' '-L' 'zsh' '-o' 'no_aliases' '-o' 'err_return' || 'builtin' 'exit'
+setopt no_unset typeset_silent prompt_percent no_prompt_subst warn_create_global
+
+() {
+
+if [[ ${ZSH_VERSION-} != (5.<8->*|<6->.*) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: zsh >= 5.8 is required to execute this script"
+  return 1
+fi
+
+zmodload zsh/datetime
+
+function usage() {
+  print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].."
+  print -r --
+  print -r -- 'OPTIONS'
+  print -r -- '  -h,--help'
+  print -r -- '  -s,--shell-command <STR> [default="zsh"]'
+  print -r -- '  -f,--first-prompt-lag-ms <NUM> [default=0]'
+  print -r -- '  -c,--first-command-lag-ms <NUM> [default=0]'
+  print -r -- '  -p,--command-lag-ms <NUM> [default=0]'
+  print -r -- '  -i,--input-lag-ms <NUM> [default=0]'
+  print -r --
+  print -r -- 'Latency options can be specified more than once.'
+}
+
+zmodload zsh/zutil
+
+local -a help shell_command=(_ zsh)
+local -a first_prompt_lag_ms first_command_lag_ms command_lag_ms input_lag_ms
+zparseopts -D -K -F --                             \
+  {h,-help}=help {s,-shell-command}:=shell_command \
+  {f,-first-prompt-lag-ms}+:=first_prompt_lag_ms   \
+  {c,-first-command-lag-ms}+:=first_command_lag_ms \
+  {p,-command-lag-ms}+:=command_lag_ms             \
+  {i,-input-lag-ms}+:=input_lag_ms
+
+if (( ARGC )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: unexpected positional argument"
+  return 1
+fi
+
+if (( $#help )); then
+  usage
+  return
+fi
+
+local _ x
+for _ x in "${(@)first_prompt_lag_ms}"  \
+           "${(@)first_command_lag_ms}" \
+           "${(@)command_lag_ms}"       \
+           "${(@)input_lag_ms}"; do
+  if [[ $x != <->(|.<->) ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: not a non-negative real number: ${(q-)x}"
+    return 1
+  fi
+done
+
+if [[ -v ZDOTDIR ]]; then
+  export _ZB_ORIG_ZDOTDIR=$ZDOTDIR
+fi
+
+export ZDOTDIR=${ZSH_SCRIPT:h}/internal/zdotdir
+
+while true; do
+  print -Prn -- "%F{3}Start zsh? [Y/n]:%f "
+  local choice
+  IFS= read -r choice
+  [[ $choice == (|y|Y|yes|Yes|YES) ]] || return 0
+  export _ZB_START_TIME_SEC=$EPOCHREALTIME
+  if (( $#first_prompt_lag_ms )); then
+    export _ZB_FIRST_PROMPT_LAG_MS=${first_prompt_lag_ms[2 * (RANDOM % ($#first_prompt_lag_ms / 2) + 1)]}
+  fi
+  if (( $#first_command_lag_ms )); then
+    export _ZB_FIRST_COMMAND_LAG_MS=${first_command_lag_ms[2 * (RANDOM % ($#first_command_lag_ms / 2) + 1)]}
+  fi
+  if (( $#command_lag_ms )); then
+    export _ZB_COMMAND_LAG_MS=${command_lag_ms[2 * (RANDOM % ($#command_lag_ms / 2) + 1)]}
+  fi
+  if (( $#input_lag_ms )); then
+    export _ZB_INPUT_LAG_MS=${input_lag_ms[2 * (RANDOM % ($#input_lag_ms / 2) + 1)]}
+  fi
+  {
+    eval -- "() { $shell_command[2] } || true"
+  } always {
+    print
+    if (( $#first_prompt_lag_ms > 2 )); then
+      print -Pr -- "Chosen value: --first-prompt-lag-ms %F{2}$_ZB_FIRST_PROMPT_LAG_MS%f"
+    fi
+    if (( $#first_command_lag_ms > 2 )); then
+      print -Pr -- "Chosen value: --first-command-lag-ms %F{2}$_ZB_FIRST_COMMAND_LAG_MS%f"
+    fi
+    if (( $#command_lag_ms > 2 )); then
+      print -Pr -- "Chosen value: --command-lag-ms %F{2}$_ZB_COMMAND_LAG_MS%f"
+    fi
+    if (( $#input_lag_ms > 2 )); then
+      print -Pr -- "Chosen value: --input-lag-ms %F{2}$_ZB_INPUT_LAG_MS%f"
+    fi
+  }
+  print -r -- ----------
+done
+
+} "$@"

@@ -1,0 +1,15 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+
+cp -r -- ./skel/*(D) ~/
+
+cd
+git clone -q -b v5 --depth=1 https://github.com/romkatv/zsh4humans.git
+cp -- ~/zsh4humans/{.zshenv,.zshrc} ~/
+rm -rf -- ~/zsh4humans
+
+# In a real config, if you don't intend to use oh-my-zsh plugins, do this:
+#
+#   sed -i.bak -E '/ohmyzsh/d' -- ~/.zshrc
+#   rm -- ~/.zshrc.bak

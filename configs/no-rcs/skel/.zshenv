@@ -1,0 +1,1 @@
+setopt no_rcs

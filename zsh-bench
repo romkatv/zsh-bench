@@ -1,0 +1,362 @@
+#!/usr/bin/env zsh
+
+'builtin' 'emulate' '-L' 'zsh' '-o' 'no_aliases' '-o' 'err_return' || 'builtin' 'exit'
+setopt no_unset extended_glob typeset_silent no_multi_byte \
+       prompt_percent no_prompt_subst warn_create_global pipe_fail
+
+() {
+
+if [[ ${ZSH_VERSION-} != (5.<8->*|<6->.*) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: zsh >= 5.8 is required to execute this script"
+  return 1
+fi
+
+local IFS=$' \t\n\C-@'
+local NULLCMD=cat
+
+local -r self_dir=${ZSH_SCRIPT:A:h}
+
+if (( ARGC )); then
+  () {
+    local cfg
+    for cfg; do
+      if [[ ! -e $self_dir/configs/$cfg ]]; then
+        print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: $self_dir/configs/$cfg"
+        return 1
+      fi
+    done
+  } "$@"
+
+  () {
+    local cmd
+    for cmd in docker tar; do
+      if [[ ! -v commands[$cmd] ]]; then
+        print -ru2 -- "${ZSH_SCRIPT:t}: command not found: ${(q-)cmd}"
+        return 1
+      fi
+    done
+  }
+
+  if ! command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal bash -c true; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try sudo"
+    return 1
+  fi
+
+  local cmd='mkdir ~/zsh-bench && cd ~/zsh-bench && tar -xz && sh ./internal/benchmark-all.sh '${(@qqq)@}
+  (
+    cd -q -- ${self_dir}
+    command tar -czf - -- ^.git
+  ) | command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal bash -c -- $cmd
+  return
+fi
+
+zmodload zsh/datetime
+
+local -r stats=(
+  creates_tty
+  has_compsys
+  has_syntax_highlighting
+  has_autosuggestions
+  has_git_prompt
+  first_prompt_lag_ms
+  first_command_lag_ms
+  command_lag_ms
+  input_lag_ms
+  mystery_time_ms)
+
+local -- $stats
+unset -- $stats
+
+() {
+  local cmd
+  for cmd in cat cp git ln mkdir mkfifo mktemp script sleep touch zsh; do
+    if [[ ! -v commands[$cmd] ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: command not found: ${(q-)cmd}"
+      return 1
+    fi
+  done
+}
+
+() {
+  local script_version
+  if ! script_version=$(script -V 2>/dev/null) ||
+     [[ $script_version != 'script from util-linux'* ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: utility 'script' from util-linux is required"
+    return 1
+  fi
+}
+
+function error() {
+  local -i ret=$?
+  print -Pru2 -- '%F{2}'${${ZSH_SCRIPT:t}//\%/%%}'%f: %F{1}fatal error%f'
+  print -Pru2 -- '%F{3}--- stack trace (most recent call first) ---%f'
+  print -lru2 -- "${funcfiletrace[@]}"
+  print -Pru2 -- '%F{3}--- end of stack trace ---%f'
+  return $(( ret ? ret : 1 ))
+}
+functions -Ms error
+
+local tmpdir
+{
+  tmpdir=$(command mktemp -d ${TMPDIR:-/tmp}/zsh-bench-XXXXXXXXXX)
+  cd -q -- $tmpdir
+
+  command mkdir bin
+  command ln -s -- $commands[zsh] bin/-zsh
+
+  local -r zsh_version_file=$tmpdir/zsh_version
+  local -r info_file=$tmpdir/info
+  local -r fifo_file=$tmpdir/fifo
+  local -r out_file=$tmpdir/out
+  local -r timing_file=$tmpdir/timing
+
+  local -r prefix=ZSB${(l:5::0:)RANDOM}-
+  local -r msg=${(qqq)prefix}${(qqq):-msg}
+  local -r cwd=${prefix}cwd
+  local -r host=${prefix}host
+  local -r git_branch=${prefix}branch
+  local -r src=./s
+
+  local -r prompt_pat="(${(b)cwd}|${(b)host})"
+
+  command mkfifo -- $fifo_file
+  command mkdir -- $cwd
+  cd -q -- $cwd
+  print -rC1 -- {1..10}/{1..10}/{1..10}         | xargs mkdir -p --
+  print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
+
+  () {
+    local -a info_bits=(
+        '"${(qqq)TERM-}"'
+        '"${+functions[compinit]}${+functions[compdef]}"'
+        '"${+_ZSH_AUTOSUGGEST_BIND_COUNTS}"'
+        '"${+ZSH_HIGHLIGHT_VERSION}"')
+
+      print -r  -- '"builtin" "print" '$msg
+      print -r  -- '"builtin" "[" "$?" "-eq" "0" "]" || "builtin" "exit"'
+      print -rn -- '"builtin" "print" "-rn" "--" '$info_bits' >| '${(qqq)info_file}
+      print -rn -- ' && "builtin" "print" >| '${(qqq)fifo_file}
+      print -r  -- ' || "builtin" "exit"'
+  } >$src
+
+  unset -m 'GIT_*|TMUX*' || true
+
+  () {
+    local -x GIT_CONFIG_NOSYSTEM=1 HOME=$tmpdir
+    local err=$tmpdir/git.log
+    {
+      command git init
+      command git config user.name "Your Name"
+      command git config user.email "you@example.com"
+      command git add .
+      command git commit --quiet --allow-empty --allow-empty-message --no-gpg-sign -m ''
+      command git checkout -b $git_branch
+    } >/dev/null 2>$err || {
+      <$err >&2
+      return 1
+    }
+  }
+
+  function script() {
+    HOST=${host} TERM=xterm-256color LINES=20 COLUMNS=80 \
+      command script -fqec "$@" /dev/null >/dev/null
+  }
+
+  () {
+    local out
+    out=$(HOST=${host} TERM=xterm-256color LINES=20 COLUMNS=80 \
+            command zsh -lic '"builtin" "exit"' 2>&1 </dev/null || true)
+    if [[ $out == *${~prompt_pat}* ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: zsh is printing hostname or the last part of the current directory"
+      return 1
+    fi
+  }
+
+  () {
+    local cmd='"builtin" "printf" "%s\n" "${ZSH_VERSION-}" >'${(qqq)zsh_version_file}
+    script ${(qqq)commands[zsh]}' "-c" '${(qqq)cmd} </dev/null
+    if [[ ! -e $zsh_version_file ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: either 'script' or 'zsh' is broken"
+      return 1
+    fi
+
+    local zsh_version
+    zsh_version=$(<$zsh_version_file)
+    if [[ $zsh_version != (5.<8->*|<6->.*) ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: zsh >= 5.8 is required"
+      return 1
+    fi
+  }
+
+  {
+    print -r -- ' "builtin" ":" >| '${(qqq)fifo_file}' || "builtin" "exit"'
+    : <$fifo_file
+    command sleep 1
+    print -r -- ' "builtin" "exit" "0"'
+  } | script ${(qqq)commands[zsh]}' "-li"'
+
+  repeat 16; do
+    {
+      local REPLY
+      print -r  -- ' "builtin" "." '${(qqq)src}
+      IFS= read -r <$fifo_file
+
+      local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
+      local input=' \abc'
+      repeat 5 input+=$input
+      print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
+      print -r  -- ' && '${(qqq)bench_input_file:t}' '${(qqq)info_file}' '${(qqq)fifo_file}' '${(qqq)input}' "2"'
+      repeat 2; do
+        print -rn -- $input[1,-2]
+        IFS= read -r <$fifo_file
+        print -rn -- $input[-1]
+        IFS= read -r <$fifo_file
+      done
+
+      local -r bench_prompt_file=$self_dir/internal/-zb-benchmark-prompt
+      local -r bench_prompt_max_iters=1000
+      print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_prompt_file}
+      print -rn -- ' && '${(qqq)bench_prompt_file:t}' '${(qqq)info_file}' '${(qqq)bench_prompt_max_iters}
+      print -rn -- ' || "builtin" "exit"'
+      print -r  -- ${(pl:$bench_prompt_max_iters::\n:):-}
+    } | script "SHELL='-zsh' PATH=${(qqq):-"$tmpdir/bin:$PATH"} 'command' 'script' '-fqet'${(qqq)timing_file} ${(qqq)out_file}"
+
+    local -a timing
+    timing=($(<$timing_file))
+    (( $#timing % 2 == 0 )) || return 'error()'
+
+    local out
+    out=$(<$out_file)
+    [[ $out == *$'\n'*$'\n'* ]] || return 'error()'
+    out=${${out#*$'\n'}%$'\n'*}
+
+    () {
+      local -i p
+      local dt dp
+      for dt dp in $timing; do
+        [[ $dt == <->(|.<->) ]] || return 'error()'
+        [[ $dp == <1->       ]] || return 'error()'
+        (( p += dp ))
+      done
+      (( p == $#out )) || return 'error()'
+    }
+
+    function timeat() {
+      [[ ARGC -eq 1 && $1 == <1-> ]] || return 'error()'
+      local -ir needle=$1
+      local -F t dt
+      local -i p dp
+      for dt dp in $timing; do
+        (( t += dt, p += dp ))
+        if (( p >= needle )); then
+          typeset -g REPLY=$((1e3 * t))
+          return 0
+        fi
+      done
+      return 1
+    }
+
+    function timeof() {
+      [[ ARGC -eq 1 && -n $1 ]] || return 'error()'
+      local -r pat=$1
+      local suf=${out#*${~pat}}
+      local -i pos=$(($#out - $#suf))
+      (( pos )) || return
+      timeat $pos
+    }
+
+    () {
+      local e=$'\e' a=$'\a'
+      local begin=$e'(\](0|1|2|7);|k)'
+      local end='('$e'\\|'$a')'
+      local mid='[^'$e$a']#'
+      local pat=${begin}${mid}${end}
+      local MATCH MBEGIN MEND
+      out=${(S)out//(#m)$~pat/${MATCH//?/X}}
+    }
+
+    local REPLY
+
+    if ! timeof $prompt_pat; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: cannot find prompt; make sure it contains hostname or the last part of the current directory"
+      return 1
+    fi
+    if (( ! $+first_prompt_lag_ms || REPLY < first_prompt_lag_ms )); then
+      local -F3 first_prompt_lag_ms=REPLY
+    fi
+
+    if timeof ${(b)git_branch}; then
+      typeset -i has_git_prompt=1
+    else
+      typeset -i has_git_prompt=${has_git_prompt-0}
+    fi
+
+    if ! timeof ${(b)${(Q)msg}}; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the output of the first command"
+      return 1
+    fi
+    if (( ! $+first_command_lag_ms || REPLY < first_command_lag_ms )); then
+      local -F3 first_command_lag_ms=REPLY
+    fi
+
+    if [[ ! -e $info_file ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the info file"
+      return 1
+    fi
+
+    local info
+    info=$(<$info_file)
+    command rm -- $info_file
+    info=(${(@Q)${(z)info}})
+    (( $#info == 7 )) || return 'error()'
+
+    if [[ $info[1] == (screen|tmux)* ]]; then
+      local -i creates_tty=${creates_tty-1}
+    else
+      local -i creates_tty=0
+    fi
+
+    [[ $info[2] == <0-1><0-1> ]] || return 'error()'
+    local -i has_compsys=$(( ${has_compsys-1} && info[2] == 11 ))
+
+    [[ $info[3] == <0-1> ]] || return 'error()'
+    local -i has_autosuggestions=$(( ${has_autosuggestions-1} && info[3] ))
+
+    [[ $info[4] == <0-1> ]] || return 'error()'
+    local -i has_syntax_highlighting=$(( ${has_syntax_highlighting-1} && info[4] ))
+
+    local -i i
+    for i in 5 6; do
+      [[ $info[i] == <->.<-> ]] || return 'error()'
+      if (( ! $+input_lag_ms || info[i] < input_lag_ms )); then
+        local -F3 input_lag_ms='info[i]'
+      fi
+    done
+
+    [[ $info[7] == <->.<-> ]] || return 'error()'
+    if (( ! $+command_lag_ms || info[7] < command_lag_ms )); then
+      local -F3 command_lag_ms='info[7]'
+    fi
+
+    local -F start=EPOCHREALTIME
+    command zsh -lic '"builtin" "exit"' </dev/null &>/dev/null || true
+    local -F took_ms='1e3 * (EPOCHREALTIME - start)'
+    if (( ! $+mystery_time_ms || took_ms < mystery_time_ms )); then
+      local -F3 mystery_time_ms=took_ms
+    fi
+  done
+
+  () {
+    local name
+    for name in $stats; do
+      [[ ! -v $name ]] || print -r -- "$name=${(q-)${(P)name}}"
+    done
+  }
+} always {
+  if [[ -n $tmpdir ]]; then
+    cd -q -- /
+    rm -rf -- $tmpdir
+  fi
+}
+
+} "$@"

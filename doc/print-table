@@ -1,0 +1,176 @@
+#!/usr/bin/env zsh
+
+'builtin' 'emulate' '-L' 'zsh' '-o' 'no_aliases' '-o' 'err_return' || 'builtin' 'exit'
+setopt no_unset extended_glob typeset_silent prompt_percent no_prompt_subst warn_create_global
+
+() {
+
+if [[ ${ZSH_VERSION-} != (5.<8->*|<6->.*) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: zsh >= 5.8 is required to execute this script"
+  return 1
+fi
+
+function usage() {
+  print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].."
+  print -r --
+  print -r -- 'OPTIONS'
+  print -r -- '  -h,--help'
+  print -r -- '  -f,--first-prompt-lag-ms <NUM> [default=50]'
+  print -r -- '  -c,--first-command-lag-ms <NUM> [default=150]'
+  print -r -- '  -p,--command-lag-ms <NUM> [default=10]'
+  print -r -- '  -i,--input-lag-ms <NUM> [default=20]'
+}
+
+zmodload zsh/zutil
+
+local -a help
+local -a first_prompt_lag_ms=(_ 50)
+local -a first_command_lag_ms=(_ 150)
+local -a command_lag_ms=(_ 10)
+local -a input_lag_ms=(_ 20)
+zparseopts -D -K -F --                            \
+  {h,-help}=help                                  \
+  {f,-first-prompt-lag-ms}:=first_prompt_lag_ms   \
+  {c,-first-command-lag-ms}:=first_command_lag_ms \
+  {p,-command-lag-ms}:=command_lag_ms             \
+  {i,-input-lag-ms}:=input_lag_ms                 \
+
+if (( ARGC )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: unexpected positional argument"
+  return 1
+fi
+
+if (( ! $#first_prompt_lag_ms )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required argument: --first-prompt-lag-ms"
+  return
+fi
+if (( ! $#first_command_lag_ms )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required argument: --first-command-lag-ms"
+  return
+fi
+if (( ! $#command_lag_ms )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required argument: --command-lag-ms"
+  return
+fi
+if (( ! $#input_lag_ms )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required argument: --input-lag-ms"
+  return
+fi
+
+() {
+  local _ x
+  for _ x in "${(@)first_prompt_lag_ms}"  \
+             "${(@)first_command_lag_ms}" \
+             "${(@)command_lag_ms}"       \
+             "${(@)input_lag_ms}"; do
+    if [[ $x != <->(|.<->) || x -le 0 ]] || ; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: not a positive real number: ${(q-)x}"
+      return 1
+    fi
+  done
+}
+
+function error() {
+  local -i ret=$?
+  print -Pru2 -- '%F{2}'${${ZSH_SCRIPT:t}//\%/%%}'%f: %F{1}fatal error%f'
+  print -Pru2 -- '%F{3}--- stack trace (most recent call first) ---%f'
+  print -lru2 -- "${funcfiletrace[@]}"
+  print -Pru2 -- '%F{3}--- end of stack trace ---%f'
+  return $(( ret ? ret : 1 ))
+}
+functions -Ms error
+
+local -A columns=(
+  creates_tty '2 bool "tmux"'
+  has_compsys '3 bool "compsys"'
+  has_syntax_highlighting '4 bool "syntax highlight"'
+  has_autosuggestions '5 bool "auto suggest"'
+  has_git_prompt '6 bool "git prompt"'
+  first_prompt_lag_ms '7 time "first prompt lag"'
+  first_command_lag_ms '8 time "first cmd lag"'
+  command_lag_ms '9 time "cmd lag"'
+  input_lag_ms '10 time "input lag"'
+)
+
+() {
+  local row=('config')
+  local spec
+  for spec in $columns; do
+    local c=(${(z)spec})
+    row[c[1]]=${(Q)c[3]}
+  done
+  print -rn -- "| ${(j: | :)row} |"
+  print
+
+  print -rn -- '|-|'
+  repeat $#columns print -rn -- '-:|'
+  print
+}
+
+local line
+local -a row
+
+function flush() {
+  if (( $#row == 0 )); then
+    return
+  elif (( $#row <= $#columns )); then
+    row[$#columns+1]=
+  elif (( $#row != $#columns + 1 )); then
+    return 'error()'
+  fi
+  print -r -- "| ${(j: | :)row} |"
+  row=()
+}
+
+function process-line() {
+  line=${line%%[[:space:]]#\#*}
+  [[ -z $line ]] && return
+  local -a match mbegin mend
+  if [[ $line == (#b)'==> benchmarking '(?*)' ...' ]]; then
+    flush
+    row[1]="[$match](https://github.com/romkatv/zsh-bench/tree/master/configs/${match//+/%2B})"
+    return
+  fi
+  [[ $line == (#b)(*)=(*) ]] || return 'error()'
+  local name=$match[1]
+  local val=$match[2]
+  [[ $name == mystery_time_ms ]] && return
+  local c=(${(z)columns[$name]})
+  case $c[2] in
+    bool)
+      case $val in
+        0) val='❌';;
+        1) val='✔️';;
+        *) return 'error()'
+      esac
+    ;;
+    time)
+      [[ $val == <->(|.<->) && val -ge 0 ]] || return 'error()'
+      printf -v val -- '%d' $((100. * val / ${name}[2] + 0.5))
+      if (( val <= 50 )); then
+        val="$val%<br>🟢"
+      elif (( val <= 100 )); then
+        val="$val%<br>🟡"
+      elif (( val <= 200 )); then
+        val="$val%<br>🟠"
+      else
+        val="$val%<br>🔴"
+      fi
+    ;;
+    *)
+      return 'error()'
+    ;;
+  esac
+  [[ -z ${row[c[1]]-} ]] || return 'error()'
+  row[c[1]]=$val
+}
+
+while IFS= read -r line; do
+  process-line
+  line=
+done
+
+process-line
+flush
+
+} "$@"

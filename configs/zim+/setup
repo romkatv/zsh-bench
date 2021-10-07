@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+
+cp -r -- ./skel/*(D) ~/
+
+git clone -q --depth=1 https://github.com/zimfw/install.git ~/install
+git clone -q --depth=1 https://github.com/zimfw/zimfw.git ~/.zim
+
+() {
+  local rc
+  for rc in zshenv zshrc zlogin; do
+    <~/install/src/templates/$rc >>~/.$rc
+  done
+}
+
+rm -rf -- ~/install
+zsh ~/.zim/zimfw.zsh install >/dev/null
