@@ -109,20 +109,20 @@ Shell capabilities (0 or 1):
 
 | name | meaning |
 |------------|---------|
-| **creates_tty** | the shell creates its own TTY by invoking `tmux` or `screen` |
-| **has_compsys** | the shell initializes `compsys`—the "new" completion system—by invoking `compinit` |
-| **has_syntax_highlighting** | user input (the command line) is highlighted by [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) |
-| **has_autosuggestions** | suggestions for command completions are offered automatically by [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) |
+| **creates tty** | the shell creates its own TTY by invoking `tmux` or `screen` |
+| **has compsys** | the shell initializes `compsys`—the "new" completion system—by invoking `compinit` |
+| **has syntax highlighting** | user input (the command line) is highlighted by [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) |
+| **has autosuggestions** | suggestions for command completions are offered automatically by [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) |
 
 Latencies (in milliseconds):
 
 | name | what time it measures | if too high |
 |------|-----------------------|-------------|
-| **first_prompt_lag_ms** | from the start of the shell to the moment prompt appears on the screen | you get to stare at an empty screen for some time whenever you open a terminal |
-| **first_command_lag_ms** | from the start of the shell to the moment the first interactive command starts executing | you get to wait for the output of `ls` if you type it really fast after opening a terminal |
-| **command_lag_ms** | from pressing <kbd>Enter</kbd> on an empty command line to the moment the next prompt appears; the same as [zsh-prompt-benchmark](https://github.com/romkatv/zsh-prompt-benchmark) (my project) | all commands appear to take longer to execute; the slowdown may happen after you press <kbd>Enter</kbd> and before the command starts executing, or before the command finishes executing and the next prompt appears |
-| **input_lag_ms** | from pressing a regular key to the moment the corresponding character appears on the command line; this test is perform when the current command line is already fairly long | keyboard input feels sluggish, as if you are working over an SSH connection with high latency |
-| **mystery_time_ms** | how long it takes to execute `zsh -lic "exit"`; this value is [meaningless](#how-not-to-benchmark) as far as measuring interactive shell latencies goes | there is no baseline value for this latency, so it cannot be "too high" |
+| **first prompt lag (ms)** | from the start of the shell to the moment prompt appears on the screen | you get to stare at an empty screen for some time whenever you open a terminal |
+| **first command lag (ms)** | from the start of the shell to the moment the first interactive command starts executing | you get to wait for the output of `ls` if you type it really fast after opening a terminal |
+| **command lag (ms)** | from pressing <kbd>Enter</kbd> on an empty command line to the moment the next prompt appears; the same as [zsh-prompt-benchmark](https://github.com/romkatv/zsh-prompt-benchmark) (my project) | all commands appear to take longer to execute; the slowdown may happen after you press <kbd>Enter</kbd> and before the command starts executing, or before the command finishes executing and the next prompt appears |
+| **input lag (ms)** | from pressing a regular key to the moment the corresponding character appears on the command line; this test is perform when the current command line is already fairly long | keyboard input feels sluggish, as if you are working over an SSH connection with high latency |
+| **mystery time (ms)** | how long it takes to execute `zsh -lic "exit"`; this value is [meaningless](#how-not-to-benchmark) as far as measuring interactive shell latencies goes | there is no baseline value for this latency, so it cannot be "too high" |
 
 ## How fast is fast
 
