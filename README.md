@@ -303,7 +303,7 @@ couldn't measure these latencies but didn't even have clear concepts for them.
 ### Do it yourself
 
 Let's leave premade configs alone for some time and try to build a zsh config from scratch. Given
-the availability of high-quality building boxes, this shouldn't be very difficult.
+the availability of high-quality building blocks, this shouldn't be very difficult.
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
@@ -391,8 +391,8 @@ If you put this code in `.zshrc`, you'll notice that `lll` doesn't work if `.zsh
 
 Another dangerous optimization is to invoke `compinit` with `-C`. If you do that and install a new
 tool using your favorite package manager, completions for this tool may not appear in zsh even after
-restart. You'll have to manually delete a cache file. It's not worth it to save a few milliseconds
-when starting zsh only to spend an hour later trying to figure out why completions don't work.
+restart. You'll have to manually delete a cache file. Saving a few milliseconds on zsh startup is
+not worth it if later you'll have to spend an hour trying to figure out why completions don't work.
 
 The last over-eager optimization is to print the first prompt before checking whether plugins
 need to be installed. The section on [Instant Prompt](#instant-prompt) explains why this is a bad
