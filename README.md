@@ -671,7 +671,7 @@ a variation thereof:
 time zsh -lic "exit"
 ```
 
-For the sake of completeness, `zsh-bench` also shows this number. This metric is shown as
+For the sake of completeness, `zsh-bench` also measures this. This metric is shown as
 *mystery_time_ms* in the raw output. Let's look at a couple of raw benchmark results that pertain to
 zsh startup speed.
 
