@@ -285,7 +285,7 @@ latter is my project. All configs were used unmodified.
 autosuggestions or git prompt. Users who need these features—most do—should enable them explicitly.
 
 **ohmyzsh** and **zim** by default use a theme with similar performance characteristics of
-**agnoster**, so they have high **command lag** in larger git repositories.
+**agnoster**, so they have high *command lag* in larger git repositories.
 
 **zim** has high latencies across the board. Some of it is fixable by swapping its default theme
 for a more efficient one. The remainder of surplus latency compared to other projects is caused by
@@ -311,7 +311,7 @@ the availability of high-quality building boxes, this shouldn't be very difficul
 | [diy+](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢| 54%<br>🟡| 25%<br>🟢| 66%<br>🟡|
 | [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢| 45%<br>🟢| 25%<br>🟢| 66%<br>🟡|
 
-**diy** is the simplest config that provides all capabilities. I've made it by concatanating configs
+**diy** is the simplest config that provides all capabilities. I've made it by concatenating configs
 of the [basic building blocks](#basics). Here's the whole `.zshrc`:
 
 ```zsh
