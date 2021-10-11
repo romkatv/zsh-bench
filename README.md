@@ -746,7 +746,8 @@ is no reason for you to care one way or another about this number.
 - From the "pure" plugin managers I've tested
   [zplug](https://github.com/romkatv/zsh-bench/blob/master/configs/zplug/skel/.zshrc) has the best
   API but it's also the slowest. The slowdown is small enough that it won't matter to most users.
-- Not all plugin managers can cleanly use [Instant Prompt](#instant-prompt).
+- Not all plugin managers can cleanly use [Instant Prompt](#instant-prompt) -- the closest thing to
+  a silver bullet in the battle for startup speed.
 - [zsh4humans](https://github.com/romkatv/zsh4humans) is faster than anything else with comparable
   features. It beats
   [diy++](https://github.com/romkatv/zsh-bench/blob/master/configs/diy%2B%2B/skel/.zshrc) on
