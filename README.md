@@ -553,7 +553,9 @@ is OK:
 # Let gpg know what our TTY is.
 export GPG_TTY=$TTY
 # Change cursor shape to "beam".
-print '\e[5 q' >$TTY
+print -n '\e[5 q' >$TTY
+# Display the current working directory in the terminal title.
+printf '\e]0;%s\a' ${(V)${(%):-%1~}} >$TTY
 ```
 
 ### Plugin managers
