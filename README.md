@@ -664,7 +664,7 @@ higher risk of breakage when updating plugins.
 
 Deferred initialization can reduce only *first cmd lag*. If done properly, it has have no effect on
 other latencies. Given that there are many configs to choose from that are below the threshold on
-*first cmd lag*, deferred initialization doesn't solve any real problems while adding quite a few on
+*first cmd lag*, deferred initialization doesn't solve any real problems while adding quite a few of
 its own.
 
 So much for deferred initialization. Cannot recommend.
@@ -695,16 +695,30 @@ you open a terminal, you'll be looking at an empty screen for 114ms. And if you 
 command immediately, it'll execute after 132ms. What exactly happens on the 27ms mark that counts
 as "startup"?
 
-Consider **ohmyzsh+** for comparison. With this config `zsh -lic "exit"` takes much longer
-but if you open a terminal you'll see prompt virtually instantly. The first command will also
-execute quite a bit sooner than in **zim**.
+Consider **ohmyzsh+** for comparison. With this config `zsh -lic "exit"` takes longer than with
+**zim** but zsh starts faster: when you open a terminal, prompt appears virtually instantly and
+the first command executes sooner.
 
-**zsh4humans** is at 5.6ms -- only twice as much as the baseline **no-rcs**. I'd be overjoyed if I
-could claim that **zsh4humans** initializes that fast but there is no meaningful definition of
-initialization for which this claim would be true.
+**zim** isn't the only plugin manager optimizing for `zsh -lic "exit"` and presenting it as a
+meaningful measure of performance. Many other plugin managers have been using this metric for lack
+of alternatives. The widely held belief that **zinit** is the fastest plugin manager is based
+on the timing of `zsh -lic "exit"`. Deferred initialization—pioneered by zinit turbo
+mode—[may not be very useful in practice](#deferred-initialization) but it's extremely effective on
+this metric. Unsurprisingly, **zinit** has been
+[optimized for it](https://github.com/zdharma/pm-perf-test).
+
+This doesn't mean developers have been engaging in conscious deception. It was easy to unknowingly
+fall for the trap. The timing of `zsh -lic "exit"` is very close to *first prompt lag* and
+*first command lag* in zsh configs from the older and simpler times. It *used to be* a proper
+measure of zsh startup performance. At some point these latencies have diverged, the benchmark lost
+its meaning, but the old habits remained.
+
+**zsh4humans** clocks at 5.6ms on `zsh -lic "exit"` -- only twice as much as the baseline
+**no-rcs**. I'd be overjoyed if I could claim that **zsh4humans** initializes that fast but there is
+no meaningful definition of initialization for which this claim would be true.
 
 The output of `time zsh -lic "exit"` tells you how long it takes to execute
-`zsh -lic "exit"` and nothing else. If you aren't in the habbit of running `zsh -lic "exit"`, there
+`zsh -lic "exit"` and nothing else. If you aren't in the habit of running `zsh -lic "exit"`, there
 is no reason for you to care one way or another about this number.
 
 ### Full benchmark data
