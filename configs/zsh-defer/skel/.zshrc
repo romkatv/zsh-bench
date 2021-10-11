@@ -40,5 +40,5 @@ source ~/zsh-defer/zsh-defer.plugin.zsh
 source ~/powerlevel10k/powerlevel10k.zsh-theme
 source ~/.p10k.zsh
 
-zsh-defer -a +zr source ~/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-zsh-defer -a +sr source ~/zsh-autosuggestions/zsh-autosuggestions.zsh
+zsh-defer -a +pr source ~/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+zsh-defer -a +ms source ~/zsh-autosuggestions/zsh-autosuggestions.zsh

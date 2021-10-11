@@ -24,4 +24,4 @@
 | [prezto+](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 22%<br>🟢 | 54%<br>🟡 | 36%<br>🟢 | 74%<br>🟡 |
 | [zim+](https://github.com/romkatv/zsh-bench/tree/master/configs/zim%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 42%<br>🟢 | 25%<br>🟢 | 72%<br>🟡 |
 | [zinit-turbo](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit-turbo) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 18%<br>🟢 | 40%<br>🟢 | 27%<br>🟢 | 66%<br>🟡 |
-| [zsh-defer](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-defer) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 18%<br>🟢 | 25%<br>🟢 | 27%<br>🟢 | 64%<br>🟡 |
+| [zsh-defer](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-defer) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 18%<br>🟢 | 25%<br>🟢 | 27%<br>🟢 | 66%<br>🟡 |
