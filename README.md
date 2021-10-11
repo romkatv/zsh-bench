@@ -707,7 +707,7 @@ this metric. Unsurprisingly, **zinit** has been
 [optimized for it](https://github.com/zdharma/pm-perf-test).
 
 This doesn't mean developers have been engaging in conscious deception. It was easy to unknowingly
-fall for the trap. The timing of `exit` is very close to *first prompt lag* and
+fall into the trap. The timing of `exit` is very close to *first prompt lag* and
 *first command lag* in zsh configs from the older and simpler times. It *used to be* a proper
 measure of zsh startup performance. At some point these latencies have diverged, the benchmark lost
 its meaning, but the old habits remained.
