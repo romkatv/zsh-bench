@@ -730,9 +730,7 @@ is no reason for you to care one way or another about this number.
 
 ### Conclusions
 
-- [powerlevel10k](#powerlevel10k) is a great tool for reducing *command lag* and making
-  *first prompt lag* small and independent from anything else that you might put in zsh startup
-  files.
+- [powerlevel10k](#powerlevel10k) is an effective tool for reducing startup and per-command lag.
 - [diy++](https://github.com/romkatv/zsh-bench/blob/master/configs/diy%2B%2B/skel/.zshrc) is a
   performant and relatively simple base for a self-bootstrapping zsh config if you want to build one
   from scratch.
@@ -741,15 +739,15 @@ is no reason for you to care one way or another about this number.
   performance unless they [cut corners](#cutting-corners). A fast plugin manager is one that doesn't
   slow things down much. The value provided by a plugin manager is convenience, not speed.
 - All plugin managers and frameworks have good performance when configured properly. This includes
-  [ohmyzsh](https://github.com/romkatv/zsh-bench/blob/master/configs/ohmyzsh%2B/skel/.zshrc), despite
-  a commonly held opinion that it's slow.
+  [ohmyzsh](https://github.com/romkatv/zsh-bench/blob/master/configs/ohmyzsh%2B/skel/.zshrc),
+  despite a commonly held opinion that it's slow.
 - From the "pure" plugin managers I've tested
   [zplug](https://github.com/romkatv/zsh-bench/blob/master/configs/zplug/skel/.zshrc) has the best
   API but it's also the slowest. The slowdown is small enough that it won't matter to most users.
 - Not all plugin managers can cleanly use [Instant Prompt](#instant-prompt) -- the closest thing to
   a silver bullet in the battle for startup speed.
 - [zsh4humans](https://github.com/romkatv/zsh4humans) is faster than anything else with comparable
-  features. It beats
+  features. It beats even
   [diy++](https://github.com/romkatv/zsh-bench/blob/master/configs/diy%2B%2B/skel/.zshrc) on
   benchmarks thanks to tight integration of core features which cannot be replaced with third party
   plugins.
