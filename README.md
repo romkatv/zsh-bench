@@ -100,7 +100,7 @@ first_prompt_lag_ms=14.331
 first_command_lag_ms=56.500
 command_lag_ms=2.518
 input_lag_ms=5.195
-mystery_time_ms=5.886
+exit_time_ms=5.886
 ```
 
 The first few fields list detected shell capabilities; the rest are measured latencies.
@@ -122,7 +122,7 @@ Latencies (in milliseconds):
 | **first command lag (ms)** | from the start of the shell to the moment the first interactive command starts executing | you get to wait for the output of `ls` if you type it really fast after opening a terminal |
 | **command lag (ms)** | from pressing <kbd>Enter</kbd> on an empty command line to the moment the next prompt appears; the same as [zsh-prompt-benchmark](https://github.com/romkatv/zsh-prompt-benchmark) (my project) | all commands appear to take longer to execute; the slowdown may happen after you press <kbd>Enter</kbd> and before the command starts executing, or before the command finishes executing and the next prompt appears |
 | **input lag (ms)** | from pressing a regular key to the moment the corresponding character appears on the command line; this test is perform when the current command line is already fairly long | keyboard input feels sluggish, as if you are working over an SSH connection with high latency |
-| **mystery time (ms)** | how long it takes to execute `zsh -lic "exit"`; this value is [meaningless](#how-not-to-benchmark) as far as measuring interactive shell latencies goes | there is no baseline value for this latency, so it cannot be "too high" |
+| **exit time (ms)** | how long it takes to execute `zsh -lic "exit"`; this value is [meaningless](#how-not-to-benchmark) as far as measuring interactive shell latencies goes | there is no baseline value for this latency, so it cannot be "too high" |
 
 ## How fast is fast
 
@@ -679,42 +679,41 @@ time zsh -lic "exit"
 ```
 
 For the sake of completeness, `zsh-bench` also measures this. This metric is shown as
-*mystery_time_ms* in the raw output. Let's look at a couple of raw benchmark results that pertain to
+*exit_time_ms* in the raw output. Let's look at a couple of raw benchmark results that pertain to
 zsh startup speed.
 
-| config | first prompt lag (ms) | first command lag (ms) | mystery time (ms) |
+| config | first prompt lag (ms) | first command lag (ms) | exit time (ms) |
 |-|-:|-:|-:|
 | [zim](https://github.com/romkatv/zsh-bench/tree/master/configs/zim) | 114 | 132 | 27 |
 | [ohmyzsh+](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh%2B) | 9 | 88 | 40 |
 
-When using **zim**, `zsh -lic "exit"` finishes in just 27ms. That's fast! This shouldn't be
-surprising -- **zim** has been
-[optimized on this metric](
+When using **zim**, `exit` finishes in just 27ms. That's fast! This shouldn't be surprising --
+**zim** has been [optimized on this metric](
   https://github.com/zimfw/zimfw/wiki/Speed/a902e5597c9db37fb77716f0a4e0f9ad9220aca2). Yet, when
 you open a terminal, you'll be looking at an empty screen for 114ms. And if you type the first
 command immediately, it'll execute after 132ms. What exactly happens on the 27ms mark that counts
 as "startup"?
 
-Consider **ohmyzsh+** for comparison. With this config `zsh -lic "exit"` takes longer than with
-**zim** but zsh starts faster: when you open a terminal, prompt appears virtually instantly and
+Consider **ohmyzsh+** for comparison. With this config `exit` takes longer than with **zim** but zsh
+starts faster: when you open a terminal, prompt appears virtually instantly and
 the first command executes sooner.
 
-**zim** isn't the only plugin manager optimizing for `zsh -lic "exit"` and presenting it as a
+**zim** isn't the only plugin manager optimizing for `exit` and presenting it as a
 meaningful measure of performance. Many other plugin managers have been using this metric for lack
 of alternatives. The widely held belief that **zinit** is the fastest plugin manager is based
-on the timing of `zsh -lic "exit"`. Deferred initialization—pioneered by zinit turbo
+on the timing of `exit`. Deferred initialization—pioneered by zinit turbo
 mode—[may not be very useful in practice](#deferred-initialization) but it's extremely effective on
 this metric. Unsurprisingly, **zinit** has been
 [optimized for it](https://github.com/zdharma/pm-perf-test).
 
 This doesn't mean developers have been engaging in conscious deception. It was easy to unknowingly
-fall for the trap. The timing of `zsh -lic "exit"` is very close to *first prompt lag* and
+fall for the trap. The timing of `exit` is very close to *first prompt lag* and
 *first command lag* in zsh configs from the older and simpler times. It *used to be* a proper
 measure of zsh startup performance. At some point these latencies have diverged, the benchmark lost
 its meaning, but the old habits remained.
 
-**zsh4humans** clocks at 5.6ms on `zsh -lic "exit"` -- only twice as much as the baseline
-**no-rcs**. I'd be overjoyed if I could claim that **zsh4humans** initializes that fast but there is
+**zsh4humans** clocks at 5.6ms on `exit` -- only twice as much as the baseline **no-rcs**. I'd be
+overjoyed if I could claim that **zsh4humans** initializes that fast but there is
 no meaningful definition of initialization for which this claim would be true.
 
 The output of `time zsh -lic "exit"` tells you how long it takes to execute

@@ -62,7 +62,7 @@ local -r stats=(
   first_command_lag_ms
   command_lag_ms
   input_lag_ms
-  mystery_time_ms)
+  exit_time_ms)
 
 local -- $stats
 unset -- $stats
@@ -341,8 +341,8 @@ local tmpdir
     local -F start=EPOCHREALTIME
     command zsh -lic '"builtin" "exit"' </dev/null &>/dev/null || true
     local -F took_ms='1e3 * (EPOCHREALTIME - start)'
-    if (( ! $+mystery_time_ms || took_ms < mystery_time_ms )); then
-      local -F3 mystery_time_ms=took_ms
+    if (( ! $+exit_time_ms || took_ms < exit_time_ms )); then
+      local -F3 exit_time_ms=took_ms
     fi
   done
 

@@ -134,7 +134,7 @@ function process-line() {
   [[ $line == (#b)(*)=(*) ]] || return 'error()'
   local name=$match[1]
   local val=$match[2]
-  [[ $name == mystery_time_ms ]] && return
+  [[ $name == exit_time_ms ]] && return
   local c=(${(z)columns[$name]})
   case $c[2] in
     bool)

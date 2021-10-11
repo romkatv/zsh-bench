@@ -8,7 +8,7 @@ first_prompt_lag_ms=1.249
 first_command_lag_ms=1.464
 command_lag_ms=0.088
 input_lag_ms=0.114
-mystery_time_ms=1.911
+exit_time_ms=1.911
 ==> benchmarking tmux ...
 creates_tty=1
 has_compsys=0
@@ -19,7 +19,7 @@ first_prompt_lag_ms=8.473
 first_command_lag_ms=8.716
 command_lag_ms=0.083
 input_lag_ms=0.126
-mystery_time_ms=1.943
+exit_time_ms=1.943
 ==> benchmarking compsys ...
 creates_tty=0
 has_compsys=1
@@ -30,7 +30,7 @@ first_prompt_lag_ms=18.481
 first_command_lag_ms=18.638
 command_lag_ms=0.088
 input_lag_ms=0.137
-mystery_time_ms=19.748
+exit_time_ms=19.748
 ==> benchmarking zsh-syntax-highlighting ...
 creates_tty=0
 has_compsys=0
@@ -41,7 +41,7 @@ first_prompt_lag_ms=0.622
 first_command_lag_ms=10.204
 command_lag_ms=0.558
 input_lag_ms=11.589
-mystery_time_ms=12.464
+exit_time_ms=12.464
 ==> benchmarking zsh-autosuggestions ...
 creates_tty=0
 has_compsys=0
@@ -52,7 +52,7 @@ first_prompt_lag_ms=16.244
 first_command_lag_ms=19.849
 command_lag_ms=9.860
 input_lag_ms=0.930
-mystery_time_ms=3.759
+exit_time_ms=3.759
 ==> benchmarking git-branch ...
 creates_tty=0
 has_compsys=0
@@ -63,7 +63,7 @@ first_prompt_lag_ms=13.236
 first_command_lag_ms=13.409
 command_lag_ms=4.710
 input_lag_ms=0.147
-mystery_time_ms=1.379
+exit_time_ms=1.379
 ==> benchmarking agnoster ...
 creates_tty=0
 has_compsys=0
@@ -74,7 +74,7 @@ first_prompt_lag_ms=29.104
 first_command_lag_ms=29.320
 command_lag_ms=21.941
 input_lag_ms=0.137
-mystery_time_ms=2.331
+exit_time_ms=2.331
 ==> benchmarking powerlevel10k ...
 creates_tty=0
 has_compsys=0
@@ -85,7 +85,7 @@ first_prompt_lag_ms=1.774
 first_command_lag_ms=19.944
 command_lag_ms=1.913
 input_lag_ms=0.181
-mystery_time_ms=6.910
+exit_time_ms=6.910
 ==> benchmarking powerlevel10k-full ...
 creates_tty=0
 has_compsys=0
@@ -96,7 +96,7 @@ first_prompt_lag_ms=3.641
 first_command_lag_ms=39.979
 command_lag_ms=6.747
 input_lag_ms=1.453
-mystery_time_ms=10.837
+exit_time_ms=10.837
 ==> benchmarking prezto ...
 creates_tty=0
 has_compsys=1
@@ -107,7 +107,7 @@ first_prompt_lag_ms=48.976
 first_command_lag_ms=52.577
 command_lag_ms=1.349
 input_lag_ms=0.229
-mystery_time_ms=48.615
+exit_time_ms=48.615
 ==> benchmarking ohmyzsh ...
 creates_tty=0
 has_compsys=1
@@ -118,7 +118,7 @@ first_prompt_lag_ms=142.331
 first_command_lag_ms=144.908
 command_lag_ms=83.569
 input_lag_ms=0.191
-mystery_time_ms=59.792
+exit_time_ms=59.792
 ==> benchmarking zim ...
 creates_tty=0
 has_compsys=1
@@ -129,7 +129,7 @@ first_prompt_lag_ms=113.860
 first_command_lag_ms=131.641
 command_lag_ms=85.783
 input_lag_ms=13.531
-mystery_time_ms=26.736
+exit_time_ms=26.736
 ==> benchmarking zsh4humans ...
 creates_tty=1
 has_compsys=1
@@ -140,7 +140,7 @@ first_prompt_lag_ms=14.331
 first_command_lag_ms=56.500
 command_lag_ms=2.518
 input_lag_ms=5.195
-mystery_time_ms=5.886
+exit_time_ms=5.886
 ==> benchmarking diy ...
 creates_tty=1
 has_compsys=1
@@ -151,7 +151,7 @@ first_prompt_lag_ms=61.882
 first_command_lag_ms=73.352
 command_lag_ms=15.606
 input_lag_ms=12.684
-mystery_time_ms=31.604
+exit_time_ms=31.604
 ==> benchmarking diy+ ...
 creates_tty=1
 has_compsys=1
@@ -162,7 +162,7 @@ first_prompt_lag_ms=9.015
 first_command_lag_ms=81.534
 command_lag_ms=2.491
 input_lag_ms=13.263
-mystery_time_ms=35.804
+exit_time_ms=35.804
 ==> benchmarking diy++ ...
 creates_tty=1
 has_compsys=1
@@ -173,7 +173,7 @@ first_prompt_lag_ms=8.973
 first_command_lag_ms=67.786
 command_lag_ms=2.502
 input_lag_ms=13.158
-mystery_time_ms=22.127
+exit_time_ms=22.127
 ==> benchmarking diy++unsafe ...
 creates_tty=1
 has_compsys=1
@@ -184,7 +184,7 @@ first_prompt_lag_ms=8.810
 first_command_lag_ms=59.356
 command_lag_ms=2.498
 input_lag_ms=13.133
-mystery_time_ms=14.150
+exit_time_ms=14.150
 ==> benchmarking zcomet ...
 creates_tty=1
 has_compsys=1
@@ -195,7 +195,7 @@ first_prompt_lag_ms=8.881
 first_command_lag_ms=61.249
 command_lag_ms=2.533
 input_lag_ms=13.452
-mystery_time_ms=15.581
+exit_time_ms=15.581
 ==> benchmarking zinit ...
 creates_tty=1
 has_compsys=1
@@ -206,7 +206,7 @@ first_prompt_lag_ms=8.960
 first_command_lag_ms=119.971
 command_lag_ms=2.509
 input_lag_ms=13.802
-mystery_time_ms=72.766
+exit_time_ms=72.766
 ==> benchmarking zplug ...
 creates_tty=1
 has_compsys=1
@@ -217,7 +217,7 @@ first_prompt_lag_ms=54.204
 first_command_lag_ms=152.080
 command_lag_ms=2.514
 input_lag_ms=13.535
-mystery_time_ms=99.064
+exit_time_ms=99.064
 ==> benchmarking ohmyzsh+ ...
 creates_tty=1
 has_compsys=1
@@ -228,7 +228,7 @@ first_prompt_lag_ms=8.916
 first_command_lag_ms=88.321
 command_lag_ms=2.957
 input_lag_ms=13.369
-mystery_time_ms=40.472
+exit_time_ms=40.472
 ==> benchmarking prezto+ ...
 creates_tty=1
 has_compsys=1
@@ -239,7 +239,7 @@ first_prompt_lag_ms=10.869
 first_command_lag_ms=81.590
 command_lag_ms=3.591
 input_lag_ms=14.848
-mystery_time_ms=32.049
+exit_time_ms=32.049
 ==> benchmarking zim+ ...
 creates_tty=1
 has_compsys=1
@@ -250,7 +250,7 @@ first_prompt_lag_ms=8.955
 first_command_lag_ms=62.746
 command_lag_ms=2.492
 input_lag_ms=14.406
-mystery_time_ms=14.846
+exit_time_ms=14.846
 ==> benchmarking zinit-turbo ...
 creates_tty=1
 has_compsys=1
@@ -261,7 +261,7 @@ first_prompt_lag_ms=8.969
 first_command_lag_ms=60.120
 command_lag_ms=2.724
 input_lag_ms=13.199
-mystery_time_ms=38.525
+exit_time_ms=38.525
 ==> benchmarking zsh-defer ...
 creates_tty=1
 has_compsys=1
@@ -272,4 +272,4 @@ first_prompt_lag_ms=8.817
 first_command_lag_ms=37.287
 command_lag_ms=2.719
 input_lag_ms=13.290
-mystery_time_ms=16.687
+exit_time_ms=16.687
