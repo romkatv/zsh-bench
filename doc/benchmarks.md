@@ -12,7 +12,7 @@
 | [prezto](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto) | ❌ | ✔️ | ❌ | ❌ | ❌ | 98%<br>🟡 | 35%<br>🟢 | 13%<br>🟢 | 1%<br>🟢 |
 | [ohmyzsh](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh) | ❌ | ✔️ | ❌ | ❌ | ✔️ | 285%<br>🔴 | 97%<br>🟡 | 836%<br>🔴 | 1%<br>🟢 |
 | [zim](https://github.com/romkatv/zsh-bench/tree/master/configs/zim) | ❌ | ✔️ | ✔️ | ✔️ | ✔️ | 228%<br>🔴 | 88%<br>🟡 | 858%<br>🔴 | 68%<br>🟡 |
-| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 29%<br>🟢 | 38%<br>🟢 | 25%<br>🟢 | 26%<br>🟢 |
+| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 29%<br>🟢 | 36%<br>🟢 | 25%<br>🟢 | 27%<br>🟢 |
 | [diy](https://github.com/romkatv/zsh-bench/tree/master/configs/diy) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 124%<br>🟠 | 49%<br>🟢 | 156%<br>🟠 | 63%<br>🟡 |
 | [diy+](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 54%<br>🟡 | 25%<br>🟢 | 66%<br>🟡 |
 | [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 45%<br>🟢 | 25%<br>🟢 | 66%<br>🟡 |

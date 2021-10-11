@@ -274,7 +274,7 @@ Let's see what some of the popular premade zsh configs offer out of the box.
 | [prezto](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto) | ❌ | ✔️ | ❌ | ❌ | ❌ | 98%<br>🟡| 35%<br>🟢| 13%<br>🟢| 1%<br>🟢|
 | [ohmyzsh](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh) | ❌ | ✔️ | ❌ | ❌ | ✔️ | 285%<br>🔴| 97%<br>🟡| 836%<br>🔴| 1%<br>🟢|
 | [zim](https://github.com/romkatv/zsh-bench/tree/master/configs/zim) | ❌ | ✔️ | ✔️ | ✔️ | ✔️ | 228%<br>🔴| 88%<br>🟡| 858%<br>🔴| 68%<br>🟡|
-| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 29%<br>🟢| 38%<br>🟢| 25%<br>🟢| 26%<br>🟢|
+| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 29%<br>🟢| 36%<br>🟢| 25%<br>🟢| 27%<br>🟢|
 
 The names of these configs match the respective public projects from which they were copied:
 [ohmyzsh](https://github.com/ohmyzsh/ohmyzsh), [prezto](https://github.com/sorin-ionescu/prezto),
@@ -574,7 +574,7 @@ benchmarked several plugin managers and frameworks. All configs here have all co
 | [ohmyzsh+](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢| 59%<br>🟡| 30%<br>🟢| 67%<br>🟡|
 | [prezto+](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 22%<br>🟢| 54%<br>🟡| 36%<br>🟢| 74%<br>🟡|
 | [zim+](https://github.com/romkatv/zsh-bench/tree/master/configs/zim%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢| 42%<br>🟢| 25%<br>🟢| 72%<br>🟡|
-| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 29%<br>🟢| 38%<br>🟢| 25%<br>🟢| 26%<br>🟢|
+| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 29%<br>🟢| 36%<br>🟢| 25%<br>🟢| 27%<br>🟢|
 
 **diy++** and **diy++unsafe** are listed here to serve as baseline for comparing latency.
 

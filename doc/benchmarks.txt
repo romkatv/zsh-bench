@@ -136,11 +136,11 @@ has_compsys=1
 has_syntax_highlighting=1
 has_autosuggestions=1
 has_git_prompt=1
-first_prompt_lag_ms=14.331
-first_command_lag_ms=56.500
-command_lag_ms=2.518
-input_lag_ms=5.195
-exit_time_ms=5.886
+first_prompt_lag_ms=14.326
+first_command_lag_ms=53.644
+command_lag_ms=2.507
+input_lag_ms=5.392
+exit_time_ms=5.883
 ==> benchmarking diy ...
 creates_tty=1
 has_compsys=1
