@@ -596,8 +596,9 @@ and [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/pow
 boxes. They cannot beat **diy++unsafe** on benchmarks.
 
 **zim+** and **zcomet** beat **diy++**—the safe version—on one metric. Both **zim** and **zcomet**
-rely on [unsafe optimizations](#cutting-corners) to gain this advantage. This is not a good choice
-in my opinion. The small speedup isn't worth it.
+rely on [unsafe optimizations](#cutting-corners) to gain this advantage: they compile user rc files
+and invoke `compinit` with `-C`. This is not a good choice in my opinion. The small speedup isn't
+worth it.
 
 All configs have very low *first prompt lag* thanks to powerlevel10k. The only exception is
 **zplug**. **zplug** provides a nice API that plays well with [Instant Prompt](#instant-prompt). It
