@@ -79,7 +79,7 @@ unset -- $stats
 
 () {
   local script_version
-  if ! script_version=$(script -V 2>/dev/null) ||
+  if ! script_version=$(LC_ALL=C script -V 2>/dev/null) ||
      [[ $script_version != 'script from util-linux'* ]]; then
     print -ru2 -- "${ZSH_SCRIPT:t}: utility 'script' from util-linux is required"
     return 1
