@@ -22,6 +22,7 @@ Benchmark for interactive zsh.
   - [Full benchmark data](#full-benchmark-data)
   - [Conclusions](#conclusions)
 - [License](#license)
+- [FAQ](#faq)
 
 ## Summary
 
@@ -759,3 +760,11 @@ is no reason for you to care one way or another about this number.
 ## License
 
 [MIT](https://github.com/romkatv/zsh-bench/blob/master/LICENSE).
+
+## FAQ
+
+### Why is it important to benchmark my shell? Is it for enthusiasts?
+
+It's not important to benchmark your shell. It is important for *me* to benchmark zsh plugins and
+configs that I publish so that users of my code have fast shell. Shell users—or anyone for that
+matter—prefer fast software over slow whether they are enthusiasts or not.
