@@ -274,7 +274,7 @@ Let's see what some of the popular premade zsh configs offer out of the box.
 | [prezto](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto) | ❌ | ✔️ | ❌ | ❌ | ❌ | 98%<br>🟡 | 35%<br>🟢 | 13%<br>🟢 | 1%<br>🟢 |
 | [ohmyzsh](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh) | ❌ | ✔️ | ❌ | ❌ | ✔️ | 285%<br>🔴 | 97%<br>🟡 | 836%<br>🔴 | 1%<br>🟢 |
 | [zim](https://github.com/romkatv/zsh-bench/tree/master/configs/zim) | ❌ | ✔️ | ✔️ | ✔️ | ✔️ | 228%<br>🔴 | 88%<br>🟡 | 858%<br>🔴 | 68%<br>🟡 |
-| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 29%<br>🟢 | 36%<br>🟢 | 25%<br>🟢 | 27%<br>🟢 |
+| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 28%<br>🟢 | 35%<br>🟢 | 25%<br>🟢 | 26%<br>🟢 |
 
 The names of these configs match the respective public projects from which they were copied:
 [ohmyzsh](https://github.com/ohmyzsh/ohmyzsh), [prezto](https://github.com/sorin-ionescu/prezto),
@@ -574,7 +574,7 @@ benchmarked several plugin managers and frameworks. All configs here have all co
 | [ohmyzsh+](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 59%<br>🟡 | 30%<br>🟢 | 67%<br>🟡 |
 | [prezto+](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 22%<br>🟢 | 54%<br>🟡 | 36%<br>🟢 | 74%<br>🟡 |
 | [zim+](https://github.com/romkatv/zsh-bench/tree/master/configs/zim%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 42%<br>🟢 | 25%<br>🟢 | 72%<br>🟡 |
-| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 29%<br>🟢 | 36%<br>🟢 | 25%<br>🟢 | 27%<br>🟢 |
+| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 28%<br>🟢 | 35%<br>🟢 | 25%<br>🟢 | 26%<br>🟢 |
 
 **diy++** and **diy++unsafe** are listed here to serve as baseline for comparing latency.
 
@@ -615,9 +615,9 @@ implementing tight integration between the core shell features: prompt, syntax h
 and autosuggestions. You can enable *extra* plugins in **zsh4humans** but the core comes as a single
 unit.
 
-**zsh4humans** has *first prompt lag* 11% (5ms in absolute terms) higher than **diy++**. A lot of
+**zsh4humans** has *first prompt lag* 10% (5ms in absolute terms) higher than **diy++**. A lot of
 features are packed into that chunk of time but this isn't the place to describe them. The resulting
-*first prompt lag* is still just 29% of the threshold of perception, so I'm feeling pretty secure
+*first prompt lag* is still just 28% of the threshold of perception, so I'm feeling pretty secure
 that this latency won't be noticeable. Importantly, when users add extra initialization code to
 their zsh startup files, it doesn't increase *first prompt lag*. It increases only
 *first command lag*, which **zsh4humans** has at a lower value than other configs. Overall I'm
@@ -712,9 +712,9 @@ fall into the trap. The timing of `exit` is very close to *first prompt lag* and
 measure of zsh startup performance. At some point these latencies have diverged, the benchmark lost
 its meaning, but the old habits remained.
 
-**zsh4humans** clocks at 5.6ms on `exit` -- only twice as much as the baseline **no-rcs**. I'd be
-overjoyed if I could claim that **zsh4humans** initializes that fast but there is
-no meaningful definition of initialization for which this claim would be true.
+**zsh4humans** clocks at 5ms on `exit` -- only 3ms above the baseline **no-rcs**. I'd be overjoyed
+if I could claim that **zsh4humans** initializes that fast but there is no meaningful definition of
+initialization for which this claim would be true.
 
 The output of `time zsh -lic "exit"` tells you how long it takes to execute
 `zsh -lic "exit"` and nothing else. If you aren't in the habit of running `zsh -lic "exit"`, there
@@ -722,7 +722,7 @@ is no reason for you to care one way or another about this number.
 
 ### Full benchmark data
 
-- Date: 2021-10-10.
+- Date: 2021-10-13.
 - OS: Ubuntu 20.04.
 - CPU: AMD Ryzen Threadripper 3970x.
 - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.txt),
