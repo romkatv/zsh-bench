@@ -595,20 +595,19 @@ and [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/pow
 boxes. They cannot beat **diy++unsafe** on benchmarks.
 
 **zim+** and **zcomet** beat **diy++**—the safe version—on one metric. Both **zim** and **zcomet**
-rely on [unsafe optimizations](#cutting-corners) to gain this advantage: **zim** compiles user rc
-files and **zcomet** invokes `compinit` with `-C`. This is not a good choice in my opinion. The
-small speedup isn't worth it.
+rely on [unsafe optimizations](#cutting-corners) to gain this advantage. This is not a good choice
+in my opinion. The small speedup isn't worth it.
 
 All configs have very low *first prompt lag* thanks to powerlevel10k. The only exception is
 **zplug**. **zplug** provides a nice API that plays well with [Instant Prompt](#instant-prompt). It
 has one function to install plugins and another to load them. Installation of plugins can print
 status messages and perform network I/O, so it should be done before the first prompt is printed.
-Unfortunately, this function in **zplug** is rather slow, hence high *first prompt lag*. **zcomet**
-and **zinit** dodge this bullet by not providing this kind of API in the first place, so these
-configs are [cutting corners](#cutting-corners). It's not that **zinit** or **zcomet** are acting
-recklessly here but rather their limitations don't allow me to cleanly use *Instant Prompt*. When
-using these plugin managers you either have to give up *Instant Prompt* and have *first prompt lag*
-over the threshold or cut corners and get subpar UX.
+Unfortunately, this function in **zplug** is rather slow, hence high *first prompt lag*. **zcomet**,
+**zinit** and **zim** dodge this bullet by not providing this kind of API in the first place, so
+these configs are [cutting corners](#cutting-corners). It's not that **zcomet**, **zinit** or
+**zim** are acting recklessly here but rather their limitations don't allow me to cleanly use
+*Instant Prompt*. When using these plugin managers you either have to give up *Instant Prompt* and
+have *first prompt lag* over the threshold or cut corners and get subpar UX.
 
 **zsh4humans** has lower *first command lag* and *input lag* than anything else. It achieves this by
 implementing tight integration between the core shell features: prompt, syntax highlighting
