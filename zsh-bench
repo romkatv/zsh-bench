@@ -16,6 +16,26 @@ local NULLCMD=cat
 
 local -r self_dir=${ZSH_SCRIPT:A:h}
 
+zmodload zsh/zutil
+
+local -a help
+local -a iters=(_ 16)
+zparseopts -D -K -F -- {h,-help}=help {i,-iters}:=iters
+
+if (( $#help )); then
+  print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. [CONFIG].."
+  print -r --
+  print -r -- 'OPTIONS'
+  print -r -- '  -h,--help'
+  print -r -- '  -i,--iters <NUM> [default=16]'
+  return
+fi
+
+if [[ $iters[2] != <1-> ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: not a positive integer: ${(q-)iters[2]}"
+  return 1
+fi
+
 if (( ARGC )); then
   () {
     local cfg
@@ -42,7 +62,8 @@ if (( ARGC )); then
     return 1
   fi
 
-  local cmd='mkdir ~/zsh-bench && cd ~/zsh-bench && tar -xz && sh ./internal/benchmark-all.sh '${(@qqq)@}
+  local cmd='mkdir ~/zsh-bench && cd ~/zsh-bench && tar -xz && sh ./internal/benchmark-all.sh'
+  cmd+=' '${(@qqq)iters}' '${(@qqq)@}
   (
     cd -q -- ${self_dir}
     command tar -czf - -- ^.git
@@ -218,7 +239,7 @@ function script() {
   print -r -- ' "builtin" "exit" "0"'
 } | script ${(qqq)commands[zsh]}' "-li"'
 
-repeat 16; do
+repeat $iters[2]; do
   {
     local REPLY
     print -r  -- ' "builtin" "." '${(qqq)src}

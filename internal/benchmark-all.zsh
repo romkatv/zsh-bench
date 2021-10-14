@@ -9,9 +9,10 @@ setopt no_unset extended_glob typeset_silent no_multi_byte \
 local -r user=zsh-bench-user
 local -r root_dir=${ZSH_SCRIPT:h:h}
 
-if (( ! ARGC )); then
-  set -- $root_dir/configs/*(D:t)
-fi
+zmodload zsh/zutil
+
+local -a iters
+zparseopts -D -K -F -- {i,-iters}:=iters
 
 function cleanup() {
   userdel -rf $user 2>/dev/null || true
@@ -28,11 +29,11 @@ for cfg; do
     cp -r -- $root_dir /home/$user/zsh-bench
     chown -R $user:$user /home/$user/{zsh-bench,.terminfo}
     local cmd=(
-      'export LC_ALL='${(q)LC_ALL}
+      'export LC_ALL='${(qqq)LC_ALL}
       'cd -q -- ~/zsh-bench/configs/'$cfg
       './setup'
       'cd -q'
-      '~/zsh-bench/zsh-bench')
+      '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)iters}})
     print -r -- "==> benchmarking $cfg ..."
     sudo -u $user zsh -fc ${(j: && :)cmd}
   } always {
