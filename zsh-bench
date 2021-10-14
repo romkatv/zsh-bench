@@ -69,7 +69,7 @@ unset -- $stats
 
 () {
   local cmd
-  for cmd in cat cp git ln mkdir mkfifo mktemp script sleep touch zsh; do
+  for cmd in cat cp git ln mkdir mkfifo mktemp rm script sleep touch zsh; do
     if [[ ! -v commands[$cmd] ]]; then
       print -ru2 -- "${ZSH_SCRIPT:t}: command not found: ${(q-)cmd}"
       return 1
@@ -96,267 +96,284 @@ function error() {
 }
 functions -Ms error
 
-local tmpdir
-{
-  tmpdir=$(command mktemp -d ${TMPDIR:-/tmp}/zsh-bench-XXXXXXXXXX)
-  cd -q -- $tmpdir
+function cleanup() {
+  if [[ $1 != EXIT ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
+  fi
+  if [[ -n ${_zb_tmpdir-} ]]; then
+    local -i delay=1
+    cd -q -- /
+    repeat 5; do
+      command rm -rf -- $_zb_tmpdir 2>/dev/null || true
+      [[ -e $_zb_tmpdir ]] || break
+      (( delay *= 2 ))
+    done
+  fi
+  [[ $1 == EXIT ]] && exit
+  exit $((127 + ${signals[(Ie)$1]}))
+}
 
-  command mkdir bin
-  command ln -s -- $commands[zsh] bin/-zsh
+unset _zb_tmpdir
 
-  local -r zsh_version_file=$tmpdir/zsh_version
-  local -r info_file=$tmpdir/info
-  local -r fifo_file=$tmpdir/fifo
-  local -r out_file=$tmpdir/out
-  local -r timing_file=$tmpdir/timing
+local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
+for sig in $trapped; do
+  trap "trap - $trapped; cleanup $sig" $sig
+done
+unset sig trapped
 
-  local -r prefix=ZSB${(l:5::0:)RANDOM}-
-  local -r msg=${(qqq)prefix}${(qqq):-msg}
-  local -r cwd=${prefix}cwd
-  local -r host=${prefix}host
-  local -r git_branch=${prefix}branch
-  local -r src=./s
+typeset -g _zb_tmpdir=$(command mktemp -d ${TMPDIR:-/tmp}/zsh-bench-XXXXXXXXXX)
+cd -q -- $_zb_tmpdir
 
-  local -r prompt_pat="(${(b)cwd}|${(b)host})"
+command mkdir bin
+command ln -s -- $commands[zsh] bin/-zsh
 
-  command mkfifo -- $fifo_file
-  command mkdir -- $cwd
-  cd -q -- $cwd
-  print -rC1 -- {1..10}/{1..10}/{1..10}         | xargs mkdir -p --
-  print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
+local -r zsh_version_file=$_zb_tmpdir/zsh_version
+local -r info_file=$_zb_tmpdir/info
+local -r fifo_file=$_zb_tmpdir/fifo
+local -r out_file=$_zb_tmpdir/out
+local -r timing_file=$_zb_tmpdir/timing
 
-  () {
-    local -a info_bits=(
-        '"${(qqq)TERM-}"'
-        '"${+functions[compinit]}${+functions[compdef]}"'
-        '"${+_ZSH_AUTOSUGGEST_BIND_COUNTS}"'
-        '"${+ZSH_HIGHLIGHT_VERSION}"')
+local -r prefix=ZSB${(l:5::0:)RANDOM}-
+local -r msg=${(qqq)prefix}${(qqq):-msg}
+local -r cwd=${prefix}cwd
+local -r host=${prefix}host
+local -r git_branch=${prefix}branch
+local -r src=./s
 
-      print -r  -- '"builtin" "print" '$msg
-      print -r  -- '"builtin" "[" "$?" "-eq" "0" "]" || "builtin" "exit"'
-      print -rn -- '"builtin" "print" "-rn" "--" '$info_bits' >| '${(qqq)info_file}
-      print -rn -- ' && "builtin" "print" >| '${(qqq)fifo_file}
-      print -r  -- ' || "builtin" "exit"'
-  } >$src
+local -r prompt_pat="(${(b)cwd}|${(b)host})"
 
-  unset -m 'GIT_*|TMUX*' || true
+command mkfifo -- $fifo_file
+command mkdir -- $cwd
+cd -q -- $cwd
+print -rC1 -- {1..10}/{1..10}/{1..10}         | xargs mkdir -p --
+print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
 
-  () {
-    local -x GIT_CONFIG_NOSYSTEM=1 HOME=$tmpdir
-    local err=$tmpdir/git.log
-    {
-      command git init
-      command git config user.name "Your Name"
-      command git config user.email "you@example.com"
-      command git add .
-      command git commit --quiet --allow-empty --allow-empty-message --no-gpg-sign -m ''
-      command git checkout -b $git_branch
-    } >/dev/null 2>$err || {
-      <$err >&2
-      return 1
-    }
-  }
+() {
+  local -a info_bits=(
+      '"${(qqq)TERM-}"'
+      '"${+functions[compinit]}${+functions[compdef]}"'
+      '"${+_ZSH_AUTOSUGGEST_BIND_COUNTS}"'
+      '"${+ZSH_HIGHLIGHT_VERSION}"')
 
-  function script() {
-    HOST=${host} TERM=xterm-256color LINES=20 COLUMNS=80 \
-      command script -fqec "$@" /dev/null >/dev/null
-  }
+    print -r  -- '"builtin" "print" '$msg
+    print -r  -- '"builtin" "[" "$?" "-eq" "0" "]" || "builtin" "exit"'
+    print -rn -- '"builtin" "print" "-rn" "--" '$info_bits' >| '${(qqq)info_file}
+    print -rn -- ' && "builtin" "print" >| '${(qqq)fifo_file}
+    print -r  -- ' || "builtin" "exit"'
+} >$src
 
-  () {
-    local out
-    out=$(HOST=${host} TERM=xterm-256color LINES=20 COLUMNS=80 \
-            command zsh -lic '"builtin" "exit"' 2>&1 </dev/null || true)
-    if [[ $out == *${~prompt_pat}* ]]; then
-      print -ru2 -- "${ZSH_SCRIPT:t}: zsh is printing hostname or the last part of the current directory"
-      return 1
-    fi
-  }
+unset -m 'GIT_*|TMUX*' || true
 
-  () {
-    local cmd='"builtin" "printf" "%s\n" "${ZSH_VERSION-}" >'${(qqq)zsh_version_file}
-    script ${(qqq)commands[zsh]}' "-c" '${(qqq)cmd} </dev/null
-    if [[ ! -e $zsh_version_file ]]; then
-      print -ru2 -- "${ZSH_SCRIPT:t}: either 'script' or 'zsh' is broken"
-      return 1
-    fi
-
-    local zsh_version
-    zsh_version=$(<$zsh_version_file)
-    if [[ $zsh_version != (5.<8->*|<6->.*) ]]; then
-      print -ru2 -- "${ZSH_SCRIPT:t}: zsh >= 5.8 is required"
-      return 1
-    fi
-  }
-
+() {
+  local -x GIT_CONFIG_NOSYSTEM=1 HOME=$_zb_tmpdir
+  local err=$_zb_tmpdir/git.log
   {
-    print -r -- ' "builtin" ":" >| '${(qqq)fifo_file}' || "builtin" "exit"'
-    : <$fifo_file
-    command sleep 1
-    print -r -- ' "builtin" "exit" "0"'
-  } | script ${(qqq)commands[zsh]}' "-li"'
+    command git init
+    command git config user.name "Your Name"
+    command git config user.email "you@example.com"
+    command git add .
+    command git commit --quiet --allow-empty --allow-empty-message --no-gpg-sign -m ''
+    command git checkout -b $git_branch
+  } >/dev/null 2>$err || {
+    <$err >&2
+    return 1
+  }
+}
 
-  repeat 16; do
-    {
-      local REPLY
-      print -r  -- ' "builtin" "." '${(qqq)src}
-      IFS= read -r <$fifo_file
+function script() {
+  HOST=${host} TERM=xterm-256color LINES=20 COLUMNS=80 \
+    command script -fqec "$@" /dev/null >/dev/null
+}
 
-      local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
-      local input=' \abc'
-      repeat 5 input+=$input
-      print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
-      print -r  -- ' && '${(qqq)bench_input_file:t}' '${(qqq)info_file}' '${(qqq)fifo_file}' '${(qqq)input}' "2"'
-      repeat 2; do
-        print -rn -- $input[1,-2]
-        IFS= read -r <$fifo_file
-        print -rn -- $input[-1]
-        IFS= read -r <$fifo_file
-      done
+() {
+  local out
+  out=$(HOST=${host} TERM=xterm-256color LINES=20 COLUMNS=80 \
+          command zsh -lic '"builtin" "exit"' 2>&1 </dev/null || true)
+  if [[ $out == *${~prompt_pat}* ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: zsh is printing hostname or the last part of the current directory"
+    return 1
+  fi
+}
 
-      local -r bench_prompt_file=$self_dir/internal/-zb-benchmark-prompt
-      local -r bench_prompt_max_iters=1000
-      print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_prompt_file}
-      print -rn -- ' && '${(qqq)bench_prompt_file:t}' '${(qqq)info_file}' '${(qqq)bench_prompt_max_iters}
-      print -rn -- ' || "builtin" "exit"'
-      print -r  -- ${(pl:$bench_prompt_max_iters::\n:):-}
-    } | script "SHELL='-zsh' PATH=${(qqq):-"$tmpdir/bin:$PATH"} 'command' 'script' '-fqet'${(qqq)timing_file} ${(qqq)out_file}"
+() {
+  local cmd='"builtin" "printf" "%s\n" "${ZSH_VERSION-}" >'${(qqq)zsh_version_file}
+  script ${(qqq)commands[zsh]}' "-c" '${(qqq)cmd} </dev/null
+  if [[ ! -e $zsh_version_file ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: either 'script' or 'zsh' is broken"
+    return 1
+  fi
 
-    local -a timing
-    timing=($(<$timing_file))
-    (( $#timing % 2 == 0 )) || return 'error()'
+  local zsh_version
+  zsh_version=$(<$zsh_version_file)
+  if [[ $zsh_version != (5.<8->*|<6->.*) ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: zsh >= 5.8 is required"
+    return 1
+  fi
+}
 
-    local out
-    out=$(<$out_file)
-    [[ $out == *$'\n'*$'\n'* ]] || return 'error()'
-    out=${${out#*$'\n'}%$'\n'*}
+{
+  print -r -- ' "builtin" ":" >| '${(qqq)fifo_file}' || "builtin" "exit"'
+  : <$fifo_file
+  command sleep 1
+  print -r -- ' "builtin" "exit" "0"'
+} | script ${(qqq)commands[zsh]}' "-li"'
 
-    () {
-      local -i p
-      local dt dp
-      for dt dp in $timing; do
-        [[ $dt == <->(|.<->) ]] || return 'error()'
-        [[ $dp == <1->       ]] || return 'error()'
-        (( p += dp ))
-      done
-      (( p == $#out )) || return 'error()'
-    }
-
-    function timeat() {
-      [[ ARGC -eq 1 && $1 == <1-> ]] || return 'error()'
-      local -ir needle=$1
-      local -F t dt
-      local -i p dp
-      for dt dp in $timing; do
-        (( t += dt, p += dp ))
-        if (( p >= needle )); then
-          typeset -g REPLY=$((1e3 * t))
-          return 0
-        fi
-      done
-      return 1
-    }
-
-    function timeof() {
-      [[ ARGC -eq 1 && -n $1 ]] || return 'error()'
-      local -r pat=$1
-      local suf=${out#*${~pat}}
-      local -i pos=$(($#out - $#suf))
-      (( pos )) || return
-      timeat $pos
-    }
-
-    () {
-      local e=$'\e' a=$'\a'
-      local begin=$e'(\](0|1|2|7);|k)'
-      local end='('$e'\\|'$a')'
-      local mid='[^'$e$a']#'
-      local pat=${begin}${mid}${end}
-      local MATCH MBEGIN MEND
-      out=${(S)out//(#m)$~pat/${MATCH//?/X}}
-    }
-
+repeat 16; do
+  {
     local REPLY
+    print -r  -- ' "builtin" "." '${(qqq)src}
+    IFS= read -r <$fifo_file
 
-    if ! timeof $prompt_pat; then
-      print -ru2 -- "${ZSH_SCRIPT:t}: cannot find prompt; make sure it contains hostname or the last part of the current directory"
-      return 1
-    fi
-    if (( ! $+first_prompt_lag_ms || REPLY < first_prompt_lag_ms )); then
-      local -F3 first_prompt_lag_ms=REPLY
-    fi
-
-    if timeof ${(b)git_branch}; then
-      typeset -i has_git_prompt=1
-    else
-      typeset -i has_git_prompt=${has_git_prompt-0}
-    fi
-
-    if ! timeof ${(b)${(Q)msg}}; then
-      print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the output of the first command"
-      return 1
-    fi
-    if (( ! $+first_command_lag_ms || REPLY < first_command_lag_ms )); then
-      local -F3 first_command_lag_ms=REPLY
-    fi
-
-    if [[ ! -e $info_file ]]; then
-      print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the info file"
-      return 1
-    fi
-
-    local info
-    info=$(<$info_file)
-    command rm -- $info_file
-    info=(${(@Q)${(z)info}})
-    (( $#info == 7 )) || return 'error()'
-
-    if [[ $info[1] == (screen|tmux)* ]]; then
-      local -i creates_tty=${creates_tty-1}
-    else
-      local -i creates_tty=0
-    fi
-
-    [[ $info[2] == <0-1><0-1> ]] || return 'error()'
-    local -i has_compsys=$(( ${has_compsys-1} && info[2] == 11 ))
-
-    [[ $info[3] == <0-1> ]] || return 'error()'
-    local -i has_autosuggestions=$(( ${has_autosuggestions-1} && info[3] ))
-
-    [[ $info[4] == <0-1> ]] || return 'error()'
-    local -i has_syntax_highlighting=$(( ${has_syntax_highlighting-1} && info[4] ))
-
-    local -i i
-    for i in 5 6; do
-      [[ $info[i] == <->.<-> ]] || return 'error()'
-      if (( ! $+input_lag_ms || info[i] < input_lag_ms )); then
-        local -F3 input_lag_ms='info[i]'
-      fi
+    local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
+    local input=' \abc'
+    repeat 5 input+=$input
+    print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
+    print -r  -- ' && '${(qqq)bench_input_file:t}' '${(qqq)info_file}' '${(qqq)fifo_file}' '${(qqq)input}' "2"'
+    repeat 2; do
+      print -rn -- $input[1,-2]
+      IFS= read -r <$fifo_file
+      print -rn -- $input[-1]
+      IFS= read -r <$fifo_file
     done
 
-    [[ $info[7] == <->.<-> ]] || return 'error()'
-    if (( ! $+command_lag_ms || info[7] < command_lag_ms )); then
-      local -F3 command_lag_ms='info[7]'
-    fi
+    local -r bench_prompt_file=$self_dir/internal/-zb-benchmark-prompt
+    local -r bench_prompt_max_iters=1000
+    print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_prompt_file}
+    print -rn -- ' && '${(qqq)bench_prompt_file:t}' '${(qqq)info_file}' '${(qqq)bench_prompt_max_iters}
+    print -rn -- ' || "builtin" "exit"'
+    print -r  -- ${(pl:$bench_prompt_max_iters::\n:):-}
+  } | script "SHELL='-zsh' PATH=${(qqq):-"$_zb_tmpdir/bin:$PATH"} 'command' 'script' '-fqet'${(qqq)timing_file} ${(qqq)out_file}"
 
-    local -F start=EPOCHREALTIME
-    command zsh -lic '"builtin" "exit"' </dev/null &>/dev/null || true
-    local -F took_ms='1e3 * (EPOCHREALTIME - start)'
-    if (( ! $+exit_time_ms || took_ms < exit_time_ms )); then
-      local -F3 exit_time_ms=took_ms
+  local -a timing
+  timing=($(<$timing_file))
+  (( $#timing % 2 == 0 )) || return 'error()'
+
+  local out
+  out=$(<$out_file)
+  [[ $out == *$'\n'*$'\n'* ]] || return 'error()'
+  out=${${out#*$'\n'}%$'\n'*}
+
+  () {
+    local -i p
+    local dt dp
+    for dt dp in $timing; do
+      [[ $dt == <->(|.<->) ]] || return 'error()'
+      [[ $dp == <1->       ]] || return 'error()'
+      (( p += dp ))
+    done
+    (( p == $#out )) || return 'error()'
+  }
+
+  function timeat() {
+    [[ ARGC -eq 1 && $1 == <1-> ]] || return 'error()'
+    local -ir needle=$1
+    local -F t dt
+    local -i p dp
+    for dt dp in $timing; do
+      (( t += dt, p += dp ))
+      if (( p >= needle )); then
+        typeset -g REPLY=$((1e3 * t))
+        return 0
+      fi
+    done
+    return 1
+  }
+
+  function timeof() {
+    [[ ARGC -eq 1 && -n $1 ]] || return 'error()'
+    local -r pat=$1
+    local suf=${out#*${~pat}}
+    local -i pos=$(($#out - $#suf))
+    (( pos )) || return
+    timeat $pos
+  }
+
+  () {
+    local e=$'\e' a=$'\a'
+    local begin=$e'(\](0|1|2|7);|k)'
+    local end='('$e'\\|'$a')'
+    local mid='[^'$e$a']#'
+    local pat=${begin}${mid}${end}
+    local MATCH MBEGIN MEND
+    out=${(S)out//(#m)$~pat/${MATCH//?/X}}
+  }
+
+  local REPLY
+
+  if ! timeof $prompt_pat; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: cannot find prompt; make sure it contains hostname or the last part of the current directory"
+    return 1
+  fi
+  if (( ! $+first_prompt_lag_ms || REPLY < first_prompt_lag_ms )); then
+    local -F3 first_prompt_lag_ms=REPLY
+  fi
+
+  if timeof ${(b)git_branch}; then
+    typeset -i has_git_prompt=1
+  else
+    typeset -i has_git_prompt=${has_git_prompt-0}
+  fi
+
+  if ! timeof ${(b)${(Q)msg}}; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the output of the first command"
+    return 1
+  fi
+  if (( ! $+first_command_lag_ms || REPLY < first_command_lag_ms )); then
+    local -F3 first_command_lag_ms=REPLY
+  fi
+
+  if [[ ! -e $info_file ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the info file"
+    return 1
+  fi
+
+  local info
+  info=$(<$info_file)
+  command rm -- $info_file
+  info=(${(@Q)${(z)info}})
+  (( $#info == 7 )) || return 'error()'
+
+  if [[ $info[1] == (screen|tmux)* ]]; then
+    local -i creates_tty=${creates_tty-1}
+  else
+    local -i creates_tty=0
+  fi
+
+  [[ $info[2] == <0-1><0-1> ]] || return 'error()'
+  local -i has_compsys=$(( ${has_compsys-1} && info[2] == 11 ))
+
+  [[ $info[3] == <0-1> ]] || return 'error()'
+  local -i has_autosuggestions=$(( ${has_autosuggestions-1} && info[3] ))
+
+  [[ $info[4] == <0-1> ]] || return 'error()'
+  local -i has_syntax_highlighting=$(( ${has_syntax_highlighting-1} && info[4] ))
+
+  local -i i
+  for i in 5 6; do
+    [[ $info[i] == <->.<-> ]] || return 'error()'
+    if (( ! $+input_lag_ms || info[i] < input_lag_ms )); then
+      local -F3 input_lag_ms='info[i]'
     fi
   done
 
-  () {
-    local name
-    for name in $stats; do
-      [[ ! -v $name ]] || print -r -- "$name=${(q-)${(P)name}}"
-    done
-  }
-} always {
-  if [[ -n $tmpdir ]]; then
-    cd -q -- /
-    rm -rf -- $tmpdir
+  [[ $info[7] == <->.<-> ]] || return 'error()'
+  if (( ! $+command_lag_ms || info[7] < command_lag_ms )); then
+    local -F3 command_lag_ms='info[7]'
   fi
+
+  local -F start=EPOCHREALTIME
+  command zsh -lic '"builtin" "exit"' </dev/null &>/dev/null || true
+  local -F took_ms='1e3 * (EPOCHREALTIME - start)'
+  if (( ! $+exit_time_ms || took_ms < exit_time_ms )); then
+    local -F3 exit_time_ms=took_ms
+  fi
+done
+
+() {
+  local name
+  for name in $stats; do
+    [[ ! -v $name ]] || print -r -- "$name=${(q-)${(P)name}}"
+  done
 }
 
 } "$@"
