@@ -191,11 +191,11 @@ has_compsys=1
 has_syntax_highlighting=1
 has_autosuggestions=1
 has_git_prompt=1
-first_prompt_lag_ms=8.881
-first_command_lag_ms=61.249
-command_lag_ms=2.533
-input_lag_ms=13.452
-exit_time_ms=15.581
+first_prompt_lag_ms=8.924
+first_command_lag_ms=68.436
+command_lag_ms=2.494
+input_lag_ms=13.135
+exit_time_ms=23.501
 ==> benchmarking zinit ...
 creates_tty=1
 has_compsys=1

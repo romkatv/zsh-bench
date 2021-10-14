@@ -569,7 +569,7 @@ benchmarked several plugin managers and frameworks. All configs here have all co
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
 | [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 45%<br>🟢 | 25%<br>🟢 | 66%<br>🟡 |
 | [diy++unsafe](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bunsafe) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 40%<br>🟢 | 25%<br>🟢 | 66%<br>🟡 |
-| [zcomet](https://github.com/romkatv/zsh-bench/tree/master/configs/zcomet) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 41%<br>🟢 | 25%<br>🟢 | 67%<br>🟡 |
+| [zcomet](https://github.com/romkatv/zsh-bench/tree/master/configs/zcomet) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 46%<br>🟢 | 25%<br>🟢 | 66%<br>🟡 |
 | [zinit](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 80%<br>🟡 | 25%<br>🟢 | 69%<br>🟡 |
 | [zplug](https://github.com/romkatv/zsh-bench/tree/master/configs/zplug) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 108%<br>🟠 | 101%<br>🟠 | 25%<br>🟢 | 68%<br>🟡 |
 | [ohmyzsh+](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 18%<br>🟢 | 59%<br>🟡 | 30%<br>🟢 | 67%<br>🟡 |
@@ -595,9 +595,9 @@ All configs in this list except for **zsh4humans** treat [zsh-syntax-highlightin
 and [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) as black
 boxes. They cannot beat **diy++unsafe** on benchmarks.
 
-**zim+** and **zcomet** beat **diy++**—the safe version—on one metric. Both **zim** and **zcomet**
-rely on [unsafe optimizations](#cutting-corners) to gain this advantage: they compile user rc files
-and invoke `compinit` with `-C`. This is not a good choice in my opinion. The small speedup isn't
+**zim+** beats **diy++**—the safe version—on one metric. **zim** relies on
+[unsafe optimizations](#cutting-corners) to gain this advantage: it compiles user rc files and
+invokes `compinit` with `-C`. This is not a good choice in my opinion. The small speedup isn't
 worth it.
 
 All configs have very low *first prompt lag* thanks to powerlevel10k. The only exception is
@@ -723,7 +723,7 @@ is no reason for you to care one way or another about this number.
 
 ### Full benchmark data
 
-- Date: 2021-10-13.
+- Date: 2021-10-14.
 - OS: Ubuntu 20.04.
 - CPU: AMD Ryzen Threadripper 3970x.
 - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.txt),
