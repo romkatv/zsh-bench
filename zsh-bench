@@ -19,7 +19,7 @@ local -r self_dir=${ZSH_SCRIPT:A:h}
 zmodload zsh/zutil
 
 local -a help
-local -a iters=(_ 16)
+local -a iters=(--iters 16)
 zparseopts -D -K -F -- {h,-help}=help {i,-iters}:=iters
 
 if (( $#help )); then
