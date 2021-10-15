@@ -348,18 +348,19 @@ repeat $iters[2]; do
     local -F3 first_prompt_lag_ms=REPLY
   fi
 
-  if timeof ${(b)git_branch}; then
-    typeset -i has_git_prompt=1
-  else
-    typeset -i has_git_prompt=${has_git_prompt-0}
-  fi
-
   if ! timeof ${(b)${(Q)msg}}; then
     print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the output of the first command"
     return 1
   fi
   if (( ! $+first_command_lag_ms || REPLY < first_command_lag_ms )); then
     local -F3 first_command_lag_ms=REPLY
+  fi
+
+  local -F first_cmd=REPLY
+  if timeof ${(b)git_branch} && (( REPLY <= first_cmd )); then
+    typeset -i has_git_prompt=1
+  else
+    typeset -i has_git_prompt=${has_git_prompt-0}
   fi
 
   if [[ ! -e $info_file ]]; then
