@@ -114,7 +114,7 @@ Shell capabilities (0 or 1):
 | **has compsys** | the shell initializes `compsys`—the "new" completion system—by invoking `compinit` |
 | **has syntax highlighting** | user input (the command line) is highlighted by [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) |
 | **has autosuggestions** | suggestions for command completions are offered automatically by [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) |
-| **has git prompt** | current git branch is displayed in prompt |
+| **has git prompt** | git branch is displayed in prompt |
 
 Latencies (in milliseconds):
 
