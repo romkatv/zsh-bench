@@ -44,7 +44,8 @@ builtin zle -N -- zle-line-pre-redraw -zb-benchmark-input-zle-line-pre-redraw
         builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input-end
       builtin zle -- -zb-benchmark-input-orig-zle-line-pre-redraw "$@"
     }
-    builtin print >$_zb_benchmark_input_fifo_file
+    builtin : >>$_zb_benchmark_input_fifo_file
+    builtin : <$_zb_benchmark_input_fifo_file
   }
   command sleep 1
   builtin typeset -gF _zb_benchmark_input_start_time=EPOCHREALTIME
@@ -74,7 +75,8 @@ builtin zle -N -- zle-line-pre-redraw -zb-benchmark-input-zle-line-pre-redraw
     fi
   fi
 
-  builtin print >$_zb_benchmark_input_fifo_file
+  builtin : >>$_zb_benchmark_input_fifo_file
+  builtin : <$_zb_benchmark_input_fifo_file
 }
 
 -zb-benchmark-input-init

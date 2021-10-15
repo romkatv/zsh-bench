@@ -179,7 +179,8 @@ print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
     print -r  -- '"builtin" "print" '$msg
     print -r  -- '"builtin" "[" "$?" "-eq" "0" "]" || "builtin" "exit"'
     print -rn -- '"builtin" "print" "-rn" "--" '$info_bits' >| '${(qqq)info_file}
-    print -rn -- ' && "builtin" "print" >| '${(qqq)fifo_file}
+    print -rn -- ' && "builtin" ":" >>'${(qqq)fifo_file}
+    print -rn -- ' && "builtin" ":" <'${(qqq)fifo_file}
     print -r  -- ' || "builtin" "exit"'
 } >$src
 
@@ -233,17 +234,20 @@ function script() {
 }
 
 {
-  print -r -- ' "builtin" ":" >| '${(qqq)fifo_file}' || "builtin" "exit"'
+  print -rn -- ' "builtin" ":" >>'${(qqq)fifo_file}
+  print -rn -- ' && "builtin" ":" <'${(qqq)fifo_file}
+  print -r  -- ' || "builtin" "exit"'
   : <$fifo_file
+  : >>$fifo_file
   command sleep 1
   print -r -- ' "builtin" "exit" "0"'
 } | script ${(qqq)commands[zsh]}' "-li"'
 
 repeat $iters[2]; do
   {
-    local REPLY
     print -r  -- ' "builtin" "." '${(qqq)src}
-    IFS= read -r <$fifo_file
+    : <$fifo_file
+    : >>$fifo_file
 
     local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
     local input=' \abc'
@@ -252,9 +256,11 @@ repeat $iters[2]; do
     print -r  -- ' && '${(qqq)bench_input_file:t}' '${(qqq)info_file}' '${(qqq)fifo_file}' '${(qqq)input}' "2"'
     repeat 2; do
       print -rn -- $input[1,-2]
-      IFS= read -r <$fifo_file
+      : <$fifo_file
+      : >>$fifo_file
       print -rn -- $input[-1]
-      IFS= read -r <$fifo_file
+      : <$fifo_file
+      : >>$fifo_file
     done
 
     local -r bench_prompt_file=$self_dir/internal/-zb-benchmark-prompt
