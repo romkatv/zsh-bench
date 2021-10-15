@@ -202,14 +202,25 @@ unset -m 'GIT_*|TMUX*' || true
   }
 }
 
+if (( LINES )); then
+  local -ri lines=LINES
+else
+  local -ri lines=20
+fi
+if (( COLUMNS )); then
+  local -ri columns=COLUMNS
+else
+  local -ri columns=80
+fi
+
 function script() {
-  HOST=${host} TERM=xterm-256color LINES=20 COLUMNS=80 \
+  HOST=${host} TERM=xterm-256color LINES=$lines COLUMNS=$columns \
     command script -fqec "$@" /dev/null >/dev/null
 }
 
 () {
   local out
-  out=$(HOST=${host} TERM=xterm-256color LINES=20 COLUMNS=80 \
+  out=$(HOST=${host} TERM=xterm-256color LINES=$lines COLUMNS=$columns \
           command zsh -lic '"builtin" "exit"' 2>&1 </dev/null || true)
   if [[ $out == *${~prompt_pat}* ]]; then
     print -ru2 -- "${ZSH_SCRIPT:t}: zsh is printing hostname or the last part of the current directory"
