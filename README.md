@@ -265,8 +265,7 @@ It suffers from the same performance problem as agnoster plus some. Starship is 
 external binary, so it has to pay the price of *at least one* additional fork+exec on every command
 compared to native zsh prompts. One fork+exec cannot account for the high per-command lag starship
 exhibits, so what gives? Under the benchmark conditions starship
-[clones](https://man7.org/linux/man-pages/man2/clone.2.html) 159 times! That's 159 more than a fast
-native prompt would do, and it's obviously costly.
+[clones](https://man7.org/linux/man-pages/man2/clone.2.html) 159 times! That's costly.
 
 **powerlevel10k** config uses [powerlevel10k zsh theme](https://github.com/romkatv/powerlevel10k)
 that I've developed. It scans the git repo just like agnoster and starship but it does not invoke
