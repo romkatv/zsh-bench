@@ -97,6 +97,17 @@ first_command_lag_ms=39.979
 command_lag_ms=6.747
 input_lag_ms=1.453
 exit_time_ms=10.837
+==> benchmarking starship ...
+creates_tty=0
+has_compsys=0
+has_syntax_highlighting=0
+has_autosuggestions=0
+has_git_prompt=1
+first_prompt_lag_ms=94.444
+first_command_lag_ms=94.784
+command_lag_ms=94.069
+input_lag_ms=0.130
+exit_time_ms=3.210
 ==> benchmarking prezto ...
 creates_tty=0
 has_compsys=1

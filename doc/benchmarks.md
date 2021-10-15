@@ -9,6 +9,7 @@
 | [agnoster](https://github.com/romkatv/zsh-bench/tree/master/configs/agnoster) | ❌ | ❌ | ❌ | ❌ | ✔️ | 58%<br>🟡 | 20%<br>🟢 | 219%<br>🔴 | 1%<br>🟢 |
 | [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | ❌ | ❌ | ❌ | ❌ | ✔️ | 4%<br>🟢 | 13%<br>🟢 | 19%<br>🟢 | 1%<br>🟢 |
 | [powerlevel10k-full](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k-full) | ❌ | ❌ | ❌ | ❌ | ✔️ | 7%<br>🟢 | 27%<br>🟢 | 67%<br>🟡 | 7%<br>🟢 |
+| [starship](https://github.com/romkatv/zsh-bench/tree/master/configs/starship) | ❌ | ❌ | ❌ | ❌ | ✔️ | 189%<br>🟠 | 63%<br>🟡 | 941%<br>🔴 | 1%<br>🟢 |
 | [prezto](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto) | ❌ | ✔️ | ❌ | ❌ | ❌ | 98%<br>🟡 | 35%<br>🟢 | 13%<br>🟢 | 1%<br>🟢 |
 | [ohmyzsh](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh) | ❌ | ✔️ | ❌ | ❌ | ✔️ | 285%<br>🔴 | 97%<br>🟡 | 836%<br>🔴 | 1%<br>🟢 |
 | [zim](https://github.com/romkatv/zsh-bench/tree/master/configs/zim) | ❌ | ✔️ | ✔️ | ✔️ | ✔️ | 228%<br>🔴 | 88%<br>🟡 | 858%<br>🔴 | 68%<br>🟡 |
