@@ -14,7 +14,7 @@
     builtin typeset -gr  _zb_benchmark_input_buffer=$3
     builtin typeset -gi  _zb_benchmark_input_num_runs=$4
 
-    builtin zmodload zsh/datetime
+    builtin zmodload zsh/datetime zsh/zselect
     builtin typeset -gi _zb_benchmark_input_fd
     builtin exec {_zb_benchmark_input_fd} </dev/null
     builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input
@@ -37,7 +37,7 @@
 
 if ! -zb-benchmark-input-ready; then
   builtin typeset -gi _zb_benchmark_input_fd
-  builtin exec {_zb_benchmark_input_fd} < <(builtin command sleep 1) || builtin exit
+  builtin exec {_zb_benchmark_input_fd} < <(builtin zselect -t 100) || builtin exit
   builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input || builtin exit
   builtin return
 fi
@@ -67,25 +67,23 @@ builtin zle -N -- zle-line-pre-redraw -zb-benchmark-input-zle-line-pre-redraw
 }
 
 -zb-benchmark-input-start() {
-  () {
-    builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
+  builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
 
-    builtin zle -F $_zb_benchmark_input_fd
+  builtin zle -F $_zb_benchmark_input_fd
 
-    -zb-benchmark-input-zle-line-pre-redraw() {
-      builtin zle -- -zb-benchmark-input-orig-zle-line-pre-redraw "$@"
-      if (( ${#BUFFER} == ${#_zb_benchmark_input_buffer} )); then
-        -zb-benchmark-input-zle-line-pre-redraw() {
-          builtin zle -- -zb-benchmark-input-orig-zle-line-pre-redraw "$@"
-        }
-        builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input-end
-      fi
-    }
-
-    builtin : >>$_zb_benchmark_input_fifo_file
-    builtin : <$_zb_benchmark_input_fifo_file
+  -zb-benchmark-input-zle-line-pre-redraw() {
+    builtin zle -- -zb-benchmark-input-orig-zle-line-pre-redraw "$@"
+    if (( ${#BUFFER} == ${#_zb_benchmark_input_buffer} )); then
+      -zb-benchmark-input-zle-line-pre-redraw() {
+        builtin zle -- -zb-benchmark-input-orig-zle-line-pre-redraw "$@"
+      }
+      builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input-end
+    fi
   }
-  builtin command sleep 1
+
+  builtin : >>$_zb_benchmark_input_fifo_file
+  builtin : <$_zb_benchmark_input_fifo_file
+  builtin zselect -t 100 || builtin true
   builtin typeset -gF _zb_benchmark_input_start_time=EPOCHREALTIME
 }
 
