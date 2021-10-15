@@ -254,6 +254,8 @@ repeat $iters[2]; do
     repeat 5 input+=$input
     print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
     print -r  -- ' && '${(qqq)bench_input_file:t}' '${(qqq)info_file}' '${(qqq)fifo_file}' '${(qqq)input}' "2"'
+    : <$fifo_file
+    : >>$fifo_file
     repeat 2; do
       print -rn -- $input[1,-2]
       : <$fifo_file
