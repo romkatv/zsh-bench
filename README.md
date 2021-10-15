@@ -269,9 +269,9 @@ exhibits, so what gives? Under the benchmark conditions starship
 native prompt would do, and it's obviously costly.
 
 **powerlevel10k** config uses [powerlevel10k zsh theme](https://github.com/romkatv/powerlevel10k)
-that I've developed. It scans the git repo just like agnoster but it does not invoke `git` to do
-that. Instead, it uses [gitstatus](https://github.com/romkatv/gitstatus) -- another of my
-projects. This gives powerlevel10k a nice speedup on repositories large and small. In addition,
+that I've developed. It scans the git repo just like agnoster and starship but it does not invoke
+`git` to do that. Instead, it uses [gitstatus](https://github.com/romkatv/gitstatus) -- another of
+my projects. This gives powerlevel10k a nice speedup on repositories large and small. In addition,
 powerlevel10k doesn't block zsh prompt while gitstatus is scanning the repo, so *command lag* stays
 constant even in giant repositories. Powerlevel10k has a few other interesting performance-related
 properties that we'll [explore](#powerlevel10k) when we start building real zsh configs.
