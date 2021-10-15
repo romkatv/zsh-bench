@@ -233,7 +233,7 @@ function script() {
 }
 
 {
-  print -r -- ' "builtin" ":" >| '${(qqq)fifo_file}' || "builtin" "exit"'
+  print -r -- ' "builtin" ":" >| '${(qqq)fifo_file}' || "builtin" "exit"' &
   : <$fifo_file
   command sleep 1
   print -r -- ' "builtin" "exit" "0"'
@@ -242,7 +242,7 @@ function script() {
 repeat $iters[2]; do
   {
     local REPLY
-    print -r  -- ' "builtin" "." '${(qqq)src}
+    print -r  -- ' "builtin" "." '${(qqq)src} &
     IFS= read -r <$fifo_file
 
     local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
@@ -251,9 +251,9 @@ repeat $iters[2]; do
     print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
     print -r  -- ' && '${(qqq)bench_input_file:t}' '${(qqq)info_file}' '${(qqq)fifo_file}' '${(qqq)input}' "2"'
     repeat 2; do
-      print -rn -- $input[1,-2]
+      print -rn -- $input[1,-2] &
       IFS= read -r <$fifo_file
-      print -rn -- $input[-1]
+      print -rn -- $input[-1] &
       IFS= read -r <$fifo_file
     done
 
