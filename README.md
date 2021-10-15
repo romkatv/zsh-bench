@@ -243,6 +243,7 @@ I've benchmarked several different git prompts.
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
 | [git-branch](https://github.com/romkatv/zsh-bench/tree/master/configs/git-branch) | ❌ | ❌ | ❌ | ❌ | ✔️ | 26%<br>🟢 | 9%<br>🟢 | 47%<br>🟢 | 1%<br>🟢 |
 | [agnoster](https://github.com/romkatv/zsh-bench/tree/master/configs/agnoster) | ❌ | ❌ | ❌ | ❌ | ✔️ | 58%<br>🟡 | 20%<br>🟢 | 219%<br>🔴 | 1%<br>🟢 |
+| [starship](https://github.com/romkatv/zsh-bench/tree/master/configs/starship) | ❌ | ❌ | ❌ | ❌ | ✔️ | 189%<br>🟠 | 63%<br>🟡 | 941%<br>🔴 | 1%<br>🟢 |
 | [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | ❌ | ❌ | ❌ | ❌ | ✔️ | 4%<br>🟢 | 13%<br>🟢 | 19%<br>🟢 | 1%<br>🟢 |
 
 The git repo used by the benchmark has 1,000 directories and 10,000 files in it. Not too few,
@@ -258,6 +259,13 @@ if there are untracked files, unstaged changes, etc. We can see that this causes
 command pushing latency into the red. The lag is linear in the number of files and directories in
 the git repo. You wouldn't want to use this theme in a truly large git repo with hudreds of
 thousands or millions of files.
+
+**starship** config uses the cross-shell [starship prompt](https://github.com/starship/starship).
+It suffers from the same performance problem as agnoster plus some. Starship is implemented as an
+external binary, so it has to pay the price of *at least one* additional fork+exec on every command
+compared to native zsh prompts. One fork+exec cannot account for the high per-command lag starshp
+exhibits, so what gives? Under the benchmark conditions starship
+[clones](https://man7.org/linux/man-pages/man2/clone.2.html) 130 times! That's obviously costly.
 
 **powerlevel10k** config uses [powerlevel10k zsh theme](https://github.com/romkatv/powerlevel10k)
 that I've developed. It scans the git repo just like agnoster but it does not invoke `git` to do
