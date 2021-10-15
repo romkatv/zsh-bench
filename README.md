@@ -30,7 +30,7 @@ Benchmark for interactive zsh.
   can [use it to benchmark your own shell](#usage).
 - `human-bench` measures human perception of latency when using interactive zsh. You can use it to
   check how it feels to use zsh with specific latencies or to test whether you can tell a
-  difference between 5ms and 0ms *command lag*.
+  difference between 5ms and 0ms lag.
 - I've used `human-bench` to conduct a blind study on myself to find the maximum values of latencies
   that are indistinguishable from zero. For example, *command lag* below 10ms feels just like 0ms
   but anything above this value starts feeling sluggish.
