@@ -261,10 +261,10 @@ the git repo. You wouldn't want to use this theme in a truly large git repo with
 thousands or millions of files.
 
 **starship** config uses the cross-shell [starship prompt](https://github.com/starship/starship).
-It suffers from the same performance problem as agnoster plus some. Starship is implemented as an
+It suffers from the same performance problems as agnoster plus some. Starship is implemented as an
 external binary, so it has to pay the price of *at least one* additional fork+exec on every command
-compared to native zsh prompts. One fork+exec cannot account for the high per-command lag starship
-exhibits, so what gives? Under the benchmark conditions starship
+compared to native zsh prompts. One fork+exec cannot account for the high lag starship exhibits, so
+what gives? Under the benchmark conditions starship
 [clones](https://man7.org/linux/man-pages/man2/clone.2.html) 159 times! That's costly.
 
 **powerlevel10k** config uses [powerlevel10k zsh theme](https://github.com/romkatv/powerlevel10k)
