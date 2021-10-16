@@ -19,14 +19,16 @@ local -r self_dir=${ZSH_SCRIPT:A:h}
 zmodload zsh/zutil
 
 local -a help
+local -a keep
 local -a iters=(--iters 16)
-zparseopts -D -K -F -- {h,-help}=help {i,-iters}:=iters
+zparseopts -D -K -F -- {h,-help}=help {k,-keep}=keep {i,-iters}:=iters
 
 if (( $#help )); then
   print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. [CONFIG].."
   print -r --
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
+  print -r -- '  -k,--keep'
   print -r -- '  -i,--iters <NUM> [default=16]'
   return
 fi
@@ -37,6 +39,11 @@ if [[ $iters[2] != <1-> ]]; then
 fi
 
 if (( ARGC )); then
+  if (( $#keep )); then
+    print -ru2 -- "${ZSH_SCRIPT:t}: ${keep[1]} is incompatible with positional arguments"
+    return 1
+  fi
+
   () {
     local cfg
     for cfg; do
@@ -57,17 +64,21 @@ if (( ARGC )); then
     done
   }
 
-  if ! command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal bash -c true; then
+  if ! command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal sh -c true; then
     print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try sudo"
     return 1
   fi
 
-  local cmd='mkdir ~/zsh-bench && cd ~/zsh-bench && tar -xz && sh ./internal/benchmark-all.sh'
-  cmd+=' '${(@qqq)iters}' '${(@qqq)@}
+  local args=($iters -- $@)
+  local cmd=(
+    'mkdir ~/zsh-bench'
+    'cd ~/zsh-bench'
+    'tar -xz'
+    'exec sh ./internal/benchmark-all.sh '${(j: :)${(@qqq)args}})
   (
     cd -q -- ${self_dir}
     command tar -czf - -- ^.git
-  ) | command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal bash -c -- $cmd
+  ) | command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal sh -c -- ${(j: && :)cmd}
   return
 fi
 
@@ -117,30 +128,32 @@ function error() {
 }
 functions -Ms error
 
-function cleanup() {
-  if [[ $1 != EXIT ]]; then
-    print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
-  fi
-  if [[ -n ${_zb_tmpdir-} ]]; then
-    local -i delay=1
-    cd -q -- /
-    repeat 5; do
-      command rm -rf -- $_zb_tmpdir 2>/dev/null || true
-      [[ -e $_zb_tmpdir ]] || break
-      (( delay *= 2 ))
-    done
-  fi
-  [[ $1 == EXIT ]] && exit
-  exit $((127 + ${signals[(Ie)$1]}))
-}
-
 unset _zb_tmpdir
 
-local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
-for sig in $trapped; do
-  trap "trap - $trapped; cleanup $sig" $sig
-done
-unset sig trapped
+if (( ! $#keep )); then
+  function cleanup() {
+    if [[ $1 != EXIT ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
+    fi
+    if [[ -n ${_zb_tmpdir-} ]]; then
+      local -i delay=1
+      cd -q -- /
+      repeat 5; do
+        command rm -rf -- $_zb_tmpdir 2>/dev/null || true
+        [[ -e $_zb_tmpdir ]] || break
+        (( delay *= 2 ))
+      done
+    fi
+    [[ $1 == EXIT ]] && exit
+    exit $((127 + ${signals[(Ie)$1]}))
+  }
+
+  local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
+  for sig in $trapped; do
+    trap "trap - $trapped; cleanup $sig" $sig
+  done
+  unset sig trapped
+fi
 
 typeset -g _zb_tmpdir=$(command mktemp -d ${TMPDIR:-/tmp}/zsh-bench-XXXXXXXXXX)
 cd -q -- $_zb_tmpdir
