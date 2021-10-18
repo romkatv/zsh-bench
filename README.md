@@ -789,12 +789,8 @@ Similarly on [reddit](https://www.reddit.com/r/zsh/comments/q5e2du/ann_zshbench_
 
 #### zim
 
-From [a comment](
-  https://github.com/zimfw/zsh-framework-benchmark/pull/8#issuecomment-945197891)
-on [zimfw/zsh-framework-benchmark](https://github.com/zimfw/zsh-framework-benchmark) that uses
-`time zsh -lic "exit"` as a measure of zsh startup speed:
-
-> I just have very different goals, and Zim and its speed are not even that important to me. I'll be definitely adding a note about how this benchmark is flawed, removing the benchmark graph from our README.md soon, and maybe archiving this repo and removing its weekly build. I just want to enjoy life and have fun. And obsessing about milliseconds on how long it takes for my prompt to respond it's not my thing at all!
+This [comment](
+  https://github.com/zimfw/zsh-framework-benchmark/pull/8#issuecomment-945197891).
 
 ## License
 
