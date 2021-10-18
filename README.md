@@ -21,6 +21,7 @@ Benchmark for interactive zsh.
   - [How not to benchmark](#how-not-to-benchmark)
   - [Full benchmark data](#full-benchmark-data)
   - [Conclusions](#conclusions)
+  - [Responses](#responses)
 - [License](#license)
 - [FAQ](#faq)
 
@@ -766,6 +767,34 @@ is no reason for you to care one way or another about this number.
   [zsh-defer](https://github.com/romkatv/zsh-defer) is not worth it.
 - The output of `time zsh -lic "exit"` does not tell you anything about the performance of
   interactive zsh.
+
+### Responses
+
+This section lists public responses from the developers of analyzed projects.
+
+#### zcomet
+
+From [README.md](
+  https://github.com/agkozak/zcomet/blob/52f2eaa7e7c09fb32e31e10ce1d45cb719065be4/README.md#news):
+
+> - October 13, 2021
+>     + I have adopted [@romkatv](https://github.com/romkatv)'s [zsh-bench](https://github.com/romkatv/zsh-bench) benchmarks as a standard for measuring performance.
+>     + `zcomet` no longer `zcompiles` rc files, and the default behavior of `zcomet compinit` is merely to run `compinit` while specifying a sensibly named cache file (again, props to **@romkatv** for suggesting these changes).
+
+Similarly on [reddit](https://www.reddit.com/r/zsh/comments/q5e2du/ann_zshbench_benchmark_for_interactive_zsh/hgjnryv/):
+
+> I've taken your advice: `zcomet` no longer compiles rc files, and `zcomet compinit` is no longer `compinit -C` by default.
+>
+> Next I'll look into the issue of compatibility with your *Instant Prompt*.
+
+#### zim
+
+From [a comment](
+  https://github.com/zimfw/zsh-framework-benchmark/pull/8#issuecomment-945197891)
+on [zimfw/zsh-framework-benchmark](https://github.com/zimfw/zsh-framework-benchmark) that uses
+`time zsh -lic "exit"` as a measure of zsh startup speed:
+
+> I just have very different goals, and Zim and its speed are not even that important to me. I'll be definitely adding a note about how this benchmark is flawed, removing the benchmark graph from our README.md soon, and maybe archiving this repo and removing its weekly build. I just want to enjoy life and have fun. And obsessing about milliseconds on how long it takes for my prompt to respond it's not my thing at all!
 
 ## License
 
