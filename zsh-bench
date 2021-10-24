@@ -235,6 +235,7 @@ function script() {
   local out
   out=$(HOST=${host} TERM=xterm-256color LINES=$lines COLUMNS=$columns \
           command zsh -lic '"builtin" "exit"' 2>&1 </dev/null || true)
+  command sleep 1
   if [[ $out == *${~prompt_pat}* ]]; then
     print -ru2 -- "${ZSH_SCRIPT:t}: zsh is printing hostname or the last part of the current directory"
     return 1
@@ -418,6 +419,7 @@ repeat $iters[2]; do
   local -F start=EPOCHREALTIME
   command zsh -lic '"builtin" "exit"' </dev/null &>/dev/null || true
   local -F took_ms='1e3 * (EPOCHREALTIME - start)'
+  command sleep 1
   if (( ! $+exit_time_ms || took_ms < exit_time_ms )); then
     local -F3 exit_time_ms=took_ms
   fi
