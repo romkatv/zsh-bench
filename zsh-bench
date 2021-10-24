@@ -64,7 +64,11 @@ if (( ARGC )); then
     done
   }
 
-  if ! command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal sh -c true; then
+  function docker-run() {
+    command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal sh -c -- "$@"
+  }
+
+  if ! docker-run true; then
     print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try sudo"
     return 1
   fi
@@ -78,7 +82,7 @@ if (( ARGC )); then
   (
     cd -q -- ${self_dir}
     command tar -czf - -- ^.git
-  ) | command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal sh -c -- ${(j: && :)cmd}
+  ) | docker-run ${(j: && :)cmd}
   return
 fi
 
