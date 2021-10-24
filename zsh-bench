@@ -425,6 +425,8 @@ repeat $iters[2]; do
   if (( ! $+exit_time_ms || took_ms < exit_time_ms )); then
     local -F3 exit_time_ms=took_ms
   fi
+
+  command sleep 1
 done
 
 () {
