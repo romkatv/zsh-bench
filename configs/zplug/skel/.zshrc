@@ -17,9 +17,9 @@ fi
 
 # Install plugins.
 source ~/.zplug/init.zsh
-zplug zsh-users/zsh-syntax-highlighting
-zplug zsh-users/zsh-autosuggestions
-zplug romkatv/powerlevel10k, as:theme
+zplug zsh-users/zsh-syntax-highlighting, depth:1
+zplug zsh-users/zsh-autosuggestions, depth:1
+zplug romkatv/powerlevel10k, as:theme, depth:1
 zplug check || zplug install
 
 # Activate Powerlevel10k Instant Prompt.
