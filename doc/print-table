@@ -125,6 +125,8 @@ function flush() {
 function process-line() {
   line=${line%%[[:space:]]#\#*}
   [[ -z $line ]] && return
+  [[ $line == '==> starting '*   ]] && return
+  [[ $line == '==> setting up '* ]] && return
   local -a match mbegin mend
   if [[ $line == (#b)'==> benchmarking '(?*)' ...' ]]; then
     flush
