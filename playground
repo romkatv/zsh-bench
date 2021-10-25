@@ -1,0 +1,58 @@
+#!/usr/bin/env zsh
+
+'builtin' 'emulate' '-L' 'zsh' '-o' 'no_aliases' '-o' 'err_return' || 'builtin' 'exit'
+setopt no_unset extended_glob typeset_silent no_multi_byte \
+       prompt_percent no_prompt_subst warn_create_global pipe_fail
+
+() {
+
+if [[ ${ZSH_VERSION-} != (5.<8->*|<6->.*) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: zsh >= 5.8 is required to execute this script"
+  return 1
+fi
+
+zmodload zsh/zutil
+
+local -a help
+zparseopts -D -K -F -- {h,-help}=help
+
+if (( $#help )); then
+  print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. CONFIG"
+  print -r --
+  print -r -- 'OPTIONS'
+  print -r -- '  -h,--help'
+  return
+fi
+
+if (( ARGC != 1 )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: exactly one positional argument is required"
+  return 1
+fi
+
+local -r cfg=$1
+local -r img=ubuntu:focal
+
+if [[ ! -v commands[docker] ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: command not found: docker"
+  return 1
+fi
+
+function docker-run() {
+  command docker run -e TERM -e COLORTERM -e LC_ALL=C.UTF-8 --rm -it $img sh -c -- "$@"
+}
+
+if ! docker-run true; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try sudo"
+  return 1
+fi
+
+local cmd=(
+  'apt-get update -qq'
+  'DEBIAN_FRONTEND=noninteractive DEBCONF_NOWARNINGS=yes apt-get install -qq -y git >/dev/null'
+  'git clone -q --depth=0 https://github.com/romkatv/zsh-bench.git ~/zsh-bench'
+  '~/zsh-bench/internal/docker-playground '${(qqq)cfg})
+
+print -r -- "==> starting $img in docker ..."
+docker-run ${(j: && :)cmd}
+
+} "$@"

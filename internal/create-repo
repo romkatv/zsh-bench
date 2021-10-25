@@ -1,0 +1,25 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return -o no_unset -o warn_create_global
+
+() {
+
+(( ARGC == 1 ))
+
+local dir=$1
+
+git config --global user.name          "Zsh Bench"
+git config --global user.email         "zsh-bench@example.com"
+git config --global init.defaultBranch "master"
+
+rm -rf -- $dir
+mkdir -p -- $dir
+cd -- $dir
+print -rC1 -- {1..10}/{1..10}/{1..10}         | xargs mkdir -p --
+print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
+
+git init >/dev/null
+git add .
+git commit --quiet --allow-empty --allow-empty-message -m ''
+
+} "$@"

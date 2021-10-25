@@ -64,8 +64,10 @@ if (( ARGC )); then
     done
   }
 
+  local -r img=ubuntu:focal
+
   function docker-run() {
-    command docker run -e LC_ALL=C.UTF-8 --rm -i ubuntu:focal sh -c -- "$@"
+    command docker run -e LC_ALL=C.UTF-8 --rm -i $img sh -c -- "$@"
   }
 
   if ! docker-run true; then
@@ -73,12 +75,14 @@ if (( ARGC )); then
     return 1
   fi
 
+  print -r -- "==> starting $img in docker ..."
+
   local args=($iters -- $@)
   local cmd=(
     'mkdir ~/zsh-bench'
     'cd ~/zsh-bench'
     'tar -xz'
-    'exec sh ./internal/benchmark-all.sh '${(j: :)${(@qqq)args}})
+    'exec ./internal/docker-bench '${(j: :)${(@qqq)args}})
   (
     cd -q -- ${self_dir}
     command tar -czf - -- ^.git
@@ -278,13 +282,14 @@ repeat $iters[2]; do
     : >>$fifo_file
 
     local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
+    local -ri bench_input_iters=2
     local input=' \abc'
     repeat 5 input+=$input
     print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
-    print -r  -- ' && '${(qqq)bench_input_file:t}' '${(qqq)info_file}' '${(qqq)fifo_file}' '${(qqq)input}' "2"'
+    print -r  -- " && ${(qqq)bench_input_file:t} ${(qqq)info_file} ${(qqq)fifo_file} ${(qqq)input} ${(qqq)bench_input_iters}"
     : <$fifo_file
     : >>$fifo_file
-    repeat 2; do
+    repeat $bench_input_iters; do
       print -rn -- $input[1,-2]
       : <$fifo_file
       : >>$fifo_file

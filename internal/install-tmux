@@ -1,0 +1,49 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return -o no_unset -o warn_create_global
+
+() {
+
+(( ! ARGC ))
+
+DEBIAN_FRONTEND=noninteractive DEBCONF_NOWARNINGS=yes \
+    >/dev/null command apt-get                        \
+    -o DPkg::options::="--force-confdef"              \
+    -o DPkg::options::="--force-confold"              \
+    -qq install -y                                    \
+    curl libevent-dev ncurses-dev build-essential bison pkg-config autogen autoconf
+
+local tmpdir
+{
+  tmpdir=$(mktemp -d)
+  cd -- $tmpdir
+
+  local v=3.2a
+  curl -fsSLO https://github.com/tmux/tmux/archive/refs/tags/$v.tar.gz
+  tar -xzf $v.tar.gz
+  cd tmux-$v
+
+  # Apply a patch for https://github.com/tmux/tmux/issues/2909.
+  patch --quiet -u tty.c <<-\END
+	@@ -313 +313 @@
+	-		tcflush(c->fd, TCIOFLUSH);
+	+		tcflush(c->fd, TCOFLUSH);
+	END
+
+  ./autogen.sh 2>/dev/null
+  CFLAGS=-Wno-unused-result ./configure --quiet
+
+  local cpus
+  cpus=$(getconf _NPROCESSORS_ONLN)
+  [[ $cpus == <1-> ]]
+
+  make -s -j $cpus
+  make -s install >/dev/null
+} always {
+  if [[ -n $tmpdir ]]; then
+    cd /
+    rm -rf -- $tmpdir
+  fi
+}
+
+} "$@"

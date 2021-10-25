@@ -1,0 +1,23 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+setopt no_unset extended_glob typeset_silent no_multi_byte \
+       prompt_percent no_prompt_subst warn_create_global pipe_fail
+
+() {
+
+local -r user=zsh-bench-user
+local -r root_dir=${ZSH_SCRIPT:h:h}
+
+zmodload zsh/zutil
+
+local -a flags
+zparseopts -D -K -F -a flags -- {k,-keep} {i,-iters}:
+
+local cfg
+for cfg; do
+  print -r -- "==> benchmarking $cfg ..."
+  $root_dir/internal/install-config $cfg '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)flags}}
+done
+
+} "$@"

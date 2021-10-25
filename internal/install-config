@@ -1,0 +1,29 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return -o no_unset -o warn_create_global
+
+() {
+
+(( ARGC ))
+
+local -r user=zsh-bench-user
+local -r root_dir=${ZSH_SCRIPT:h:h}
+
+userdel -rf $user 2>/dev/null || true
+rm -rf -- '' /tmp/*(ND)
+useradd -ms /bin/zsh $user
+passwd -qd $user
+usermod -aG sudo $user
+cat >/etc/sudoers.d/$user <<<"$user ALL=(ALL) NOPASSWD:ALL"
+chmod 440 /etc/sudoers.d/$user
+cp -r -- $root_dir /home/$user/zsh-bench
+chown -R $user:$user /home/$user/zsh-bench
+local cmd=(
+  'export LC_ALL='${(qqq)LC_ALL}
+  'cd -- ~/zsh-bench/configs/'${(qqq)1}
+  './setup'
+  'cd'
+  ${@:2})
+sudo -u $user sh -c -- ${(j: && :)cmd}
+
+} "$@"
