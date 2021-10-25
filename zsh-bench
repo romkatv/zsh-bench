@@ -64,7 +64,7 @@ if (( ARGC )); then
     done
   }
 
-  local -r img=ubuntu:focal
+  local -r img=ubuntu:impish
 
   function docker-run() {
     command docker run -e LC_ALL=C.UTF-8 --rm -i $img sh -c -- "$@"

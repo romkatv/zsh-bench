@@ -30,7 +30,7 @@ if (( ARGC != 1 )); then
 fi
 
 local -r cfg=$1
-local -r img=ubuntu:focal
+local -r img=ubuntu:impish
 
 if [[ ! -v commands[docker] ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: command not found: docker"
