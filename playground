@@ -49,7 +49,7 @@ fi
 local cmd=(
   'apt-get update -qq'
   'DEBIAN_FRONTEND=noninteractive DEBCONF_NOWARNINGS=yes apt-get install -qq -y git >/dev/null'
-  'git clone -q --depth=0 https://github.com/romkatv/zsh-bench.git ~/zsh-bench'
+  'git clone -q --depth=1 https://github.com/romkatv/zsh-bench.git ~/zsh-bench'
   '~/zsh-bench/internal/docker-playground '${(qqq)cfg})
 
 print -r -- "==> starting $img in docker ..."
