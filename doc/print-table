@@ -36,25 +36,25 @@ zparseopts -D -K -F --                            \
   {i,-input-lag-ms}:=input_lag_ms                 \
 
 if (( ARGC )); then
-  print -ru2 -- "${ZSH_SCRIPT:t}: unexpected positional argument"
+  print -ru2 -- "${ZSH_SCRIPT:t}: unexpected positional argument(s)"
   return 1
 fi
 
 if (( ! $#first_prompt_lag_ms )); then
   print -ru2 -- "${ZSH_SCRIPT:t}: missing required argument: --first-prompt-lag-ms"
-  return
+  return 1
 fi
 if (( ! $#first_command_lag_ms )); then
   print -ru2 -- "${ZSH_SCRIPT:t}: missing required argument: --first-command-lag-ms"
-  return
+  return 1
 fi
 if (( ! $#command_lag_ms )); then
   print -ru2 -- "${ZSH_SCRIPT:t}: missing required argument: --command-lag-ms"
-  return
+  return 1
 fi
 if (( ! $#input_lag_ms )); then
   print -ru2 -- "${ZSH_SCRIPT:t}: missing required argument: --input-lag-ms"
-  return
+  return 1
 fi
 
 () {
