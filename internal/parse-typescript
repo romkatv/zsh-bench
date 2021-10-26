@@ -1,0 +1,74 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+setopt no_unset typeset_silent no_multi_byte warn_create_global pipe_fail
+
+() {
+
+zmodload zsh/zutil
+
+local -x LC_ALL=C
+
+local -a help timing_file data_file no_header
+zparseopts -D -K -F --     \
+  {h,-help}=help           \
+  {t,-timing}:=timing_file \
+  {d,-data}:=data_file     \
+  {1,-no-header}=no_header
+
+if (( $#help )); then
+  print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].."
+  print -r --
+  print -r -- 'OPTIONS'
+  print -r -- '  -h,--help'
+  print -r -- '  -1,--no-header'
+  print -r -- '  -t,--timing <timing-file>'
+  print -r -- '  -d,--data <data-file>'
+  return
+fi
+
+if (( ARGC )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: unexpected positional argument(s)"
+  return 1
+fi
+
+if (( ! $#timing_file )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --timing"
+  return 1
+fi
+if (( ! $#data_file )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --data"
+  return 1
+fi
+
+local -F t
+local -i n
+local data timing dt dn
+data=${${"$(<$data_file[2]; print -n x)"%x}#*$'\n'}
+timing=($(<$timing_file[2]))
+
+if (( $#timing % 2 != 0 )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: malformed timing file"
+  return 1
+fi
+
+(( $#no_header )) || print -- 'TIME\tDELAY\tDATA'
+
+for dt dn in $timing; do
+  if [[ $dt != <->(|.<->) || $dn != <1-> ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: malformed timing file"
+    return 1
+  fi
+  if (( $#data < n + dn )); then
+    print -ru2 -- "${ZSH_SCRIPT:t}: malformed timing or data file"
+    return 1
+  fi
+  printf -- '%.6f\t%s\t%s\n' $(( t += dt )) $dt ${${(qqqq)data[n+1,n+dn]}[3,-2]}
+  (( n += dn ))
+done
+if [[ $data[n+1,-1] != $'\nScript done'* ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: malformed timing or data file"
+  return 1
+fi
+
+} "$@"
