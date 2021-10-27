@@ -14,7 +14,7 @@ aptget() {
 
 aptget update
 aptget upgrade -y
-aptget install -y -- bsdutils curl git make ncurses-bin perl sudo util-linux zsh tzdata "$@"
+aptget install -y -- bsdutils curl git make ncurses-bin perl sudo util-linux zsh direnv tzdata "$@"
 [ $# -eq 0 ] || aptget update
 
 starship="$(curl -fsSL https://starship.rs/install.sh)"
