@@ -214,6 +214,7 @@ unset -m 'GIT_*|TMUX*' || true
     command git init
     command git config user.name "Your Name"
     command git config user.email "you@example.com"
+    command sleep 1
     command git add .
     command git commit --quiet --allow-empty --allow-empty-message --no-gpg-sign -m ''
     command git checkout -b $git_branch
