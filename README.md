@@ -233,7 +233,7 @@ of them. Later we'll be doing just that. The latencies of a combination are the 
 of all its constituents. For example, *first prompt lag* of **tmux+compsys** is *first prompt lag*
 of **tmux** plus *first prompt lag* of **compsys**. You can probably already see that adding
 everything together will push some latencies over the threshold. Our goal is to avoid that while
-still getting all the goodies. **git-branch** gives us *git prompt* for the price of 31% of our
+still getting all the goodies. **git-branch** gives us *git prompt* for the price of 49% of our
 *command lag* budget. Let's see if we can do better.
 
 ### Prompt
