@@ -736,6 +736,7 @@ is no reason for you to care one way or another about this number.
 - Date: 2021-10-25.
 - OS: Ubuntu 21.10.
 - CPU: AMD Ryzen Threadripper 3970x.
+- Storage: NVMe M.2.
 - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.txt),
   [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.md).
 
