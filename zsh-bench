@@ -81,7 +81,7 @@ if (( ARGC )); then
   local cmd=(
     'mkdir ~/zsh-bench'
     'cd ~/zsh-bench'
-    'tar -xz'
+    'tar -xmz'
     'exec ./internal/docker-bench '${(j: :)${(@qqq)args}})
   (
     cd -q -- ${self_dir}
