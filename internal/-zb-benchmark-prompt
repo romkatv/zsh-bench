@@ -2,9 +2,6 @@
 
 builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
 
-builtin typeset -gr  _zb_benchmark_prompt_output_file=$1
-builtin typeset -gir _zb_benchmark_prompt_max_iters=$2
-
 builtin typeset -gir _zb_benchmark_prompt_buffer_sec=1
 builtin typeset -gFr _zb_benchmark_prompt_duration_sec=1
 

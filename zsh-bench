@@ -184,6 +184,17 @@ local -r src=./s
 
 local -r prompt_pat="(${(b)cwd}|${(b)host})"
 
+local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
+local -r bench_prompt_file=$self_dir/internal/-zb-benchmark-prompt
+
+local -ri bench_input_iters=2
+local -r bench_prompt_max_iters=1000
+
+local bench_input_buf=' \abc'
+repeat 5 bench_input_buf+=$bench_input_buf
+bench_input_buf+="'"
+local -r bench_input_buf
+
 command mkfifo -- $fifo_file
 command mkdir -- $cwd
 cd -q -- $cwd
@@ -197,12 +208,15 @@ print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
       '"${+_ZSH_AUTOSUGGEST_BIND_COUNTS}"'
       '"${+ZSH_HIGHLIGHT_VERSION}"')
 
-    print -r  -- '"builtin" "print" '$msg
-    print -r  -- '"builtin" "[" "$?" "-eq" "0" "]" || "builtin" "exit"'
-    print -rn -- '"builtin" "print" "-rn" "--" '$info_bits' >| '${(qqq)info_file}
-    print -rn -- ' && "builtin" ":" >>'${(qqq)fifo_file}
-    print -rn -- ' && "builtin" ":" <'${(qqq)fifo_file}
-    print -r  -- ' || "builtin" "exit"'
+  print -r  -- '"builtin" "print" '$msg
+  print -r  -- '"builtin" "[" "$?" "-eq" "0" "]" || "builtin" "exit"'
+  print -rn -- '"builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
+  print -rn -- ' && "builtin" "autoload" "-Uz" "--" '${(qqq)bench_prompt_file}
+  print -rn -- ' && "builtin" "print" "-rn" "--" '$info_bits' >| '${(qqq)info_file}
+  print -rn -- ' && "builtin" "typeset" "-gr" _zb_benchmark_prompt_output_file='${(qqq)info_file}
+  print -rn -- ' && "builtin" "typeset" "-gir" _zb_benchmark_prompt_max_iters='${(qqq)bench_prompt_max_iters}
+  print -rn -- " && ${(qqq)bench_input_file:t} ${(qqq)info_file} ${(qqq)fifo_file} ${(qqq)bench_input_buf} ${(qqq)bench_input_iters}"
+  print -r  -- ' || "builtin" "exit"'
 } >$src
 
 unset -m 'GIT_*|TMUX*' || true
@@ -281,30 +295,16 @@ repeat $iters[2]; do
     print -r  -- ' "builtin" "." '${(qqq)src}
     : <$fifo_file
     : >>$fifo_file
-
-    local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
-    local -ri bench_input_iters=2
-    local input=' \abc'
-    repeat 5 input+=$input
-    input+="'"
-    print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
-    print -r  -- " && ${(qqq)bench_input_file:t} ${(qqq)info_file} ${(qqq)fifo_file} ${(qqq)input} ${(qqq)bench_input_iters}"
-    : <$fifo_file
-    : >>$fifo_file
+    
     repeat $bench_input_iters; do
-      print -rn -- $input[1,-2]
+      print -rn -- $bench_input_buf[1,-2]
       : <$fifo_file
       : >>$fifo_file
-      print -rn -- $input[-1]
+      print -rn -- $bench_input_buf[-1]
       : <$fifo_file
       : >>$fifo_file
     done
 
-    local -r bench_prompt_file=$self_dir/internal/-zb-benchmark-prompt
-    local -r bench_prompt_max_iters=1000
-    print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_prompt_file}
-    print -rn -- ' && '${(qqq)bench_prompt_file:t}' '${(qqq)info_file}' '${(qqq)bench_prompt_max_iters}
-    print -rn -- ' || "builtin" "exit"'
     print -r  -- ${(pl:$bench_prompt_max_iters::\n:):-}
   } | script "SHELL='-zsh' PATH=${(qqq):-"$_zb_tmpdir/bin:$PATH"} 'command' 'script' '-fqet'${(qqq)timing_file} ${(qqq)out_file}"
 

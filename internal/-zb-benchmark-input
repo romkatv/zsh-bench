@@ -109,6 +109,7 @@ builtin zle -N -- zle-line-pre-redraw -zb-benchmark-input-zle-line-pre-redraw
     if [[ ! -v functions[-zb-benchmark-input-do-nothing] ]]; then
       builtin zle -A -- -zb-benchmark-input-orig-zle-line-pre-redraw zle-line-pre-redraw
     fi
+    -zb-benchmark-prompt
   fi
 
   builtin : >>$_zb_benchmark_input_fifo_file
