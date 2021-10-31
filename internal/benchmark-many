@@ -12,7 +12,7 @@ local -r root_dir=${ZSH_SCRIPT:h:h}
 zmodload zsh/zutil
 
 local -a flags
-zparseopts -D -K -F -a flags -- {k,-keep} {i,-iters}:
+zparseopts -D -K -F -a flags -- {k,-keep} {i,-iters}: {g,-git}:
 
 local cfg
 for cfg; do

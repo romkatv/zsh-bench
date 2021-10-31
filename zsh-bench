@@ -21,7 +21,8 @@ zmodload zsh/zutil
 local -a help
 local -a keep
 local -a iters=(--iters 16)
-zparseopts -D -K -F -- {h,-help}=help {k,-keep}=keep {i,-iters}:=iters
+local -a git=(--git yes)
+zparseopts -D -K -F -- {h,-help}=help {k,-keep}=keep {i,-iters}:=iters {g,-git}:=git
 
 if (( $#help )); then
   print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. [CONFIG].."
@@ -30,11 +31,17 @@ if (( $#help )); then
   print -r -- '  -h,--help'
   print -r -- '  -k,--keep'
   print -r -- '  -i,--iters <NUM> [default=16]'
+  print -r -- '  -g,--git <yes|no|empty> [default=yes]'
   return
 fi
 
 if [[ $iters[2] != <1-> ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: not a positive integer: ${(q-)iters[2]}"
+  return 1
+fi
+
+if [[ $git[2] != (yes|no|empty) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --git: ${(q-)git[2]}"
   return 1
 fi
 
@@ -77,7 +84,7 @@ if (( ARGC )); then
 
   print -r -- "==> starting $img in docker ..."
 
-  local args=($iters -- $@)
+  local args=($iters $git -- $@)
   local cmd=(
     'mkdir ~/zsh-bench'
     'cd ~/zsh-bench'
@@ -198,8 +205,6 @@ local -r bench_input_buf
 command mkfifo -- $fifo_file
 command mkdir -- $cwd
 cd -q -- $cwd
-print -rC1 -- {1..10}/{1..10}/{1..10}         | xargs mkdir -p --
-print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
 
 () {
   local -a info_bits=(
@@ -222,15 +227,27 @@ print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
 unset -m 'GIT_*|TMUX*' || true
 
 () {
+  case $git[2] in
+    yes)
+      print -rC1 -- {1..10}/{1..10}/{1..10}         | xargs mkdir -p --
+      print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
+    ;;
+    no) return;;
+    empty) ;;
+    *) return 'error()';;
+  esac
+
   local -x GIT_CONFIG_NOSYSTEM=1 HOME=$_zb_tmpdir
   local err=$_zb_tmpdir/git.log
   {
     command git init
     command git config user.name "Your Name"
     command git config user.email "you@example.com"
-    command sleep 1
-    command git add .
-    command git commit --quiet --allow-empty --allow-empty-message --no-gpg-sign -m ''
+    if [[ $git[2] == yes ]]; then
+      command sleep 1
+      command git add .
+      command git commit --quiet --allow-empty --allow-empty-message --no-gpg-sign -m ''
+    fi
     command git checkout -b $git_branch
   } >/dev/null 2>$err || {
     <$err >&2
