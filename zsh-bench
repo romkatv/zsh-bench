@@ -182,7 +182,7 @@ local -r fifo_file=$_zb_tmpdir/fifo
 local -r out_file=$_zb_tmpdir/out
 local -r timing_file=$_zb_tmpdir/timing
 
-local -r prefix=ZSB${(l:5::0:)RANDOM}-
+local -r prefix=ZB${(l:5::0:)RANDOM}-
 local -r msg=${(qqq)prefix}${(qqq):-msg}
 local -r cwd=${prefix}cwd
 local -r host=${prefix}host

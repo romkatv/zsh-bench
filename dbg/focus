@@ -54,6 +54,11 @@ if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
 fi
 if [[ ! -v commands[stty] ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: command not found: stty"
+  return 1
+fi
+if [[ ! -v commands[reset] ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: command not found: reset"
+  return 1
 fi
 
 unset _zb_stty
@@ -65,6 +70,7 @@ function cleanup() {
   while true; do
     [[ -t 2 ]] || read -t0 -k key || break
   done 2>/dev/null
+  command reset
   command stty $_zb_stty
   [[ $1 == EXIT ]] && exit
   exit $((127 + ${signals[(Ie)$1]}))
@@ -111,11 +117,11 @@ for dt dn in $timing; do
     return 1
   fi
   (( t += dt, 1 ))
-  if (( stage == 0 && 1e3 * t > timestamp[2] - 0.001 )); then
+  if (( stage == 0 && 1e3 * t > timestamp[2] - 0.002 )); then
     IFS= read -rs
     stage=1
   fi
-  if (( 1e3 * t >= timestamp[2] + 0.001 )); then
+  if (( 1e3 * t >= timestamp[2] + 0.002 )); then
     IFS= read -rs
     stage=2
     break
@@ -128,8 +134,5 @@ if (( stage != 2 )); then
   print -ru2 -- "${ZSH_SCRIPT:t}: timestamp out of range"
   return 1
 fi
-
-print -rn -- $clear
-print -r -- "You've pressed ENTER three times. Exiting."
 
 } "$@"

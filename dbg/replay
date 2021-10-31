@@ -40,9 +40,15 @@ if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
 fi
 if [[ ! -v commands[stty] ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: command not found: stty"
+  return 1
+fi
+if [[ ! -v commands[reset] ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: command not found: reset"
+  return 1
 fi
 if [[ ! -v commands[scriptreplay] ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: command not found: scriptreplay"
+  return 1
 fi
 
 unset _zb_stty
@@ -54,6 +60,7 @@ function cleanup() {
   while true; do
     [[ -t 2 ]] || read -t0 -k key || break
   done 2>/dev/null
+  command reset
   command stty $_zb_stty
   [[ $1 == EXIT ]] && exit
   exit $((127 + ${signals[(Ie)$1]}))

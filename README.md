@@ -880,8 +880,8 @@ right before and right after the specified timestamp. If you pass the value of `
 or `first_command_lag_ms` reported by `zsh-bench` as the timestamp, you'll see what `zsh-bench`
 considered *first prompt* and the output of *first command* respectively. If `zsh-bench` did its job
 correctly, the screen before `first_prompt_lag_ms` shouldn't have prompt but afterwards it should.
-Similarly, the screen before `first_command_lag_ms` shouldn't have `ZSB*-msg` but afterwards it
-should (the first command prints `ZSB*-msg` where `*` is a random number).
+Similarly, the screen before `first_command_lag_ms` shouldn't have `ZB*-msg` but afterwards it
+should (the first command prints `ZB*-msg` where `*` is a random number).
 
 ## License
 
