@@ -20,9 +20,8 @@ cp -r -- $root_dir /home/$user/zsh-bench
 chown -R $user:$user /home/$user/zsh-bench
 local cmd=(
   'export LC_ALL='${(qqq)LC_ALL}
-  'cd -- ~/zsh-bench/configs/'${(qqq)1}
-  './setup'
   'cd'
+  '~/zsh-bench/configs/'${(qqq)1}'/setup'
   ${@:2})
 sudo -u $user sh -c -- ${(j: && :)cmd}
 

@@ -4,4 +4,4 @@ emulate -L zsh -o err_return
 
 local script
 script=$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)
-zsh -c "$script" "" --unattended --skip-chsh &>/dev/null </dev/null
+sh -c "$script" "zsh" --unattended --skip-chsh &>/dev/null </dev/null

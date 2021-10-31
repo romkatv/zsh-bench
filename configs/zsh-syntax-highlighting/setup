@@ -2,6 +2,6 @@
 
 emulate -L zsh -o err_return
 
-cp -r -- ./skel/*(D) ~/
+cp -r -- ${ZSH_SCRIPT:t}/skel/*(D) ~/
 cd
 git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git

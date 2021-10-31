@@ -2,5 +2,5 @@
 
 emulate -L zsh -o err_return
 
-cp -r -- ./skel/*(D) ~/
+cp -r -- ${ZSH_SCRIPT:t}/skel/*(D) ~/
 zcompile -R -- ~/.zshenv.zwc ~/.zshenv
