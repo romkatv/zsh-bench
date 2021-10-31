@@ -2,7 +2,7 @@
 
 emulate -L zsh -o err_return
 
-cp -r -- ${ZSH_SCRIPT:t}/skel/*(D) ~/
+cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
 
 cd
 git clone -q -b v5 --depth=1 https://github.com/romkatv/zsh4humans.git

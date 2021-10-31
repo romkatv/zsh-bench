@@ -2,6 +2,6 @@
 
 emulate -L zsh -o err_return
 
-cp -r -- ${ZSH_SCRIPT:t}/skel/*(D) ~/
+cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
 cd
 git clone -q --depth=1 https://github.com/agnoster/agnoster-zsh-theme.git

@@ -2,7 +2,7 @@
 
 emulate -L zsh -o err_return -o extended_glob
 
-cp -r -- ${ZSH_SCRIPT:t}/skel/*(D) ~/
+cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
 
 git clone -q --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
 git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
