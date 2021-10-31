@@ -839,14 +839,14 @@ Passing `--iters 1` together with `--keep` makes it easier to verify the output 
 Replay the screen of the TTY that `zsh-bench` was acting on during benchmarking:
 
 ```zsh
-clear; ~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
+~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
 ```
 
 This script is a wrapper around `scriptreplay`. All positional arguments are passed through. For
 example, to replay at slower speed:
 
 ```zsh
-clear; ~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -- -d 0.1 -m 1
+~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -- -d 0.1 -m 1
 ```
 
 Don't resize your terminal after running `zsh-bench` so that everything replays correctly.
@@ -869,19 +869,19 @@ Print a TAB-separated table of timestamped raw writes to the TTY:
 ~/zsh-bench/dbg/timeline -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
 ```
 
-See what happened at a specific timestamp:
+See what happened at the specific timestamp:
 
 ```zsh
-clear; ~/zsh-bench/dbg/focus -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -T 10.149; clear
+~/zsh-bench/dbg/focus -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -T 10.149
 ```
 
 The value of `-T` is a timestamp in milliseconds. The command shows how the TTY looked like
-right before the specified timestamp, waits for <kbd>Enter</kbd>, shows how the TTY looked like
-right after the timestamp, waits for <kbd>Enter</kbd>, and finally exits.
-
-If you pass the value of `first_prompt_lag_ms` or `first_command_lag_ms` reported by `zsh-bench` as
-the timestamp, you'll see what `zsh-bench` considered *first prompt* and the output of
-*first command* respectively.
+right before and right after the specified timestamp. If you pass the value of `first_prompt_lag_ms`
+or `first_command_lag_ms` reported by `zsh-bench` as the timestamp, you'll see what `zsh-bench`
+considered *first prompt* and the output of *first command* respectively. If `zsh-bench` did its job
+correctly, the screen before `first_prompt_lag_ms` shouldn't have prompt but afterwards it should.
+Similarly, the screen before `first_command_lag_ms` shouldn't have `ZSB*-msg` but afterwards it
+should (the first command prints `ZSB*-msg` where `*` is a random number).
 
 ## License
 

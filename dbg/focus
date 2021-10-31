@@ -77,7 +77,7 @@ done
 unset sig trapped
 
 local -F t
-local -i n pref=1
+local -i n stage
 local data timing dt dn REPLY
 data=${${"$(<$data_file[2]; print -n x)"%x}#*$'\n'}
 timing=($(<$timing_file[2]))
@@ -86,6 +86,20 @@ if (( $#timing % 2 != 0 )); then
   print -ru2 -- "${ZSH_SCRIPT:t}: malformed timing file"
   return 1
 fi
+if (( $#timing == 0 )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: empty timing file"
+  return 1
+fi
+
+local -r clear=${(pl:$LINES::\n:):-}$'\e[H'
+
+print -rn -- $clear
+print -r -- '1. Press ENTER to see the TTY content right before T='$timestamp[2]'ms.'
+print -r -- '2. Press ENTER again to see the TTY content right after T='$timestamp[2]'ms.'
+print -r -- '3. Press ENTER for the third time to exit.'
+
+IFS= read -rs
+print -rn -- $clear
 
 for dt dn in $timing; do
   if [[ $dt != <->(|.<->) || $dn != <1-> ]]; then
@@ -97,16 +111,25 @@ for dt dn in $timing; do
     return 1
   fi
   (( t += dt, 1 ))
-  if (( pref && 1e3 * t > timestamp[2] - 0.001 )); then
+  if (( stage == 0 && 1e3 * t > timestamp[2] - 0.001 )); then
     IFS= read -rs
-    pref=0
+    stage=1
   fi
-  print -rn -- $data[n+1,n+dn]
   if (( 1e3 * t >= timestamp[2] + 0.001 )); then
     IFS= read -rs
+    stage=2
     break
   fi
+  print -rn -- $data[n+1,n+dn]
   (( n += dn ))
 done
+
+if (( stage != 2 )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: timestamp out of range"
+  return 1
+fi
+
+print -rn -- $clear
+print -r -- "You've pressed ENTER three times. Exiting."
 
 } "$@"

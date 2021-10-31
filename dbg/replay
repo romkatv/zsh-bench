@@ -65,6 +65,9 @@ for sig in $trapped; do
 done
 unset sig trapped
 
+local -r clear=${(pl:$LINES::\n:):-}$'\e[H'
+print -rn -- $clear
 command scriptreplay "$@" -t $timing_file[2] -- $data_file[2]
+print -rn -- $clear
 
 } "$@"
