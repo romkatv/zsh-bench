@@ -863,7 +863,7 @@ and then the command line is cleared without execution.
 Then `zsh-bench` measures command lag by spamming <kbd>Enter</kbd> and seeing how many prompts it
 would get.
 
-Print a TAB-separated table of raw writes to the TTY and timestamp data:
+Print a TAB-separated table of timestamped raw writes to the TTY:
 
 ```zsh
 ~/zsh-bench/dbg/timeline -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
