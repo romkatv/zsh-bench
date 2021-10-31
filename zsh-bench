@@ -286,6 +286,7 @@ repeat $iters[2]; do
     local -ri bench_input_iters=2
     local input=' \abc'
     repeat 5 input+=$input
+    input+="'"
     print -rn -- ' "builtin" "autoload" "-Uz" "--" '${(qqq)bench_input_file}
     print -r  -- " && ${(qqq)bench_input_file:t} ${(qqq)info_file} ${(qqq)fifo_file} ${(qqq)input} ${(qqq)bench_input_iters}"
     : <$fifo_file
