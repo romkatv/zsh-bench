@@ -55,10 +55,6 @@ fi
 if [[ ! -v commands[stty] ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: command not found: stty"
 fi
-if [[ ${TERM-} != xterm-256color ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: unsupported TERM: ${(q-)TERM}"
-  return 1
-fi
 
 unset _zb_stty
 typeset -g _zb_stty

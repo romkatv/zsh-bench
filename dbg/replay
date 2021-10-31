@@ -1,0 +1,70 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+setopt no_unset typeset_silent no_multi_byte warn_create_global pipe_fail
+
+() {
+
+zmodload zsh/zutil
+
+local -x LC_ALL=C
+
+local -a help timing_file data_file
+zparseopts -D -K -F --     \
+  {h,-help}=help           \
+  {t,-timing}:=timing_file \
+  {d,-data}:=data_file
+
+if (( $#help )); then
+  print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. [-- [PASSTHROUGH]..]"
+  print -r --
+  print -r -- 'OPTIONS'
+  print -r -- '  -h,--help'
+  print -r -- '  -t,--timing <timing-file>'
+  print -r -- '  -d,--data <data-file>'
+  return
+fi
+
+if (( ! $#timing_file )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --timing"
+  return 1
+fi
+if (( ! $#data_file )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --data"
+  return 1
+fi
+
+if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: all standard file descriptors must be TTY"
+  return 1
+fi
+if [[ ! -v commands[stty] ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: command not found: stty"
+fi
+if [[ ! -v commands[scriptreplay] ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: command not found: scriptreplay"
+fi
+
+unset _zb_stty
+typeset -g _zb_stty
+_zb_stty=$(command stty -g)
+
+function cleanup() {
+  local key
+  while true; do
+    [[ -t 2 ]] || read -t0 -k key || break
+  done 2>/dev/null
+  command stty $_zb_stty
+  [[ $1 == EXIT ]] && exit
+  exit $((127 + ${signals[(Ie)$1]}))
+}
+
+local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
+for sig in $trapped; do
+  trap "trap - $trapped; cleanup $sig" $sig
+done
+unset sig trapped
+
+command scriptreplay "$@" -t $timing_file[2] -- $data_file[2]
+
+} "$@"

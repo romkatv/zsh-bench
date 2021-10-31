@@ -22,6 +22,7 @@ Benchmark for interactive zsh.
   - [Full benchmark data](#full-benchmark-data)
   - [Conclusions](#conclusions)
   - [Responses](#responses)
+  - [Debugging and validation](#debugging-and-validation)
 - [License](#license)
 - [FAQ](#faq)
 
@@ -792,6 +793,95 @@ Similarly on [reddit](https://www.reddit.com/r/zsh/comments/q5e2du/ann_zshbench_
 
 This [comment](
   https://github.com/zimfw/zsh-framework-benchmark/pull/8#issuecomment-945197891).
+
+### Debugging and validation
+
+Several tools are included in zsh-bench to aid in debugging and validation of benchmark results.
+
+Run [playground](https://github.com/romkatv/zsh-bench/blob/master/playground) to create an ephemeral
+docker container based on Ubuntu 21.10 with zsh as login shell:
+
+```zsh
+curl -fsSLO https://raw.githubusercontent.com/romkatv/zsh-bench/master/dbg/playground
+chmod +x ./playground
+./playground zsh4humans
+```
+
+You can pass any [config name](https://github.com/romkatv/zsh-bench/tree/master/configs) in place of
+`zsh4humans`.
+
+After a few minutes you should have interactive zsh with `~/repo` as the current working directory.
+This is a git repository with 1,000 directories and 10,000 files. `zsh-bench` performs its
+measurements in a directory just like this. You can check how it feels to restart zsh
+(`exec zsh -l`) or to run simple commands (`true`, `pwd`, `print`, etc.) in this directory.
+
+You can install additional software with `sudo apt install <pkg>` and change any files you like.
+This won't affect your host system. Once you `exit`, the docker container will get deleted and no
+trace of it will be left.
+
+Benchmark login shell within the container:
+
+```zsh
+~/zsh-bench/zsh-bench --iters 64
+```
+
+With `--iters 64` all measurements are be performed 64 times and the lowest values are be reported.
+All published benchmark results in this document have been compiled with this option.
+
+Pass `--keep` to preserve the temporary directory used by the benchmark:
+
+```zsh
+rm -rf -- '' /tmp/zsh-bench-*(N) && ~/zsh-bench/zsh-bench --iters 1 --keep
+```
+
+Passing `--iters 1` together with `--keep` makes it easier to verify the output of `zsh-bench`.
+
+Replay the screen of the TTY that `zsh-bench` was acting on during benchmarking:
+
+```zsh
+~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
+```
+
+This script is a wrapper around `scriptreplay`. All positional arguments are passed through. For
+example, to replay at slower speed:
+
+```zsh
+~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -- -d 0.1 -m 1
+```
+
+Don't resize your terminal after running `zsh-bench` so that everything replays correctly.
+
+You'll see that at first `zsh-bench` issues a short command that sources a script. This command gets
+sent to the TTY right away without waiting for first prompt. The sourced file prints, and the result
+of that printing signifies execution of the first command.
+
+Then `zsh-bench` starts measuring input latency. It prints a fairly long command composed of a bunch
+of escaped `abc` tokens, types one more character and waits for that character to be processed by
+[zle](https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html). This is performed several times
+and then the command line is cleared without execution.
+
+Then `zsh-bench` measures command lag by spamming <kbd>Enter</kbd> and seeing how many prompts it
+would get.
+
+Print a TAB-separated table of raw writes to the TTY and timestamp data:
+
+```zsh
+~/zsh-bench/dbg/timeline -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
+```
+
+See what happened at a specific timestamp:
+
+```zsh
+~/zsh-bench/dbg/focus -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -T 10.149
+```
+
+The last argument is a timestamp in milliseconds. The command shows how the TTY looked like
+right before the specified timestamp, waits for <kbd>Enter</kbd>, shows how the TTY looked like
+right after the timestamp, waits for <kbd>Enter</kbd>, and finally exits.
+
+If you pass the value of `first_prompt_lag_ms` or `first_command_lag_ms` reported by `zsh-bench` as
+the timestamp, you'll see what `zsh-bench` considered *first prompt* and *first command*
+respectively.
 
 ## License
 
