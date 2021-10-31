@@ -839,14 +839,14 @@ Passing `--iters 1` together with `--keep` makes it easier to verify the output 
 Replay the screen of the TTY that `zsh-bench` was acting on during benchmarking:
 
 ```zsh
-~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
+clear; ~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
 ```
 
 This script is a wrapper around `scriptreplay`. All positional arguments are passed through. For
 example, to replay at slower speed:
 
 ```zsh
-~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -- -d 0.1 -m 1
+clear; ~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -- -d 0.1 -m 1
 ```
 
 Don't resize your terminal after running `zsh-bench` so that everything replays correctly.
@@ -872,10 +872,10 @@ Print a TAB-separated table of raw writes to the TTY and timestamp data:
 See what happened at a specific timestamp:
 
 ```zsh
-~/zsh-bench/dbg/focus -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -T 10.149
+clear; ~/zsh-bench/dbg/focus -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -T 10.149; clear
 ```
 
-The last argument is a timestamp in milliseconds. The command shows how the TTY looked like
+The value of `-T` is a timestamp in milliseconds. The command shows how the TTY looked like
 right before the specified timestamp, waits for <kbd>Enter</kbd>, shows how the TTY looked like
 right after the timestamp, waits for <kbd>Enter</kbd>, and finally exits.
 
