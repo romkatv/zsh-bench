@@ -3,3 +3,4 @@
 emulate -L zsh -o err_return
 
 cp -r -- ./skel/*(D) ~/
+zcompile -R -- ~/.zshenv.zwc ~/.zshenv

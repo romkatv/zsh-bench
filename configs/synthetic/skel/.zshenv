@@ -1,10 +1,9 @@
 zmodload zsh/datetime
 
 typeset -gF _zb_start_time_sec=EPOCHREALTIME
+typeset -gF ZB_FIRST_PROMPT_LAG_MS ZB_FIRST_COMMAND_LAG_MS ZB_COMMAND_LAG_MS ZB_INPUT_LAG_MS
 
 setopt no_rcs
-
-typeset -gF ZB_FIRST_PROMPT_LAG_MS ZB_FIRST_COMMAND_LAG_MS ZB_COMMAND_LAG_MS ZB_INPUT_LAG_MS
 
 function -zb-sleep-until() {
   local -F deadline=$1
