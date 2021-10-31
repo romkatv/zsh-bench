@@ -11,7 +11,7 @@ local -r root_dir=${ZSH_SCRIPT:h:h}
 
 userdel -rf $user 2>/dev/null || true
 rm -rf -- '' /tmp/*(ND)
-useradd -ms /bin/zsh $user
+useradd -ms $commands[zsh] $user
 passwd -qd $user
 usermod -aG sudo $user
 cat >/etc/sudoers.d/$user <<<"$user ALL=(ALL) NOPASSWD:ALL"
