@@ -266,8 +266,8 @@ function script() {
 
 () {
   local cmd='"builtin" "printf" "%s\n" "${ZSH_VERSION-}" >'${(qqq)zsh_version_file}
-  script ${(qqq)commands[zsh]}' "-c" '${(qqq)cmd} </dev/null
-  if [[ ! -e $zsh_version_file ]]; then
+  if ! script ${(qqq)commands[zsh]}' "-c" '${(qqq)cmd} </dev/null ||
+     [[ ! -e $zsh_version_file ]]; then
     print -ru2 -- "${ZSH_SCRIPT:t}: either 'script' or 'zsh' is broken"
     return 1
   fi
