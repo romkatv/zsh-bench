@@ -798,7 +798,7 @@ This [comment](
 
 Several tools are included in zsh-bench to aid in debugging and validation of benchmark results.
 
-Run [playground](https://github.com/romkatv/zsh-bench/blob/master/playground) to create an ephemeral
+Run [playground](https://github.com/romkatv/zsh-bench/blob/master/dbg/playground) to create an ephemeral
 docker container based on Ubuntu 21.10 with zsh as login shell:
 
 ```zsh
@@ -880,8 +880,8 @@ right before the specified timestamp, waits for <kbd>Enter</kbd>, shows how the 
 right after the timestamp, waits for <kbd>Enter</kbd>, and finally exits.
 
 If you pass the value of `first_prompt_lag_ms` or `first_command_lag_ms` reported by `zsh-bench` as
-the timestamp, you'll see what `zsh-bench` considered *first prompt* and *first command*
-respectively.
+the timestamp, you'll see what `zsh-bench` considered *first prompt* and the output of
+*first command* respectively.
 
 ## License
 
