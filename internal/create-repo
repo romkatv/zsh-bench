@@ -8,10 +8,6 @@ emulate -L zsh -o err_return -o no_unset -o warn_create_global
 
 local dir=$1
 
-git config --global user.name          "Zsh Bench"
-git config --global user.email         "zsh-bench@example.com"
-git config --global init.defaultBranch "master"
-
 rm -rf -- $dir
 mkdir -p -- $dir
 cd -- $dir

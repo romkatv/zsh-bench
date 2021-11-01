@@ -24,3 +24,6 @@ dir="$(dirname -- "$0")"
 "$dir"/install-tmux
 
 git config --system core.untrackedCache true
+git config --system user.name           "Zsh Bench"
+git config --system user.email          "zsh-bench@example.com"
+git config --system init.defaultBranch  "master"
