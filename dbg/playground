@@ -13,8 +13,8 @@ fi
 
 zmodload zsh/zutil
 
-local -a help
-zparseopts -D -K -F -- {h,-help}=help
+local -a help privileged
+zparseopts -D -K -F -- {h,-help}=help {p,-privileged}=privileged
 
 if (( $#help )); then
   print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. CONFIG"
@@ -38,7 +38,9 @@ if [[ ! -v commands[docker] ]]; then
 fi
 
 function docker-run() {
-  command docker run -e TERM -e COLORTERM -e LC_ALL=C.UTF-8 --rm -it $img sh -c -- "$@"
+  command docker run                       \
+    -e TERM -e COLORTERM -e LC_ALL=C.UTF-8 \
+    --rm -it ${privileged:+--privileged} $img sh -c -- "$@"
 }
 
 if ! docker-run true; then
