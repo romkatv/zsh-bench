@@ -73,8 +73,17 @@ done
 unset sig trapped
 
 local -r clear=${(pl:$LINES::\n:):-}$'\e[H'
+
+print -rn -- $clear
+print -r -- '1. Press ENTER to see the replay of the TTY content.'
+print -r -- '2. Press ENTER again at the end to exit.'
+
+local REPLY
+IFS= read -rs
+print -rn -- $clear
+
 print -rn -- $clear
 command scriptreplay "$@" -t $timing_file[2] -- $data_file[2]
-print -rn -- $clear
+IFS= read -rs
 
 } "$@"
