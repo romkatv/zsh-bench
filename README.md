@@ -828,7 +828,7 @@ Benchmark login shell within the container:
 ~/zsh-bench/zsh-bench --iters 64
 ```
 
-With `--iters 64` all measurements are be performed 64 times and the lowest values are be reported.
+With `--iters 64` all measurements are performed 64 times and the lowest values are be reported.
 All published benchmark results in this document have been compiled with this option.
 
 Pass `--keep` to preserve the temporary directory used by the benchmark:
