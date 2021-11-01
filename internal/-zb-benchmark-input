@@ -15,6 +15,7 @@
     builtin typeset -gi  _zb_benchmark_input_num_runs=$4
 
     builtin zmodload zsh/datetime zsh/zselect
+    builtin zselect -t 70 || builtin true
     builtin typeset -gi _zb_benchmark_input_fd
     builtin exec {_zb_benchmark_input_fd} </dev/null
     builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input
@@ -37,7 +38,7 @@
 
 if ! -zb-benchmark-input-ready; then
   builtin typeset -gi _zb_benchmark_input_fd
-  builtin exec {_zb_benchmark_input_fd} < <(builtin zselect -t 100) || builtin exit
+  builtin exec {_zb_benchmark_input_fd} < <(builtin zselect -t 10) || builtin exit
   builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input || builtin exit
   builtin return
 fi
@@ -83,7 +84,7 @@ builtin zle -N -- zle-line-pre-redraw -zb-benchmark-input-zle-line-pre-redraw
 
   builtin : >>$_zb_benchmark_input_fifo_file
   builtin : <$_zb_benchmark_input_fifo_file
-  builtin zselect -t 100 || builtin true
+  builtin zselect -t 10 || builtin true
   builtin typeset -gF _zb_benchmark_input_start_time=EPOCHREALTIME
 }
 

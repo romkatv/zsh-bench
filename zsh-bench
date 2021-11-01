@@ -135,7 +135,7 @@ else
   function maybe-drop-caches() { }
 fi
 
-zmodload zsh/datetime
+zmodload zsh/datetime zsh/zselect
 
 local -r stats=(
   creates_tty
@@ -493,7 +493,7 @@ repeat $iters[2]; do
     local -F3 exit_time_ms=took_ms
   fi
 
-  command sleep 1
+  zselect -t 10 || true
 done
 
 () {
