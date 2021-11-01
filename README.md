@@ -886,6 +886,31 @@ correctly, the screen before `first_prompt_lag_ms` shouldn't have prompt but aft
 Similarly, the screen before `first_command_lag_ms` shouldn't have `ZB*-msg` but afterwards it
 should (the first command prints `ZB*-msg` where `*` is a random number).
 
+You can use [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) config
+for black-box testing of `zsh-bench`:
+
+```zsh
+./playground synthetic
+```
+
+By default [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) behaves
+like [no-rcs](https://github.com/romkatv/zsh-bench/tree/master/configs/no-rcs). If you run
+`~/zsh-bench/zsh-bench`, you should see very low latencies.
+
+Restart zsh with specific latencies:
+
+```zsh
+ZB_FIRST_PROMPT_LAG_MS=50   \
+ZB_FIRST_COMMAND_LAG_MS=150 \
+ZB_COMMAND_LAG_MS=10        \
+ZB_INPUT_LAG_MS=20          \
+exec zsh -l
+```
+
+Now zsh should be lagging a tiny bit. The values in the command above are the
+[threshold latencies](#how-fast-is-fast). `~/zsh-bench/zsh-bench` should report slightly higher
+latencies than these.
+
 ## License
 
 [MIT](https://github.com/romkatv/zsh-bench/blob/master/LICENSE).
