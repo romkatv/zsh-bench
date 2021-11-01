@@ -18,7 +18,7 @@
 | [diy+](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 16%<br>🟢 | 53%<br>🟡 | 23%<br>🟢 | 60%<br>🟡 |
 | [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 16%<br>🟢 | 43%<br>🟢 | 23%<br>🟢 | 61%<br>🟡 |
 | [diy++unsafe](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bunsafe) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 16%<br>🟢 | 37%<br>🟢 | 23%<br>🟢 | 60%<br>🟡 |
-| [diy++fsyh](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bfsyh) | ✔️ | ✔️ | ❌ | ✔️ | ✔️ | 13%<br>🟢 | 40%<br>🟢 | 20%<br>🟢 | 24%<br>🟢 |
+| [diy++fsyh](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bfsyh) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 13%<br>🟢 | 40%<br>🟢 | 20%<br>🟢 | 24%<br>🟢 |
 | [zcomet](https://github.com/romkatv/zsh-bench/tree/master/configs/zcomet) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 16%<br>🟢 | 45%<br>🟢 | 24%<br>🟢 | 60%<br>🟡 |
 | [zinit](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 16%<br>🟢 | 77%<br>🟡 | 23%<br>🟢 | 62%<br>🟡 |
 | [zplug](https://github.com/romkatv/zsh-bench/tree/master/configs/zplug) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 111%<br>🟠 | 103%<br>🟠 | 23%<br>🟢 | 60%<br>🟡 |

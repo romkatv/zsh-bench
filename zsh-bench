@@ -249,7 +249,7 @@ cd -q -- $cwd
       '"${(qqq)TERM-}"'
       '"${+functions[compinit]}${+functions[compdef]}"'
       '"${+_ZSH_AUTOSUGGEST_BIND_COUNTS}"'
-      '"${+ZSH_HIGHLIGHT_VERSION}"')
+      '"${+ZSH_HIGHLIGHT_VERSION}${+FAST_HIGHLIGHT_VERSION}"')
 
   print -r  -- '"builtin" "print" '$msg
   print -r  -- '"builtin" "[" "$?" "-eq" "0" "]" || "builtin" "exit"'
@@ -468,7 +468,7 @@ repeat $iters[2]; do
   [[ $info[3] == <0-1> ]] || return 'error()'
   local -i has_autosuggestions=$(( ${has_autosuggestions-1} && info[3] ))
 
-  [[ $info[4] == <0-1> ]] || return 'error()'
+  [[ $info[4] == <0-1><0-1> ]] || return 'error()'
   local -i has_syntax_highlighting=$(( ${has_syntax_highlighting-1} && info[4] ))
 
   local -i i
