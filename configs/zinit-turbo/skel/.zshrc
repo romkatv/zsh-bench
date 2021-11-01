@@ -3,7 +3,7 @@ if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
 fi
 
 if [[ ! -e ~/.zinit/bin ]]; then
-  git clone --depth=1 https://github.com/zdharma/zinit.git ~/.zinit/bin
+  git clone --depth=1 https://github.com/zdharma-continuum/zinit.git ~/.zinit/bin
 fi
 
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then

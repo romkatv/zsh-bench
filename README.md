@@ -591,8 +591,8 @@ benchmarked several plugin managers and frameworks. All configs here have all co
 **diy++** and **diy++unsafe** are listed here to serve as baseline for comparing latency.
 
 The next three configs use "pure" plugin managers: [zcomet](https://github.com/agkozak/zcomet),
-[zinit](https://github.com/zdharma/zinit) and [zplug](https://github.com/zplug/zplug). These allow
-you to install and load plugins but don't configure zsh on their own in any way.
+[zinit](https://github.com/zdharma-continuum/zinit) and [zplug](https://github.com/zplug/zplug).
+These allow you to install and load plugins but don't configure zsh on their own in any way.
 
 Configs **ohmyzsh+**, **prezto+** and **zim+** are based on the respective standard configs. I've
 enabled only the plugins that are required to tick off all capabilities and disabled the rest.
@@ -645,8 +645,9 @@ document is only about performance though, so I won't go into it.
 ### Deferred initialization
 
 It's possible to defer some parts of zsh initialization and perform them when zsh has nothing else
-to do. This can be done with [zinit turbo mode](https://github.com/zdharma/zinit#turbo-and-lucid) or
-[zsh-defer](https://github.com/romkatv/zsh-defer). The latter is my project.
+to do. This can be done with [zinit turbo mode](
+  https://github.com/zdharma-continuum/zinit#turbo-and-lucid) or [zsh-defer](
+    https://github.com/romkatv/zsh-defer). The latter is my project.
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
@@ -715,8 +716,8 @@ meaningful measure of performance. Many other plugin managers have been using th
 of alternatives. The widely held belief that **zinit** is the fastest plugin manager is based
 on the timing of `exit`. Deferred initialization—pioneered by zinit turbo
 mode—[may not be very useful in practice](#deferred-initialization) but it's extremely effective on
-this metric. Unsurprisingly, **zinit** has been
-[optimized for it](https://github.com/zdharma/pm-perf-test).
+this metric. Unsurprisingly, **zinit** has been [optimized for it](
+  https://web.archive.org/web/20201122095227/https://github.com/zdharma/pm-perf-test).
 
 This doesn't mean developers have been engaging in conscious deception. It was easy to unknowingly
 fall into the trap. The timing of `exit` is very close to *first prompt lag* and
@@ -765,7 +766,7 @@ is no reason for you to care one way or another about this number.
   benchmarks thanks to tight integration of core features which cannot be replaced with third party
   plugins.
 - Deferring zsh initialization with
-  [zinit turbo mode](https://github.com/zdharma/zinit#turbo-and-lucid) or
+  [zinit turbo mode](https://github.com/zdharma-continuum/zinit#turbo-and-lucid) or
   [zsh-defer](https://github.com/romkatv/zsh-defer) is not worth it.
 - The output of `time zsh -lic "exit"` does not tell you anything about the performance of
   interactive zsh.

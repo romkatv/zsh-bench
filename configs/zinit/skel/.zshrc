@@ -7,7 +7,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 if [[ ! -e ~/.zinit/bin ]]; then
-  git clone -q --depth=1 https://github.com/zdharma/zinit.git ~/.zinit/bin
+  git clone -q --depth=1 https://github.com/zdharma-continuum/zinit.git ~/.zinit/bin
 fi
 
 source ~/.zinit/bin/zinit.zsh
