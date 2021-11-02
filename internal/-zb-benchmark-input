@@ -5,7 +5,10 @@
 
   if [[ -v _zb_benchmark_input_fd ]]; then
     builtin zle -F $_zb_benchmark_input_fd
-    builtin exec {_zb_benchmark_input_fd}>&-
+    # This sometimes returns an error with no diagnostics even though
+    # the fd gets closed successfully. For example, it happens when
+    # using ohmyzsh with ZSH_THEME=af-magic.
+    builtin exec {_zb_benchmark_input_fd}>&- || builtin true
     unset _zb_benchmark_input_fd
   else
     (( $# == 4 )) || builtin exit
