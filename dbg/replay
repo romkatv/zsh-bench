@@ -9,28 +9,26 @@ zmodload zsh/zutil
 
 local -x LC_ALL=C
 
-local -a help timing_file data_file
-zparseopts -D -K -F --     \
-  {h,-help}=help           \
-  {t,-timing}:=timing_file \
-  {d,-data}:=data_file
+local -a help scratch_dir
+zparseopts -D -K -F -- \
+  {h,-help}=help       \
+  {d,-scratch-dir}:=scratch_dir
 
 if (( $#help )); then
   print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. [-- [PASSTHROUGH]..]"
   print -r --
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
-  print -r -- '  -t,--timing <timing-file>'
-  print -r -- '  -d,--data <data-file>'
+  print -r -- '  -d,--scratch-dir <directory>'
   return
 fi
 
-if (( ! $#timing_file )); then
-  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --timing"
+if (( ! $#scratch_dir )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --scratch-dir"
   return 1
 fi
-if (( ! $#data_file )); then
-  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --data"
+if [[ ! -e $scratch_dir[2] ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: ${(q-)scratch_dir[2]}"
   return 1
 fi
 
@@ -83,7 +81,7 @@ IFS= read -rs
 print -rn -- $clear
 
 print -rn -- $clear
-command scriptreplay "$@" -t $timing_file[2] -- $data_file[2]
+command scriptreplay "$@" -t $scratch_dir[2]/timing -- $scratch_dir[2]/out
 IFS= read -rs
 
 } "$@"

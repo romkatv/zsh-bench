@@ -9,11 +9,10 @@ zmodload zsh/zutil
 
 local -x LC_ALL=C
 
-local -a help timing_file data_file no_header
-zparseopts -D -K -F --     \
-  {h,-help}=help           \
-  {t,-timing}:=timing_file \
-  {d,-data}:=data_file     \
+local -a help scratch_dir no_header
+zparseopts -D -K -F --          \
+  {h,-help}=help                \
+  {d,-scratch-dir}:=scratch_dir \
   {1,-no-header}=no_header
 
 if (( $#help )); then
@@ -21,9 +20,8 @@ if (( $#help )); then
   print -r --
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
+  print -r -- '  -d,--scratch-dir <directory>'
   print -r -- '  -1,--no-header'
-  print -r -- '  -t,--timing <timing-file>'
-  print -r -- '  -d,--data <data-file>'
   return
 fi
 
@@ -32,20 +30,20 @@ if (( ARGC )); then
   return 1
 fi
 
-if (( ! $#timing_file )); then
-  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --timing"
+if (( ! $#scratch_dir )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --scratch-dir"
   return 1
 fi
-if (( ! $#data_file )); then
-  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --data"
+if [[ ! -e $scratch_dir[2] ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: ${(q-)scratch_dir[2]}"
   return 1
 fi
 
 local -F t
 local -i n
 local data timing dt dn
-data=${${"$(<$data_file[2]; print -n x)"%x}#*$'\n'}
-timing=($(<$timing_file[2]))
+data=${${"$(<$scratch_dir[2]/out; print -n x)"%x}#*$'\n'}
+timing=($(<$scratch_dir[2]/timing))
 
 if (( $#timing % 2 != 0 )); then
   print -ru2 -- "${ZSH_SCRIPT:t}: malformed timing file"
