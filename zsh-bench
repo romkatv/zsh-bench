@@ -166,8 +166,88 @@ local script_version
 if script_version=$(LC_ALL=C script -V 2>/dev/null) &&
    [[ $script_version == 'script from util-linux'* ]]; then
   local -ir bsd_script=0
+
+  function script() {
+    if (( ARGC == 1 )); then
+      with-env command script -fqe -- "$1" >/dev/null
+    else
+      with-env command script -fqec "${(j: :)@:2}" -- "$1" >/dev/null
+    fi
+  }
 else
   local -ir bsd_script=1
+
+  function script() {
+    with-env command script -rqt0 -- "${(@Q)@}" >/dev/null
+  }
+
+  () {
+    local x
+    printf -v x '%x' -1
+    if (( $#x < 16 )); then
+      print -ru2 -- "${ZSH_SCRIPT:t}: 32-bit zsh is not supported when using BSD script"
+      return 1
+    fi
+  }
+
+  zmodload zsh/system
+
+  function make-int() {
+    if (( #2 )); then
+      set -- ${@:3} $1
+    else
+      set -- ${(Oa)@:3} $1
+    fi
+    (( ARGC <= 9 && (ARGC < 9 || #1 < 128) )) || return 'error()'
+    typeset -gi ${@[-1]}=0
+    while (( ARGC > 1 )); do
+      (( ${@[-1]} = ${@[-1]} << 8 | #1, 1 ))
+      shift
+    done
+  }
+
+  function scr-record() {
+    local header
+    while true; do
+      local -i n=$((24 - $#header))
+      (( n )) || break
+      sysread -s $n 'header[$#header+1]' || return 'error()'
+    done
+    header=(${(s::)header})
+    make-int scr_len       $header[-1] $header[1,8]
+    make-int scr_sec       $header[-1] $header[9,16]
+    make-int scr_usec      $header[-1] $header[17,20]
+    make-int scr_direction $header[-1] $header[21,24]
+    typeset -g scr_data=
+    while (( $#scr_data != scr_len )); do
+      sysread -s $((scr_len - $#scr_data)) 'scr_data[$#scr_data+1]' || return 'error()'
+    done
+  }
+
+  function scr-convert() {
+    scr-record
+    (( scr_direction == 115 )) || return 'error()'
+    local -F last t
+    local -F6 dt
+    (( last = scr_sec + 1e-6 * scr_usec, 1 ))
+    print -ru1 -- 'Script started'
+    while true; do
+      scr-record
+      if (( scr_direction == 111 )); then
+        (( (t = scr_sec + 1e-6 * scr_usec), (dt = t - last), (last = t), 1 ))
+        print -ru3 -- $dt $#scr_data
+        print -nru1 -- $scr_data
+      elif (( scr_direction == 101 )); then
+        print -u1 -- '\nScript done'
+        break
+      else
+        (( scr_direction == 105 )) || return 'error()'
+      fi
+    done
+    local REPLY
+    sysread && return 'error()'
+    (( $? == 5 )) || return 'error()'
+  }
 fi
 
 function error() {
@@ -310,20 +390,6 @@ function with-env() {
   HOST=${host} TERM=xterm-256color LINES=$lines COLUMNS=$columns "$@"
 }
 
-if (( bsd_script )); then
-  function script() {
-    with-env command script -rqt0 -- "${(@Q)@}" >/dev/null
-  }
-else
-  function script() {
-    if (( ARGC == 1 )); then
-      with-env command script -fqe -- "$1" >/dev/null
-    else
-      with-env command script -fqec "${(j: :)@:2}" -- "$1" >/dev/null
-    fi
-  }
-fi
-
 () {
   local out
   out=$(with-env command zsh -lic '"builtin" "exit"' 2>&1 </dev/null || true)
@@ -386,6 +452,10 @@ repeat $iters[2]; do
         '"command"' '"script"' -fqet${(qqq)timing_file} ${(qqq)out_file}
     fi
   }
+
+  if (( bsd_script )); then
+    scr-convert <$merged_file >$out_file 3>$timing_file
+  fi
 
   local -a timing
   timing=($(<$timing_file))
