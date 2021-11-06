@@ -121,6 +121,7 @@ fi
 
 IFS= read -rs
 print -rn -- $clear
+command stty -echo
 
 function sleep-until-ms() {
   local -F now=EPOCHREALTIME end delay
