@@ -62,9 +62,7 @@ git clone https://github.com/romkatv/zsh-bench ~/zsh-bench
 ~/zsh-bench/zsh-bench
 ```
 
-This requires zsh >= 5.8 and it must be your login shell. It also requires `script` utility from
-util-linux. The BSD version is current not supported although with enough dedication this can be
-done. A PR would be most appreciated.
+This requires zsh >= 5.8 and it must be your login shell.
 
 If your zsh startup files start `tmux`, the benchmark may hang unless your `tmux` has [this fix](
   https://github.com/tmux/tmux/commit/9b1fdb291ee8e940311a51cf41f97b07930b4688#diff-2dec3ca953f8622e2bc9fe13a2eb464d057905e6f9313682665328c6b67910e6)
@@ -831,25 +829,22 @@ Benchmark login shell within the container:
 With `--iters 64` all measurements are performed 64 times and the lowest values are be reported.
 All published benchmark results in this document have been compiled with this option.
 
-Pass `--keep` to preserve the temporary directory used by the benchmark:
+Pass `--scratch-dir /tmp/zsh-bench` to keep temporary benchmark data in a fixed location.
 
 ```zsh
-rm -rf -- '' /tmp/zsh-bench-*(N) && ~/zsh-bench/zsh-bench --iters 1 --keep
+~/zsh-bench/zsh-bench --iters 1 --scratch-dir /tmp/zsh-bench
 ```
-
-Passing `--iters 1` together with `--keep` makes it easier to verify the output of `zsh-bench`.
 
 Replay the screen of the TTY that `zsh-bench` was acting on during benchmarking:
 
 ```zsh
-~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
+~/zsh-bench/dbg/replay --scratch-dir /tmp/zsh-bench
 ```
 
-This script is a wrapper around `scriptreplay`. All positional arguments are passed through. For
-example, to replay at slower speed:
+Replay at 10% speed and at most 1s delay between TTY updates.
 
 ```zsh
-~/zsh-bench/dbg/replay -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -- -d 0.1 -m 1
+~/zsh-bench/dbg/replay --scratch-dir /tmp/zsh-bench --delay-multiplier 10 --max-delay-ms 1000
 ```
 
 Don't resize your terminal after running `zsh-bench` so that everything replays correctly.
@@ -875,16 +870,16 @@ Print a TAB-separated table of timestamped raw writes to the TTY:
 See what happened at the specific timestamp:
 
 ```zsh
-~/zsh-bench/dbg/focus -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out -T 10.149
+~/zsh-bench/dbg/replay --scratch-dir /tmp/zsh-bench --pause-at-ms 10.149
 ```
 
-The value of `-T` is a timestamp in milliseconds. The command shows how the TTY looked like
-right before and right after the specified timestamp. If you pass the value of `first_prompt_lag_ms`
-or `first_command_lag_ms` reported by `zsh-bench` as the timestamp, you'll see what `zsh-bench`
-considered *first prompt* and the output of *first command* respectively. If `zsh-bench` did its job
-correctly, the screen before `first_prompt_lag_ms` shouldn't have prompt but afterwards it should.
-Similarly, the screen before `first_command_lag_ms` shouldn't have `ZB*-msg` but afterwards it
-should (the first command prints `ZB*-msg` where `*` is a random number).
+The last argument is a timestamp in milliseconds. The replay will pause right before and right after
+it. If you pass the value of `first_prompt_lag_ms` or `first_command_lag_ms` reported by `zsh-bench`
+as the timestamp, you'll see what `zsh-bench` considered *first prompt* and the output of
+*first command* respectively. If `zsh-bench` did its job correctly, the screen before
+`first_prompt_lag_ms` shouldn't have prompt but afterwards it should. Similarly, the screen before
+`first_command_lag_ms` shouldn't have `ZB*-msg` but afterwards it should (the first command prints
+`ZB*-msg` where `*` is a random number).
 
 You can use [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) config
 for black-box testing of `zsh-bench`:
