@@ -454,6 +454,7 @@ function with-env() {
 } | script /dev/null ${(qqq)commands[zsh]} '"-li"'
 
 repeat $iters[2]; do
+  command rm -f -- $info_file $timing_file $out_file $merged_file
   maybe-drop-caches
 
   {
@@ -570,7 +571,6 @@ repeat $iters[2]; do
 
   local info
   info=$(<$info_file)
-  command rm -- $info_file
   info=(${(@Q)${(z)info}})
   (( $#info == 7 )) || return 'error()'
 
