@@ -864,7 +864,7 @@ would get.
 Print a TAB-separated table of timestamped raw writes to the TTY:
 
 ```zsh
-~/zsh-bench/dbg/timeline -t /tmp/zsh-bench-*/timing -d /tmp/zsh-bench-*/out
+~/zsh-bench/dbg/timeline --scratch-dir /tmp/zsh-bench
 ```
 
 See what happened at the specific timestamp:
