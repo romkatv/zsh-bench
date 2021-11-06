@@ -879,7 +879,9 @@ as the timestamp, you'll see what `zsh-bench` considered *first prompt* and the 
 *first command* respectively. If `zsh-bench` did its job correctly, the screen before
 `first_prompt_lag_ms` shouldn't have prompt but afterwards it should. Similarly, the screen before
 `first_command_lag_ms` shouldn't have `ZB*-msg` but afterwards it should (the first command prints
-`ZB*-msg` where `*` is a random number).
+`ZB*-msg` where `*` is a random number). Capability `has_git_prompt` should be set if and only if
+`ZB*-branch` appears before `ZB*-msg`. In other words, `has_git_prompt` signifies that the first
+prompt shows git branch.
 
 You can use [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) config
 for black-box testing of `zsh-bench`:
