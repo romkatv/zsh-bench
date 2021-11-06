@@ -308,6 +308,16 @@ cd -q -- $_zb_tmpdir
 command mkdir bin
 command ln -s -- $commands[zsh] bin/-zsh
 
+function make-pat() {
+  local name=$1
+  shift
+  local word words=() junk=$'(\e''(\(B|\[m|\[<->m))#'
+  for word; do
+    words+=("(${(pj:$junk:)${(@b)${(@s::)word}}})")
+  done
+  typeset -gr $name="(${(j:|:)words})"
+}
+
 local -r zsh_version_file=$_zb_tmpdir/zsh_version
 local -r info_file=$_zb_tmpdir/info
 local -r fifo_file=$_zb_tmpdir/fifo
@@ -322,8 +332,6 @@ local -r host=${prefix}host
 local -r git_branch=${prefix}branch
 local -r src=./s
 
-local -r prompt_pat="(${(b)cwd}|${(b)host})"
-
 local -r bench_input_file=$self_dir/internal/-zb-benchmark-input
 local -r bench_prompt_file=$self_dir/internal/-zb-benchmark-prompt
 
@@ -334,6 +342,10 @@ local bench_input_buf=' \abc'
 repeat 5 bench_input_buf+=$bench_input_buf
 bench_input_buf+="'"
 local -r bench_input_buf
+
+make-pat prompt_pat $cwd $host
+make-pat msg_pat    ${(Q)msg}
+make-pat branch_pat $git_branch
 
 command mkfifo -- $fifo_file
 command mkdir -- $cwd
@@ -536,7 +548,7 @@ repeat $iters[2]; do
     local -F3 first_prompt_lag_ms=REPLY
   fi
 
-  if ! timeof ${(b)${(Q)msg}}; then
+  if ! timeof $msg_pat; then
     print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the output of the first command"
     return 1
   fi
@@ -545,7 +557,7 @@ repeat $iters[2]; do
   fi
 
   local -F first_cmd=REPLY
-  if timeof ${(b)git_branch} && (( REPLY <= first_cmd )); then
+  if timeof $branch_pat && (( REPLY <= first_cmd )); then
     typeset -i has_git_prompt=1
   else
     typeset -i has_git_prompt=${has_git_prompt-0}
