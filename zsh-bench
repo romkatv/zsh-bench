@@ -289,8 +289,7 @@ else
         (( delay *= 2 ))
       done
     fi
-    [[ $1 == EXIT ]] && exit
-    exit $((127 + ${signals[(Ie)$1]}))
+    [[ $1 == EXIT ]] || exit $((127 + ${signals[(Ie)$1]}))
   }
 
   local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
