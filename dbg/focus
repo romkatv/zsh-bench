@@ -5,15 +5,18 @@ setopt no_unset typeset_silent no_multi_byte warn_create_global pipe_fail
 
 () {
 
-zmodload zsh/zutil
+zmodload zsh/zutil zsh/datetime
 
 local -x LC_ALL=C
 
-local -a help scratch_dir timestamp
-zparseopts -D -K -F --          \
-  {h,-help}=help                \
-  {d,-scratch-dir}:=scratch_dir \
-  {T,-timestamp}:=timestamp
+local -a help scratch_dir pause_at_ms max_delay_ms
+local -a delay_multiplier=(_ 1)
+zparseopts -D -K -F --            \
+  {h,-help}=help                  \
+  {d,-scratch-dir}:=scratch_dir   \
+  {p,-pause-at-ms}:=pause_at_ms   \
+  {M,-max-delay-ms}:=max_delay_ms \
+  {m,-delay-multiplier}:=delay_multiplier
 
 if (( $#help )); then
   print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].."
@@ -21,7 +24,9 @@ if (( $#help )); then
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
   print -r -- '  -d,--scratch-dir <directory>'
-  print -r -- '  -T,--timestamp <milliseconds>'
+  print -r -- '  -p,--pause-at-ms <milliseconds>'
+  print -r -- '  -M,--max-delay-ms <milliseconds>'
+  print -r -- '  -m,--delay-multiplier <number> [default=1]'
   return
 fi
 
@@ -38,12 +43,16 @@ if [[ ! -e $scratch_dir[2] ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: ${(q-)scratch_dir[2]}"
   return 1
 fi
-if (( ! $#timestamp )); then
-  print -ru2 -- "${ZSH_SCRIPT:t}: missing required flag: --timestamp"
+if [[ $#pause_at_ms -ne 0 && $pause_at_ms[2] != <->(|.<->) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: invalid --pause-at-ms format: ${(q-)pause_at_ms[2]}"
   return 1
 fi
-if [[ $timestamp[2] != <->.[0-9][0-9][0-9] ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: invalid timestamp format: ${(q-)timestamp[2]}"
+if [[ $#max_delay_ms -ne 0 && $max_delay_ms[2] != <->(|.<->) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: invalid --max-delay-ms format: ${(q-)max_delay_ms[2]}"
+  return 1
+fi
+if [[ $delay_multiplier[2] != <->(|.<->) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: invalid --delay-multiplier format: ${(q-)delay_multiplier[2]}"
   return 1
 fi
 if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
@@ -59,29 +68,8 @@ if [[ ! -v commands[reset] ]]; then
   return 1
 fi
 
-unset _zb_stty
-typeset -g _zb_stty
-_zb_stty=$(command stty -g)
-
-function cleanup() {
-  local key
-  while true; do
-    [[ -t 2 ]] || read -t0 -k key || break
-  done 2>/dev/null
-  command reset
-  command stty $_zb_stty
-  [[ $1 == EXIT ]] && exit
-  exit $((127 + ${signals[(Ie)$1]}))
-}
-
-local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
-for sig in $trapped; do
-  trap "trap - $trapped; cleanup $sig" $sig
-done
-unset sig trapped
-
 local -F t
-local -i n stage
+local -i n stage=$((2 - $#pause_at_ms))
 local data timing dt dn REPLY
 data=${${"$(<$scratch_dir[2]/out; print -n x)"%x}#*$'\n'}
 timing=($(<$scratch_dir[2]/timing))
@@ -95,41 +83,92 @@ if (( $#timing == 0 )); then
   return 1
 fi
 
+unset _zb_stty _zb_error
+typeset -g _zb_stty
+_zb_stty=$(command stty -g)
+
+function cleanup() {
+  local key
+  while true; do
+    [[ -t 2 ]] || read -t0 -k key || break
+  done 2>/dev/null
+  command reset
+  command stty $_zb_stty
+  if [[ -v _zb_error ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: $_zb_error"
+  fi
+  [[ $1 == EXIT ]] || exit $((127 + ${signals[(Ie)$1]}))
+}
+
+local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
+for sig in $trapped; do
+  trap "trap - $trapped; cleanup $sig" $sig
+done
+unset sig trapped
+
 local -r clear=${(pl:$LINES::\n:):-}$'\e[H'
 
 print -rn -- $clear
-print -r -- '1. Press ENTER to see the TTY content right before T='$timestamp[2]'ms.'
-print -r -- '2. Press ENTER again to see the TTY content right after T='$timestamp[2]'ms.'
-print -r -- '3. Press ENTER for the third time to exit.'
+if (( $#pause_at_ms )); then
+  print -r -- '1. Press ENTER to see the replay of the TTY content.'
+  print -r -- '2. The replay will pause right before T='$pause_at_ms[2]'ms. Press ENTER to continue.'
+  print -r -- '3. The replay will pause right after T='$pause_at_ms[2]'ms. Press ENTER to continue.'
+  print -r -- '4. The replay will pause for the last time at the end. Press ENTER to exit.'
+else
+  print -r -- '1. Press ENTER to see the replay of the TTY content.'
+  print -r -- '2. Press ENTER again at the end to exit.'
+fi
 
 IFS= read -rs
 print -rn -- $clear
 
+function sleep-until-ms() {
+  local -F now=EPOCHREALTIME end delay
+  (( (end = start_time + 1e-3 * delay_multiplier[2] * $1), (delay = end - now), 1 ))
+  if (( $#max_delay_ms && delay > 1e-3 * max_delay_ms[2] )); then
+    (( end = now + 1e-3 * max_delay_ms[2], start_time += (1e-3 * max_delay_ms[2] - delay), 1 ))
+  fi
+
+  while (( EPOCHREALTIME < end )) :
+}
+
+function pause() {
+  local -F t=EPOCHREALTIME
+  IFS= read -rs
+  (( start_time += EPOCHREALTIME - t ))
+}
+
+local -F start_time=EPOCHREALTIME
+
 for dt dn in $timing; do
   if [[ $dt != <->(|.<->) || $dn != <1-> ]]; then
-    print -ru2 -- "${ZSH_SCRIPT:t}: malformed timing file"
+    typeset -g _zb_error='malformed timing file'
     return 1
   fi
   if (( $#data < n + dn )); then
-    print -ru2 -- "${ZSH_SCRIPT:t}: malformed timing or data file"
+    typeset -g _zb_error='malformed timing or data file'
     return 1
   fi
   (( t += dt, 1 ))
-  if (( stage == 0 && 1e3 * t > timestamp[2] - 0.002 )); then
-    IFS= read -rs
+  if (( stage == 0 && 1e3 * t >= pause_at_ms[2] - 0.002 )); then
+    sleep-until-ms $((pause_at_ms[2] - 0.002))
+    pause
     stage=1
   fi
-  if (( 1e3 * t >= timestamp[2] + 0.002 )); then
-    IFS= read -rs
+  if (( stage == 1 && 1e3 * t >= pause_at_ms[2] + 0.002 )); then
+    sleep-until-ms $((pause_at_ms[2] + 0.002))
+    pause
     stage=2
-    break
   fi
+  sleep-until-ms $((1e3 * t))
   print -rn -- $data[n+1,n+dn]
   (( n += dn ))
 done
 
-if (( stage != 2 )); then
-  print -ru2 -- "${ZSH_SCRIPT:t}: timestamp out of range"
+if (( stage == 2 )); then
+  IFS= read -rs
+else
+  typeset -g _zb_error='--pause-at-ms out of range'
   return 1
 fi
 
