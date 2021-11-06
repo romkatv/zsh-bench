@@ -19,13 +19,13 @@ local -r self_dir=${ZSH_SCRIPT:A:h}
 zmodload zsh/zutil
 
 local -a help
-local -a keep
+local -a scratch_dir
 local -a drop_caches
 local -a iters=(--iters 16)
 local -a git=(--git yes)
 zparseopts -D -K -F --          \
   {h,-help}=help                \
-  {k,-keep}=keep                \
+  {d,-scratch-dir}:=scratch_dir \
   {c,-drop-caches}:=drop_caches \
   {i,-iters}:=iters             \
   {g,-git}:=git
@@ -35,10 +35,10 @@ if (( $#help )); then
   print -r --
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
-  print -r -- '  -k,--keep'
   print -r -- '  -i,--iters <NUM> [default=16]'
   print -r -- '  -g,--git <yes|no|empty> [default=yes]'
   print -r -- '  -c,--drop-caches <1|2|3>'
+  print -r -- '  -d,--scratch-dir <directory>'
   return
 fi
 
@@ -52,14 +52,19 @@ if [[ $git[2] != (yes|no|empty) ]]; then
   return 1
 fi
 
+if [[ $#scratch_dir -ne 0 && -z $scratch_dir[2] ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: --scratch-dir cannot have empty value"
+  return 1
+fi
+
 if [[ $#drop_caches -ne 0 && $drop_caches[2] != <1-3> ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --drop-caches: ${(q-)drop_caches[2]}"
   return 1
 fi
 
 if (( ARGC )); then
-  if (( $#keep )); then
-    print -ru2 -- "${ZSH_SCRIPT:t}: ${keep[1]} is incompatible with positional arguments"
+  if (( $#scratch_dir )); then
+    print -ru2 -- "${ZSH_SCRIPT:t}: ${scratch_dir[1]} is incompatible with positional arguments"
     return 1
   fi
 
@@ -260,9 +265,17 @@ function error() {
 }
 functions -Ms error
 
-unset _zb_tmpdir
+if (( $#scratch_dir )); then
+  local -r _zb_tmpdir=${scratch_dir[2]:a}
+  command rm -rf -- $_zb_tmpdir
+  if [[ -e $_zb_tmpdir ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: cannot delete scratch dir: ${(q-)_zb_tmpdir}"
+    return 1
+  fi
+  command mkdir -p -- $_zb_tmpdir
+else
+  unset _zb_tmpdir
 
-if (( ! $#keep )); then
   function cleanup() {
     if [[ $1 != EXIT ]]; then
       print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
@@ -285,9 +298,12 @@ if (( ! $#keep )); then
     trap "trap - $trapped; cleanup $sig" $sig
   done
   unset sig trapped
+
+  typeset -g _zb_tmpdir
+  _zb_tmpdir=$(command mktemp -d ${TMPDIR:-/tmp}/zsh-bench-XXXXXXXXXX)
+  typeset -gr _zb_tmpdir
 fi
 
-typeset -g _zb_tmpdir=$(command mktemp -d ${TMPDIR:-/tmp}/zsh-bench-XXXXXXXXXX)
 cd -q -- $_zb_tmpdir
 
 command mkdir bin
