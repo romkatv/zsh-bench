@@ -422,9 +422,20 @@ function with-env() {
   HOST=${host} TERM=xterm-256color LINES=$lines COLUMNS=$columns "$@"
 }
 
+function mask-shell-integration() {
+  local e=$'\e' a=$'\a'
+  local begin=$e'(\](0|1|2|7|1337);|k)'
+  local end='('$e'\\|'$a')'
+  local mid='[^'$e$a']#'
+  local pat=${begin}${mid}${end}
+  local MATCH MBEGIN MEND
+  out=${(S)out//(#m)$~pat/${MATCH//?/X}}
+}
+
 () {
   local out
   out=$(with-env command zsh -lic '"builtin" "exit"' 2>&1 </dev/null || true)
+  mask-shell-integration
   if [[ $out == *${~prompt_pat}* ]]; then
     print -ru2 -- "${ZSH_SCRIPT:t}: zsh is printing hostname or the last part of the current directory"
     print -ru2 -- $out
@@ -527,6 +538,8 @@ repeat $iters[2]; do
     (( p == $#out )) || return 'error()'
   }
 
+  mask-shell-integration
+
   function timeat() {
     [[ ARGC -eq 1 && $1 == <1-> ]] || return 'error()'
     local -ir needle=$1
@@ -549,16 +562,6 @@ repeat $iters[2]; do
     local -i pos=$(($#out - $#suf))
     (( pos )) || return
     timeat $pos
-  }
-
-  () {
-    local e=$'\e' a=$'\a'
-    local begin=$e'(\](0|1|2|7|1337);|k)'
-    local end='('$e'\\|'$a')'
-    local mid='[^'$e$a']#'
-    local pat=${begin}${mid}${end}
-    local MATCH MBEGIN MEND
-    out=${(S)out//(#m)$~pat/${MATCH//?/X}}
   }
 
   local REPLY
