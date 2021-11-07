@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# functions
+pwdp()
+{
+	readlink /proc/$1/cwd || echo Permission denied >> /dev/stderr
+}
+get_term()
+{
+	ps -h -o comm -p $(ps -h -o ppid -p $$ 2> /dev/null) 2> /dev/null
+}
+port()
+{
+	netcat -zvw10 "$@"
+}
+
+fixhist()
+{
+	hash iconv || return
+	iconv -f utf-8 -t utf-8 -c "$HISTFILE" > "$HISTFILE~"
+	mv "$HISTFILE"{~,}
+}
+
+mkcd()
+{
+	mkdir -p "$1"
+	cd "$1"
+}

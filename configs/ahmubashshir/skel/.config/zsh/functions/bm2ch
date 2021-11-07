@@ -1,0 +1,14 @@
+local comic
+local -i page
+while (($# > 0 && $# % 2 == 0));do
+	comic=$1;page=$2
+	shift 2
+	echo "$comic:"
+	bsdtar -tvf "$comic" \
+		| grep -vE '(/|\.txt)$' \
+		| awk '{print $NF}' \
+		| sed -E 's/\.0{5}\//,/' \
+		| cut -d '.' -f1 \
+		| sort -n -t, -k1,1	-k2,2 \
+		| awk -F, -v page=$page 'BEGIN{print "CH\tPAGE"};NR==page{printf "%d\t%d\n", $1, $2}'
+done

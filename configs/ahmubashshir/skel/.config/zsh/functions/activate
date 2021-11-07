@@ -1,0 +1,17 @@
+local venv venvpath
+venv=${1:-.venv}
+
+if [[ -d $venv && -f $venv/bin/activate ]];then
+	venvpath="$venv"
+elif [[ -f $venv ]];then
+	if [[ -f ~/.virtualenvs/$(<$venv)/bin/activate ]];then
+		venvpath="$HOME/.virtualenvs/$(<$venv)"
+	elif [[ -f $(<$venv)/bin/activate ]];then
+		venvpath="$(<$venv)"
+	fi
+else
+	echo "ERROR: $1 is not a valid virtual env" >&2
+	return 1
+fi
+
+source "$venvpath/bin/activate"

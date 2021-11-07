@@ -1,0 +1,40 @@
+#!/bin/zsh
+
+ENV[prompt_suffix]='%(?..%F{cyan})┠'
+ENV[prompt_prefix]='%(?..%F{cyan})┨'
+ENV[prompt_seperator]='%(?..%F{cyan})'
+case "$TERM" in
+	xterm|xterm-color|*-256color|*-kitty) ENV[color_prompt]=yes;;
+esac
+
+function xterm_title_precmd {
+	print -Pnf '\e]2;[%s idle]\a' -- '%1~'
+}
+function xterm_title_preexec {
+	print -Pnf '\e]2;[%s run]' -- '%1~'
+	printf ' %s\a' "$1"
+}
+function reset_broken_terminal {
+	printf '%b' '\e[0m\e(B\e)0\017\e[?5l\e7\e[0;0r\e8'
+}
+# zsh hooks
+add-zsh-hook -Uz precmd reset_broken_terminal
+if [[ "$TERM" == (alacritty*|gnome*|konsole*|putty*|rxvt*|screen*|tmux*|xterm*) ]]; then
+	add-zsh-hook -Uz precmd xterm_title_precmd
+	add-zsh-hook -Uz preexec xterm_title_preexec
+fi
+# Prompt Setup
+if [[ $ENV[color_prompt] = yes ]];then
+	if [[ -z "$TMUX" && -z "$TMUX_PLUGIN_MANAGER_PATH" ]];then
+		DATE_TIME_PROMPT="${ENV[prompt_seperator]}${ENV[prompt_prefix]}%B%F{blue}%D{%I}%F{green}:%F{blue}%D{%M}%F{green}:%F{blue}%D{%S}%F{green}%D{%p}%b%F{red}${ENV[prompt_suffix]}"
+	fi
+	zplug-defer gitstatus-async
+	zplug-defer devprompt
+	DIR_PROMPT="${ENV[prompt_prefix]}%F{green} %F{cyan}%B%1~%b%F{red}${ENV[prompt_suffix]}"
+	RET_PROMPT="%(?..${ENV[prompt_prefix]}😑%F{red}%B%?%b${ENV[prompt_suffix]})"
+	PROMPT=$'%E%F{red}%(?..%F{cyan})╭─${DIR_PROMPT}${DATE_TIME_PROMPT}${GITSTATUS_PROMPT}${DEVPROMPT_PROMPT}${RET_PROMPT}\b┃\n╰─%(?..%F{cyan})%Bλ%b%F{lightgreen} '
+	RPROMPT='%(?.🙂.😑)'
+else
+	PROMPT='%1~ %% '
+fi
+

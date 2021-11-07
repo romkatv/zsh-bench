@@ -1,0 +1,54 @@
+#!/bin/zsh
+fpath=(${ZDOTDIR:-$HOME/.zsh}/functions $fpath)
+ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+ZSH="$ZDOTDIR/omz"
+ZSH_COMPDUMP="$ZSH_CACHE_DIR/compdump"
+
+function source {
+	if [ -f "$1" ];then
+		builtin source "$@"
+	fi
+}
+
+function compinit {
+		local body
+		body=$functions[compinit]
+		unfunction compinit
+		autoload -Uz compinit
+		compinit -d "$ZSH_COMPDUMP" "$@"
+		functions[compinit]=$body
+}
+
+if [[ -o interactive ]];then
+	autoload -Uz zcompare
+else
+	function zcompare {
+		if [[ -w $1:P:h ]] && [[ -s "$1" && ( ! -s "$1.zwc" || "$1" -nt "$1.zwc" ) && ! -f "$1.ignore.zwc" ]]
+		then
+			zcompile "${@:2}" "$1"
+		fi
+	}
+fi
+
+function load {
+	local each from
+	from=$1;shift
+	for each in "$@";do
+		zcompare "${ZDOTDIR:-$HOME/.zsh}/$from.d/$each" -UMz
+		source "${ZDOTDIR:-$HOME/.zsh}/$from.d/$each"
+	done
+}
+if [ ! -d ~/.cache/zsh ];then
+	rm -f ~/.cache/zsh
+	mkdir -p ~/.cache/zsh
+fi
+# Traps
+function TRAPUSR1 { rehash; }
+function {
+	emulate -L zsh
+	setopt extendedglob nullglob
+	load env $ZDOTDIR/env.d/^gui~*.zwc(:t)
+	[[ $XDG_SESSION_TYPE =~ ^(x11|wayland)$ ]] && load env gui
+}
+
+unfunction zcompare

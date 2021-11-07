@@ -1,0 +1,28 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+git config --global init.defaultBranch main
+git config --global user.email "zsh-bench@github.com"
+git config --global user.name "Zsh Bench"
+
+cp -r -- ${ZSH_SCRIPT:h}/skel/.* ~/
+
+echo '*.zwc' > ~/.config/zsh/.gitignore
+git -C ~/.config/zsh init
+git -C ~/.config/zsh add .
+git -C ~/.config/zsh commit -m 'Init zsh config'
+git -C ~/.config/zsh submodule add https://github.com/ohmyzsh/ohmyzsh omz
+git -C ~/.config/zsh commit -m "zsh(omz): Add submodule"
+for each in \
+	hlissner/zsh-autopair:autopair \
+	zdharma-continuum/fast-syntax-highlighting:fast-syntax-highlighting \
+	MichaelAquilina/zsh-autoswitch-virtualenv:autoswitch_virtualenv \
+	zsh-users/zsh-history-substring-search:history-substring-search \
+	romkatv/gitstatus:gitstatus \
+	zsh-users/zsh-completions:completions \
+	zsh-users/zsh-autosuggestions:autosuggestions \
+	romkatv/zsh-defer:defer
+do
+	git -C ~/.config/zsh submodule add "https://github.com/${each%:*}" "plugins/${each#*:}"
+	git -C ~/.config/zsh commit -m "zsh(plugins/${each#*:}): Add submodule"
+done

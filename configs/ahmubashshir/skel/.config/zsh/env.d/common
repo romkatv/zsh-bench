@@ -1,0 +1,18 @@
+#!/bin/zsh
+if [ -z "$HOME" ]; then
+	export HOME=~
+fi
+if [ -z "$XDG_CONFIG_HOME" ]; then
+	export XDG_CONFIG_HOME="$HOME/.config"
+fi
+if [ -z "$XDG_DATA_HOME" ]; then
+	export XDG_DATA_HOME="$HOME/.local/share"
+fi
+
+export ANDROID_PREFS_ROOT="$XDG_CONFIG_HOME"/android
+export ADB_KEYS_PATH="$ANDROID_PREFS_ROOT"
+export ANDROID_EMULATOR_HOME="$XDG_DATA_HOME"/android/emulator
+export EDITOR=nano
+export LESS='-FgiJRMSx4$z-4$~'
+export GOPATH="$XDG_DATA_HOME/go"
+export GPG_TTY="${TTY:-$(tty)}"

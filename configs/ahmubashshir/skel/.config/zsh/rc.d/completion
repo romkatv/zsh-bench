@@ -1,0 +1,45 @@
+#!/bin/zsh
+
+## Zstyle Config
+# The following lines were added by compinstall
+zstyle :compinstall filename "$ZDOTDIR/rc.d/completion"
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _list _expand _complete _ignored _match _correct _approximate _prefix
+zstyle ':completion:*' completions set
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' expand prefix suffix
+zstyle ':completion:*' file-sort name
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' glob set
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' ignore-parents parent pwd
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-prompt '%SAt %p: Hit TAB for more, or the character to insert%s'
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
+zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*'
+zstyle ':completion:*' max-errors 1
+zstyle ':completion:*' menu select=0
+zstyle ':completion:*' preserve-prefix '//[^/]##/'
+zstyle ':completion:*' prompt 'Correct'
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' special-dirs true
+zstyle ':completion:*' squeeze-slashes true
+zstyle ':completion:*' substitute set
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' verbose true
+zstyle ':completion:*' list-grouped true
+zstyle ':completion:*' list-dirs-first true
+zstyle ':completion:*' list-rows-first true
+zstyle ':completion:*' remove-all-dups true #
+zstyle ':completion:*' use-cache true
+zstyle ':completion:*' cache-path ~/.cache/zsh/compcache
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:kill:*' gain-privileges true
+zstyle ':completion:*:kill:*' force-list always
+#zstyle ':completion:*:(all-|)files' ignored-patterns '(|*/)CVS'
+#zstyle ':completion:*:cd:*' ignored-patterns '(*/)#CVS'
+#zstyle ':completion:*:match:*' original only
+#zstyle -e ':completion:*:approximate:*' \
+	#max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3))numeric)'
+

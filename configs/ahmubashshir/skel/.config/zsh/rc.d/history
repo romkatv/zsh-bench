@@ -1,0 +1,20 @@
+#!/bin/zsh
+HISTFILE=${XDG_CACHE_HOME:-$HOME/.cache/zsh}/history
+HISTSIZE=1000
+SAVEHIST=3000
+HISTDUP=erase
+setopt \
+	hist_fcntl_lock \
+	inc_append_history \
+	extended_history \
+	hist_no_store \
+	hist_reduce_blanks \
+	share_history \
+	hist_expire_dups_first \
+	hist_ignore_dups \
+	hist_ignore_all_dups \
+	hist_ignore_space \
+	hist_find_no_dups \
+	hist_save_no_dups \
+	hist_no_functions \
+	hist_verify \

@@ -1,0 +1,3 @@
+#!/bin/zsh
+printf 'Running "%s"\n' "$*"
+"$@"

@@ -1,0 +1,76 @@
+#!/bin/bash
+# shellcheck disable=SC1090,SC2139
+# shellcheck disable=SC2142
+if [ -z "$LS_COLORS" ]; then
+	alias ls='ls --color=auto'
+	alias dir='dir --color=auto'
+	alias vdir='vdir --color=auto'
+	alias grep='grep --color=auto'
+	alias fgrep='fgrep --color=auto'
+	alias egrep='egrep --color=auto'
+fi
+
+#aliases
+exec 3> /dev/null
+if hash apt 1>&3 2>&1; then
+	alias apt-i="apt install"
+	alias apt-r="apt remove"
+	alias apt-ri="apt reinstall"
+	alias apt-fu="apt full-upgrade"
+	alias apt-du="apt dist-upgrade"
+	alias apt-uu="apt upgrade"
+	alias apt-u="apt update"
+fi
+alias q="exit"
+alias c="clear"
+alias t=time
+alias k="kill"
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias sign='gpg --detach-sign'
+alias clearsign='gpg --clearsign'
+
+if [ -x /usr/bin/wormhole ]; then
+	alias send='wormhole send'
+	alias recv='wormhole receive'
+elif [ -x /usr/bin/wormhole-william ]; then
+	alias send='wormhole-william send'
+	alias recv='wormhole-william recv'
+fi
+if hash git 2> /dev/null; then
+	for n in g gut giy hut; do
+		alias "$n=git"
+	done
+	alias commit='git commit'
+	alias pull='git pull'
+	alias clone='git clone'
+fi
+alias sudo='sudo -H'
+alias spider='curl -ILksXGET'
+alias dd='dd status=progress'
+### Colored Output
+
+alias diff='diff --color=auto'
+alias grep='grep --color=auto'
+alias ip='ip -color=auto'
+alias ls='ls --color=auto'
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='grep -E --color=auto'
+
+# Zsh suffix aliases
+if [ -n "${ZSH_VERSION}" ] && [ -n "${ZSH_NAME}" ]; then
+	alias -s tmate=ssh
+	alias -s {txt,md}='less'
+	alias -s {c,cpp,h,hpp,cxx,cc,hh}='nano'
+	alias -s html='lynx'
+	alias -s json="function {
+		[ -z \"\$1\" ] && return
+		[ -x /usr/bin/jiq ] && jiq < \"\$1\" || {
+			jq -C '.' \"\$@\"|less
+		}
+	}"
+fi

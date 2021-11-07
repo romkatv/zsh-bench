@@ -1,0 +1,5 @@
+#!/bin/zsh
+sed -E 's/^: ([0-9]+)/\n[ \1 ]\n/' "$HISTFILE" \
+	| awk '/^\[/{print "\n[executed on "strftime("%F %T%z", $2)"]"};!/^\[/' \
+	| cut -d\; -f2- \
+	| tail -n +3

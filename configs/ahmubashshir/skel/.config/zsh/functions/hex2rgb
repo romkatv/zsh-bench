@@ -1,0 +1,33 @@
+local color err
+err=0
+for color in "$@";do
+	color=${color:u}
+	if [[ $color =~ ^[[:alnum:]]+$ ]];then
+		if ((${#color}==8)) || ((${#color}==6)) || ((${#color}==3));then
+			printf '#%-9s: ' "$color"
+			case ${#color} in
+				(8)
+					printf 'rgba(%d,%d,%d,%lf)' "0x${color:0:2}" \
+						"0x${color:2:2}" "0x${color:4:2}" \
+						"0x${color:6:2}*1.0/0xFF"
+					;;
+				(6)
+					printf 'rgb(%d,%d,%d)' "0x${color:0:2}" \
+						"0x${color:2:2}" "0x${color:4:2}"
+					;;
+				(3)
+					printf 'rgb(%d,%d,%d)' "0x${color:0:1}*0x11" \
+						"0x${color:1:1}*0x11" "0x${color:2:1}*0x11"
+					;;
+			esac
+			printf '\n'
+		else
+			printf 'Invalid color #%s length %d\n' "$color" "${#color}"
+			((err++))
+		fi
+	else
+		echo "Invalid color format: $color"
+		((err++))
+	fi
+done
+return err

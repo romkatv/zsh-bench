@@ -1,0 +1,4 @@
+#!/bin/zsh
+compdef port=netcat
+compdef {pm,spm}=pacman
+compdef gpg-yay=gpg

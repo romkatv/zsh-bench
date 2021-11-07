@@ -1,0 +1,91 @@
+#!/bin/zsh
+local plugname plug plugpath plugin
+if (( ! $+functions[____zplug_run_hook]));then
+		if (( ! ${+zplugdirs} )); then
+		typeset -ga zplugdirs
+	fi
+	if (( ! ${+zsh_loaded_plugins} )); then
+		typeset -ga zsh_loaded_plugins
+	fi
+	if (( ! ${+zplug_hooks} )); then
+		typeset -gA zplug_hooks
+	fi
+	if (( ! ${+zsh_loaded_plugin_paths} )); then
+		typeset -ga zsh_loaded_plugin_paths
+	fi
+	for plugpath in "${ZDOTDIR:-$HOME/.zsh}/plugins" "/usr/share/zsh/plugins";do
+		if ! [[ ${zplugdirs[(r)$plugpath]} == $plugpath ]]; then
+			zplugdirs+=("$plugpath")
+		fi
+	done
+	while read -r plug _;do
+		if (($+functions[$plug]));then
+			zplug_hooks[${plug#zplug:}]=$functions[$plug]
+			unset -f $plug
+		fi
+	done < <(
+		functions -m 'zplug:(pre|post):*'
+	)
+fi
+
+if [[ $1 = --path ]];then
+	if [[ -d $2 ]];then
+		zplugdirs+=("$2")
+	fi
+	return
+fi
+
+if [[ -z $1 ]];then
+	printf '%s\n' $zsh_loaded_plugins
+	return
+fi
+
+function ____zplug_run_hook {
+	local when=$1 plugin=$2;shift
+	if (($+functions[zplug:$when:$plugin]));then
+		zplug_hooks[$when:$plugin]=$functions[zplug:$when:$plugin]
+		unset -f zplug:$when:$plugin
+	fi
+	if (($+zplug_hooks[$when:$plugin]));then
+		functions[____zplug_hook:$when:$plugin]=$zplug_hooks[$when:$plugin]
+		____zplug_hook:$when:$plugin "$@"
+		unset -f ____zplug_hook:$when:$plugin
+	fi
+}
+
+plugname=$1:t
+plugpkg=$1:h
+[[ $plugpkg =~ ^\.$ ]] && unset plugpkg
+shift
+for plugpath in $zplugdirs[@];do
+	for plug in \
+		"$plugname/$plugname.plugin" \
+		"$plugname/zsh-$plugname.plugin" \
+		"zsh-$plugname/$plugname.plugin" \
+		"zsh-$plugname/zsh-$plugname.plugin" \
+		"$plugname/$plugname" \
+		"zsh-$plugname/$plugname" \
+		"zsh-$plugname/zsh-$plugname" \
+		"$plugname/init.zsh" \
+		"zsh-$plugname/init.zsh"
+	do
+		plugin="$plugpath/${plugpkg+$plugpkg/}$plug.zsh"
+		if [ -f "$plugin" ]
+		then
+			if [[ -w $plugin:P:h ]] && [[ -s "$plugin" && ( ! -s "$plugin.zwc" || "$plugin" -nt "$plugin.zwc" ) ]]
+			then
+				rm -f "$plugin.zwc"
+				zcompile "$plugin"
+			fi
+			____zplug_run_hook pre $plugname "$@"
+			builtin source "$plugin" "$@"
+			____zplug_run_hook post $plugname "$@"
+			if ((!${zsh_loaded_plugins[(Ie)$plugname]}));then
+				zsh_loaded_plugins+="$plugname"
+				zsh_loaded_plugin_paths+="${plugin:h}"
+			fi
+			return 0
+		fi
+	done
+done
+return 1

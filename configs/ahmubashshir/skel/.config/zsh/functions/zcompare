@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+autoload -Uz zcompile
+
+if [[ -w $1:P:h ]] && [[ -s "$1" && ( ! -s "$1.zwc" || "$1" -nt "$1.zwc" ) && ! -f "$1.ignore.zwc" ]]
+then
+	zcompile "${@:2}" "$1"
+fi

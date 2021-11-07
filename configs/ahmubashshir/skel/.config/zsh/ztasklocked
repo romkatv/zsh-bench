@@ -1,0 +1,49 @@
+#!/bin/zsh
+zmodload zsh/system
+task="$1";shift
+case "$task" in
+	recompile) LOCK="$task";;
+	exec) LOCK="$1";;
+	*) LOCK="$*";;
+esac
+
+LOCKFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/$LOCK.lck"
+touch "$LOCKFILE"
+exec 2> /dev/null
+zsystem flock -t 0 -f fd "$LOCKFILE" || exit
+trap 'rm -f "$LOCKFILE"' EXIT
+
+case "$task" in
+	(recompile)
+	setopt null_glob extended_glob
+	function zcompare {
+		if
+			! [[ $1:e =~ ^(zwc|md|adoc|rst|(c|h)(|pp|xx)|cc|png|gif|zunit|ini|org|zwc|lck)$ ]] \
+			&& ! [[ $1:t =~ ^(AUTHORS|LICENSE|CHANGELOG|history)$ ]] \
+			&& [[ -O $1:P:h ]] \
+			&& [[ -s "$1" && ( ! -s "$1.zwc" || "$1" -nt "$1.zwc" ) && ! -f "$1.ignore.zwc" ]]
+		then
+			zcompile "${@:2}" "$1" || touch "$1.ignore.zwc"
+		fi
+	}
+
+	for target in $@;do
+		if [[ -f $target ]];then
+			zcompare "$target" -Rz
+		elif [[ -d $target ]];then
+			for file in "$target"/**/*(^/);do
+				zcompare "$file" -Rz
+			done
+		fi
+	done
+
+	for target in \
+		"${ZDOTDIR:-$HOME}"/.z{shrc,shenv,login,logout,profile,inputrc} \
+		"${ZDOTDIR:-$HOME/.zsh}"/compdef \
+		"${XDG_CACHE_HOME:-$HOME/.cache}/zsh"/**/*(.)
+	do
+		zcompare "$target" -Mz
+	done
+	;;
+	(exec) "$@";;
+esac

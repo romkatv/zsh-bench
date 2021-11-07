@@ -1,0 +1,36 @@
+#!/bin/sh
+if [ -x /bin/zsh ]; then
+	eval "$(
+		zsh -c 'env' |
+			grep -Ev '^(WINDOWID|_|SHLVL|OLDPWD)=' |
+			awk '{printf "%s\0", $0}' |
+			xargs -0 printf 'export %q\n'
+	)"
+else
+	eval "$(grep ^ZDOTDIR ~/.zshenv)"
+	for each in "$ZDOTDIR"/env.d/*; do
+		case $each in
+			*.zwc | gui) continue ;;
+			*) . "$each" ;;
+		esac
+	done
+	eval "$(dircolors -b ~/.shell/dircolors 2> /dev/null || dircolors -b 2> /dev/null)"
+	export BROWSER=links
+	if printf '%s' "$XDG_SESSION_TYPE" | grep -Eq '^(x11|wayland)$'; then
+		. "$ZDOTDIR/env.d/gui"
+	fi
+	PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+	PATH="$PATH:/usr/lib/surfraw:${XDG_CONFIG_HOME:-$HOME/.config}/git/helpers"
+	export PATH
+	for n in $(echo $PATH | tr ':' '\n'); do
+		case ":$P:" in
+			*:"$n":*) continue ;;
+			*)
+				if [ -d "$n" ]; then
+					P="${P:+$P:}$n"
+				fi
+				;;
+		esac
+	done
+	export PATH="$P"
+fi

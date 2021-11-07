@@ -1,0 +1,10 @@
+if grep -Eq '"(gh-pages|jekyll)"' Gemfile;then
+	if [ -d vendor/bundle ];then
+		bundle exec jekyll "$@"
+	elif [ -f Gemfile ];then
+		bundle install
+		bundle exec jekyll "$@"
+	fi
+else
+	command -p jekyll "$@"
+fi

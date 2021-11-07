@@ -1,0 +1,62 @@
+#!/bin/zsh
+if [ -e ~/zprof ] || [ -p ~/pipe ];then
+	zmodload zsh/datetime
+	setopt PROMPT_SUBST
+	PS4='+$EPOCHREALTIME %N:%i> '
+	if [ -p ~/pipe ];then
+		logfile=~/pipe
+	else
+		logfile=$(mktemp /tmp/zsh_profile.XXXXXXXX)
+	fi
+	echo "Logging to $logfile"
+	exec 3>&2 2>$logfile
+	setopt XTRACE
+fi
+# source
+source ~/.shell/import
+## options
+zsh_options=(
+	extended_glob prompt_subst rematchpcre beep
+	no_nomatch null_glob c_bases no_flow_control
+	auto_continue auto_cd auto_pushd pushd_silent
+	pushd_to_home pushd_ignore_dups pushd_minus
+	auto_list glob_complete list_packed
+)
+setopt $zsh_options
+unset zsh_options
+bindkey -e
+
+## Lazy load section
+autoload -Uz add-zsh-hook compinit
+autoload -Uz $fpath[1]/^_*~*.zwc(.:t)
+
+zplug --path "$ZDOTDIR/omz/plugins"
+if ! zplug defer;then
+	git -C "$ZDOTDIR" submodule init --quiet .
+	if ! git -C "$ZDOTDIR" submodule update --progress .
+	then
+		printf "zsh: failed to initialize plugins\n"
+		function zsh-defer {
+			"$@"
+		}
+	else
+		printf "zsh: finished cloning modules\n"
+		zplug defer
+	fi
+else
+	"$ZDOTDIR/ztasklocked" exec git -C "$ZDOTDIR" submodule update --quiet . &!
+fi
+
+typeset -A ENV
+zsh-defer source /usr/share/doc/pkgfile/command-not-found.zsh
+load rc completion keymap history modules plughooks plugins prompt
+
+[[ $(get_term) =~ ^(.*geany.*|octopi)$ ]] && unset HISTFILE
+
+zcompinit
+if [ -e zprof ];then
+	unsetopt XTRACE
+	exec 2>&3 3>&-
+fi
+
+# zplug startup-timer

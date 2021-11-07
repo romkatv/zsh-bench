@@ -1,0 +1,8 @@
+#!/bin/zsh
+local br
+br="$(git rev-parse --abbrev-ref HEAD)"
+[[ $br ]] || return
+if [ -z "$(git config --get "branch.$br.remote")" ];then
+	set -- -u "$@"
+fi
+git push "$@"

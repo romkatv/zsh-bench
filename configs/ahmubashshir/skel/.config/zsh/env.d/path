@@ -1,0 +1,21 @@
+#!/bin/zsh
+path=(
+	~/.local/bin
+	~/bin
+	~/.local/share/go/bin
+	$path
+	/usr/lib/surfraw
+	"${XDG_CONFIG_HOME:-$HOME/.config}/git/helpers"
+	"${XDG_CONFIG_HOME:-$HOME/.config}/git/helpers/extras/bin"
+)
+for n in $(echo $PATH|tr ':' '\n');do
+	case ":$P:" in
+		*:"$n":*) continue;;
+		*)
+			if [ -d "$n" ];then
+				P="${P:+$P:}$n"
+			fi
+		;;
+	esac
+done
+export PATH="$P"

@@ -1,0 +1,7 @@
+#!/bin/zsh
+zmodload -ab zsh/datetime strftime
+zmodload -ab zsh/pcre pcre_compile pcre_study pcre_match
+zmodload -ab zsh/sched sched
+zmodload -ab zsh/system syserror sysopen sysread sysseek syswrite zsystem
+zmodload zsh/zprof
+zmodload zsh/zpty

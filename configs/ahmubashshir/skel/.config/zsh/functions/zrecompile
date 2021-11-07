@@ -1,0 +1,6 @@
+#!/bin/zsh
+if [[ ! -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/recompile.lck" ]];then
+	${ZDOTDIR:-$HOME/.zsh}/ztasklocked recompile $fpath $zsh_loaded_plugin_paths &!
+else
+	printf 'zsh: zrecompile running...\n'
+fi

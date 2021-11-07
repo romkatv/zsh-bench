@@ -1,0 +1,17 @@
+#!/bin/zsh
+if [[ $1 = "all" ]];then
+	find -L $HOME/.cache/zsh ${ZDOTDIR:-$HOME/.zsh} -type f -name '*.zwc' -delete 2>&3
+elif [[ $1 = "config" ]];then
+	find -L ${ZDOTDIR:-$HOME/.zsh} -maxdepth 1 -type f -name '*.zwc' -delete 2>&3
+elif (($#>0));then
+	typeset -a args
+	for n in "$@";do
+		args+=('-name' "*$n*.zwc" '-or')
+	done
+	unset "args[${#args}]"
+	find -L $HOME/.cache/zsh ${ZDOTDIR:-$HOME/.zsh} -type f \( $args \) -delete 2>&3
+fi
+if (($#==0)) || [[ $1 =~ ^(all|config)$ ]];then
+	env rm -f $HOME/.cache/zsh/compdump* $HOME/.cache/zsh/compcache/* 2>&3
+fi
+exec zsh

@@ -1,0 +1,8 @@
+#!/bin/zsh
+zplug-defer completions
+zplug-defer fast-syntax-highlighting
+zplug-defer autosuggestions
+zplug-defer autopair
+zplug-defer history-substring-search
+zplug-defer autoswitch_virtualenv
+zplug-defer git

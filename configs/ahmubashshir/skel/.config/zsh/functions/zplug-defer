@@ -1,0 +1,6 @@
+if ! (($+functions[zsh-defer]));then
+	zplug defer || function zsh-defer {
+		"$@"
+	}
+fi
+zsh-defer zplug "$@"
