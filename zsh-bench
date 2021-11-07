@@ -21,10 +21,12 @@ zmodload zsh/zutil
 local -a help
 local -a scratch_dir
 local -a drop_caches
+local -a standalone
 local -a iters=(--iters 16)
 local -a git=(--git yes)
 zparseopts -D -K -F --          \
   {h,-help}=help                \
+  {s,-standalone}=standalone    \
   {d,-scratch-dir}:=scratch_dir \
   {c,-drop-caches}:=drop_caches \
   {i,-iters}:=iters             \
@@ -39,6 +41,7 @@ if (( $#help )); then
   print -r -- '  -g,--git <yes|no|empty> [default=yes]'
   print -r -- '  -c,--drop-caches <1|2|3>'
   print -r -- '  -d,--scratch-dir <directory>'
+  print -r -- '  -s,--standalone'
   return
 fi
 
@@ -101,7 +104,7 @@ if (( ARGC )); then
 
   print -r -- "==> starting $img in docker ..."
 
-  local args=($iters $git $drop_caches -- $@)
+  local args=($iters $git $drop_caches $standalone -- $@)
   local cmd=(
     'mkdir ~/zsh-bench'
     'cd ~/zsh-bench'
@@ -140,7 +143,7 @@ else
   function maybe-drop-caches() { }
 fi
 
-zmodload zsh/datetime zsh/zselect
+zmodload zsh/datetime zsh/zselect zsh/system
 
 local -r stats=(
   creates_tty
@@ -194,8 +197,6 @@ else
       return 1
     fi
   }
-
-  zmodload zsh/system
 
   function make-int() {
     if (( #2 )); then
@@ -274,11 +275,14 @@ if (( $#scratch_dir )); then
   fi
   command mkdir -p -- $_zb_tmpdir
 else
-  unset _zb_tmpdir
+  unset _zb_tmpdir _zb_fd
 
   function cleanup() {
     if [[ $1 != EXIT ]]; then
       print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
+    fi
+    if [[ -n ${_zb_fd-} ]]; then
+      exec {_zb_fd}>&- || true
     fi
     if [[ -n ${_zb_tmpdir-} ]]; then
       local -i delay=1
@@ -286,6 +290,7 @@ else
       repeat 5; do
         command rm -rf -- $_zb_tmpdir 2>/dev/null || true
         [[ -e $_zb_tmpdir ]] || break
+        command sleep $delay
         (( delay *= 2 ))
       done
     fi
@@ -443,15 +448,32 @@ function with-env() {
   fi
 }
 
-{
-  print -rn -- ' "builtin" ":" >>'${(qqq)fifo_file}
-  print -rn -- ' && "builtin" ":" <'${(qqq)fifo_file}
-  print -r  -- ' || "builtin" "exit"'
-  : <$fifo_file
-  : >>$fifo_file
+typeset -g _zb_fd
+sysopen -ao cloexec -u _zb_fd >(
+  exec 2>/dev/null
+  {
+    {
+      print -rn -- ' "builtin" ":" >>'${(qqq)fifo_file}
+      print -rn -- ' && "builtin" ":" <'${(qqq)fifo_file}
+      print -r  -- ' || "builtin" "exit"'
+      print -r  -- ' print -P "[%*] $$ running" >>/tmp/log'
+      local REPLY
+      sysread || true
+      print -r  -- ' print -P "[%*] $$ exiting" >>/tmp/log'
+      print -r -- ' "builtin" "exit" "0"'
+    } | script /dev/null ${(qqq)commands[zsh]} '"-li"'
+  } &!
+)
+
+: <$fifo_file
+: >>$fifo_file
+command sleep 1
+
+if (( $#standalone )); then
+  exec {_zb_fd}>&-
+  unset _zb_fd
   command sleep 1
-  print -r -- ' "builtin" "exit" "0"'
-} | script /dev/null ${(qqq)commands[zsh]} '"-li"'
+fi
 
 repeat $iters[2]; do
   command rm -f -- $info_file $timing_file $out_file $merged_file
