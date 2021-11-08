@@ -11,8 +11,9 @@ local -r root_dir=${ZSH_SCRIPT:h:h}
 
 zmodload zsh/zutil
 
-local -a flags
+local -a flags privileged
 zparseopts -D -K -F -a flags -- \
+  {p,-privileged}=privileged    \
   {s,-standalone}               \
   {d,-scratch-dir}:             \
   {c,-drop-caches}:             \
@@ -22,7 +23,8 @@ zparseopts -D -K -F -a flags -- \
 local cfg
 for cfg; do
   print -r -- "==> benchmarking $cfg ..."
-  $root_dir/internal/install-config 1 $cfg '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)flags}}
+  $root_dir/internal/install-config \
+    $#privileged $cfg '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)flags}}
 done
 
 } "$@"
