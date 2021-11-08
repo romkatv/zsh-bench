@@ -16,16 +16,16 @@ local -r cfg=$2
 shift 2
 
 if [[ $OSTYPE == darwin* ]]; then
-  function nuke-user() {
+  function try-delete-user() {
+    dscl . -delete /Users/$user             || true
+    ! dscl . -list /Users/$user             || return
     rm -rf -- /Users/$user                  || return
     rm -f -- /private/etc/sudoers.d/$user   || return
     [[ ! -e /Users/$user                 ]] || return
     [[ ! -e /private/etc/sudoers.d/$user ]] || return
-    dscl . -delete /Users/$user             || true
-    ! dscl . -list /Users/$user             || return
   }
 else
-  function nuke-user() {
+  function try-delete-user() {
     userdel -rf $user             || true
     rm -f -- /etc/sudoers.d/$user || return
     [[ ! -e /home/$user ]]        || return
@@ -33,22 +33,24 @@ else
   }
 fi
 
-if ! nuke-user &>/dev/null; then
+function delete-user() {
+  local -i delay=1
+  repeat 5; do
+    try-delete-user &>/dev/null && return
+    zselect -t $((100 * delay)) || true
+    (( delay *= 2 ))
+  done
   print -ru2 -- "${ZSH_SCRIPT:t}: cannot delete user $user"
   return 1
-fi
+}
+
+delete-user
 
 function cleanup() {
   if [[ $1 != EXIT ]]; then
     print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
   fi
-  local -i delay=1
-  cd -q -- /
-  repeat 5; do
-    nuke-user &>/dev/null && break
-    zselect -t $((100 * delay)) || true
-    (( delay *= 2 ))
-  done
+  delete-user || true
   [[ $1 == EXIT ]] || exit $((127 + ${signals[(Ie)$1]}))
 }
 
