@@ -16,6 +16,7 @@ passwd -qd $user
 usermod -aG sudo $user
 cat >/etc/sudoers.d/$user <<<"$user ALL=(ALL) NOPASSWD:ALL"
 chmod 440 /etc/sudoers.d/$user
+visudo -cq
 cp -r -- $root_dir /home/$user/zsh-bench
 chown -R $user:$user /home/$user/zsh-bench
 local cmd=(
