@@ -90,8 +90,8 @@ _zb_stty=$(command stty -g)
 function cleanup() {
   local key
   while true; do
-    [[ -t 2 ]] || read -t0 -k key || break
-  done 2>/dev/null
+    read -t0 -k key || break
+  done
   command reset
   command stty $_zb_stty
   if [[ -v _zb_error ]]; then

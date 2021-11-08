@@ -162,7 +162,7 @@ unset -- $stats
 
 () {
   local cmd
-  for cmd in cat cp git ln mkdir mkfifo mktemp rm script sleep touch zsh; do
+  for cmd in cat cp git ln mkdir mkfifo mktemp rm script touch zsh; do
     if [[ ! -v commands[$cmd] ]]; then
       print -ru2 -- "${ZSH_SCRIPT:t}: command not found: ${(q-)cmd}"
       return 1
@@ -290,7 +290,7 @@ else
       repeat 5; do
         command rm -rf -- $_zb_tmpdir 2>/dev/null || true
         [[ -e $_zb_tmpdir ]] || break
-        command sleep $delay
+        zselect -t $((100 * delay)) || true
         (( delay *= 2 ))
       done
     fi
@@ -394,7 +394,7 @@ unset -m 'GIT_*|TMUX*' || true
     command git config user.name "Your Name"
     command git config user.email "you@example.com"
     if [[ $git[2] == yes ]]; then
-      command sleep 1
+      zselect -t 100 || true
       command git add .
       command git commit --quiet --allow-empty --allow-empty-message --no-gpg-sign -m ''
       command git status
@@ -478,12 +478,12 @@ sysopen -ao cloexec -u _zb_fd >(
 
 : <$fifo_file
 : >>$fifo_file
-command sleep 1
+zselect -t 100 || true
 
 if (( $#standalone )); then
   exec {_zb_fd}>&-
   unset _zb_fd
-  command sleep 1
+  zselect -t 100 || true
 fi
 
 repeat $iters[2]; do
