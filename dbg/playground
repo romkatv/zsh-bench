@@ -44,7 +44,7 @@ function docker-run() {
 }
 
 if ! docker-run true; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try sudo"
+  print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try with sudo"
   return 1
 fi
 
