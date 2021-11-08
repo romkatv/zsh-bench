@@ -162,7 +162,7 @@ unset -- $stats
 
 () {
   local cmd
-  for cmd in cat cp git ln mkdir mkfifo mktemp rm script touch zsh; do
+  for cmd in cat cp git ln mkdir mkfifo mktemp rm script touch zsh mv; do
     if [[ ! -v commands[$cmd] ]]; then
       print -ru2 -- "${ZSH_SCRIPT:t}: command not found: ${(q-)cmd}"
       return 1
@@ -331,6 +331,7 @@ local -r timing_file=$_zb_tmpdir/timing
 local -r merged_file=$_zb_tmpdir/merged
 
 local -r prefix=ZB${(l:5::0:)RANDOM}-
+local -r start=$'\e[H\e[J'${prefix}start$'\e[H\e[J'
 local -r msg=${(qqq)prefix}${(qqq):-msg}
 local -r cwd=${prefix}cwd
 local -r host=${prefix}host
@@ -487,7 +488,7 @@ if (( $#standalone )); then
 fi
 
 repeat $iters[2]; do
-  command rm -f -- $info_file $timing_file $out_file $merged_file
+  command rm -f -- $info_file $merged_file {$timing_file,$out_file}{,.orig}
   maybe-drop-caches
 
   {
@@ -507,10 +508,15 @@ repeat $iters[2]; do
     print -r  -- ${(pl:$bench_prompt_max_iters::\n:):-}
   } | {
     if (( bsd_script )); then
+      zselect -r 0
       script $merged_file $commands[zsh] -l
     else
-      script /dev/null 'SHELL="-zsh"' PATH=${(qqq)_zb_tmpdir}/bin:${(qqq)PATH} \
-        '"command"' '"script"' -fqet${(qqq)timing_file} ${(qqq)out_file}
+      local cmd='"builtin" "zmodload" "zsh/zselect"'
+      cmd+=' && "builtin" "zselect" "-r" "0"'
+      cmd+=' && "builtin" "print" "-rn" "--" '${(qqqq)start}
+      cmd+=' && "builtin" "exec" "--" '${(qqq)commands[zsh]}' "-l"'
+      script /dev/null '"command"' '"script"' -fqet${(qqq)timing_file} \
+        '"-c"' ${(qqq)cmd} ${(qqq)out_file}
     fi
   }
 
@@ -536,6 +542,34 @@ repeat $iters[2]; do
       (( p += dp ))
     done
     (( p == $#out )) || return 'error()'
+  }
+
+  () {
+    (( bsd_script )) && return
+    command mv -- $timing_file $timing_file.orig
+    command mv -- $out_file $out_file.orig
+    local suf=${out#*$start}
+    local -i drop=$(($#out - $#suf))
+    (( drop )) || return 'error()'
+    local -r intro=$'\e[H\e[J'
+    local -i i p dp
+    local dt
+    for i in {1..$#timing..2}; do
+      dt=$timing[i]
+      dp='timing[i+1]'
+      (( p += dp ))
+      (( p < drop )) && continue
+      if (( p - dp < drop )); then
+        printf '%.6f %d\n' 0 $#intro
+        if (( p > drop )); then
+          printf '%.6f %d\n' 0 $((p - drop))
+        fi
+      else
+        printf '%s %s\n' $dt $dp
+      fi
+    done >$timing_file
+    out=$intro$suf
+    print -rC1 -- 'Script started' $out 'Script done' >$out_file
   }
 
   mask-shell-integration
@@ -629,9 +663,9 @@ repeat $iters[2]; do
 
   maybe-drop-caches
 
-  local -F start=EPOCHREALTIME
+  local -F start_s=EPOCHREALTIME
   command zsh -lic '"builtin" "exit"' </dev/null &>/dev/null || true
-  local -F took_ms='1e3 * (EPOCHREALTIME - start)'
+  local -F took_ms='1e3 * (EPOCHREALTIME - start_s)'
   if (( ! $+exit_time_ms || took_ms < exit_time_ms )); then
     local -F3 exit_time_ms=took_ms
   fi
