@@ -544,10 +544,12 @@ repeat $iters[2]; do
     print -r  -- ${(pl:$bench_prompt_max_iters::\n:):-}
   } | {
     if (( bsd_script )); then
+      local -a reply
       zselect -r 0
       script $merged_file $commands[zsh] -l
     else
-      local cmd='"builtin" "zmodload" "zsh/zselect"'
+      local cmd='"builtin" "emulate" "-R" "zsh"'
+      cmd+=' && "builtin" "zmodload" "zsh/zselect"'
       cmd+=' && "builtin" "zselect" "-r" "0"'
       cmd+=' && "builtin" "print" "-rn" "--" '${(qqqq)start}
       cmd+=' && "builtin" "exec" "--" '${(qqq)commands[zsh]}' "-l"'
