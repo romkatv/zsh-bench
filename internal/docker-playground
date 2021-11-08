@@ -5,7 +5,7 @@ set -ue
 [ $# -eq 1 ]
 
 ~/zsh-bench/internal/install-deps command-not-found
-exec ~/zsh-bench/internal/install-config "$1" \
-  '~/zsh-bench/internal/create-repo ~/repo'   \
-  'cd ~/repo'                                 \
+exec ~/zsh-bench/internal/install-config 1 "$1" \
+  '~/zsh-bench/internal/create-repo ~/repo'     \
+  'cd ~/repo'                                   \
   'exec zsh -l'

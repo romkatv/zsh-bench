@@ -1,29 +1,104 @@
 #!/usr/bin/env zsh
 
-emulate -L zsh -o err_return -o no_unset -o warn_create_global
+emulate -L zsh -o err_return -o no_unset -o warn_create_global -o extended_glob
 
 () {
 
-(( ARGC ))
+(( ARGC > 2 ))
 
-local -r user=zsh-bench-user
+zmodload zsh/zselect
+
+unset user
+typeset -gr user=zsh-bench-user
 local -r root_dir=${ZSH_SCRIPT:h:h}
+local -r privileged=$1
+local -r cfg=$2
+shift 2
 
-userdel -rf $user 2>/dev/null || true
-rm -rf -- '' /tmp/*(ND)
-useradd -ms $commands[zsh] $user
-passwd -qd $user
-usermod -aG sudo $user
-cat >/etc/sudoers.d/$user <<<"$user ALL=(ALL) NOPASSWD:ALL"
-chmod 440 /etc/sudoers.d/$user
-visudo -cq
-cp -r -- $root_dir /home/$user/zsh-bench
-chown -R $user:$user /home/$user/zsh-bench
+if [[ $OSTYPE == darwin* ]]; then
+  function nuke-user() {
+    rm -rf -- /Users/$user                  || return
+    rm -f -- /private/etc/sudoers.d/$user   || return
+    [[ ! -e /Users/$user                 ]] || return
+    [[ ! -e /private/etc/sudoers.d/$user ]] || return
+    dscl . -delete /Users/$user             || true
+    ! dscl . -list /Users/$user             || return
+  }
+else
+  function nuke-user() {
+    userdel -rf $user             || true
+    rm -f -- /etc/sudoers.d/$user || return
+    [[ ! -e /home/$user ]]        || return
+    ! getent passwd $user         || return
+  }
+fi
+
+if ! nuke-user &>/dev/null; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: cannot delete user $user"
+  return 1
+fi
+
+function cleanup() {
+  if [[ $1 != EXIT ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
+  fi
+  local -i delay=1
+  cd -q -- /
+  repeat 5; do
+    nuke-user &>/dev/null && break
+    zselect -t $((100 * delay)) || true
+    (( delay *= 2 ))
+  done
+  [[ $1 == EXIT ]] || exit $((127 + ${signals[(Ie)$1]}))
+}
+
+local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
+for sig in $trapped; do
+  trap "trap - $trapped; cleanup $sig" $sig
+done
+unset sig trapped
+
+if [[ $OSTYPE == darwin* ]]; then
+  local -a lines
+  lines=(${(f)"$(dscl . -readall /Users UniqueID)"})
+  local -i id gap prev=1000
+  for id in ${(on)${${(M)lines:#UniqueID: <1001->}#* }}; do
+    if (( id != prev + 1 )); then
+      (( gap = prev + 1 ))
+      break
+    fi
+    (( prev = id ))
+  done
+  (( gap || (gap = prev + 1) ))
+  dscl . -create /Users/$user
+  dscl . -create /Users/$user UserShell =zsh
+  dscl . -create /Users/$user RealName "Zsh Bench User"
+  dscl . -create /Users/$user UniqueID $gap
+  dscl . -create /Users/$user PrimaryGroupID 20
+  dscl . -create /Users/$user NFSHomeDirectory /Users/$user
+  mkdir /Users/$user
+  cp -r -- $root_dir /Users/$user/zsh-bench
+  chown -R ${user}:staff /Users/$user
+  local sudoersd=/private/etc/sudoers.d
+else
+  useradd -ms =zsh $user
+  passwd -qd $user
+  cp -r -- $root_dir /home/$user/zsh-bench
+  chown -R $user:$user /home/$user/zsh-bench
+  local sudoersd=/etc/sudoers.d
+fi
+
+if (( privileged )); then
+  cat >$sudoersd/$user <<<"$user ALL=(ALL) NOPASSWD:ALL"
+  chmod 440 $sudoersd/$user
+  visudo -cq || visudo -c
+fi
+
 local cmd=(
-  'export LC_ALL='${(qqq)LC_ALL}
+  ${(f)"$(typeset -pm 'LC_*|LANG|LANGUAGE')"}
   'cd'
-  '~/zsh-bench/configs/'${(qqq)1}'/setup'
-  ${@:2})
-sudo -u $user sh -c -- ${(j: && :)cmd}
+  '~/zsh-bench/configs/'${(qqq)cfg}'/setup'
+  $@)
+sudo -Hu $user =zsh -c -- ${(j: && :)cmd}
 
 } "$@"
