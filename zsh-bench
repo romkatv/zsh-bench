@@ -606,6 +606,7 @@ repeat $iters[2]; do
         printf '%s %s\n' $dt $dp
       fi
     done >$timing_file
+    timing=($(<$timing_file))
     out=$intro$suf
     print -rC1 -- 'Script started' $out 'Script done' >$out_file
   }
