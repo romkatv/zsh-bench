@@ -740,8 +740,8 @@ is no reason for you to care one way or another about this number.
   - OS: Ubuntu 21.10.
   - CPU: AMD Ryzen Threadripper 3970x.
   - Storage: NVMe M.2.
-  - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.txt),
-    [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.md).
+  - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/linux-desktop.txt),
+    [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/linux-desktop.md).
 - Raspberry Pi 4 Model B:
   - Date: 2021-11-09.
   - OS: Raspbian Buster (32 bit).
