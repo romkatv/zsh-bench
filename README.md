@@ -742,6 +742,13 @@ is no reason for you to care one way or another about this number.
   - Storage: NVMe M.2.
   - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/linux-desktop.txt),
     [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/linux-desktop.md).
+- MacBook Air (M1, 2020):
+  - Date: 2021-11-09.
+  - OS: macOS Monterey.
+  - Chip: Apple M1.
+  - Storage: SSD.
+  - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/macos-laptop.txt),
+    [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/macos-laptop.md).
 - Raspberry Pi 4 Model B:
   - Date: 2021-11-09.
   - OS: Raspbian Buster (32 bit).

@@ -1,0 +1,30 @@
+| config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
+|-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
+| [no-rcs](https://github.com/romkatv/zsh-bench/tree/master/configs/no-rcs) | ❌ | ❌ | ❌ | ❌ | ❌ | 14%<br>🟢 | 5%<br>🟢 | 1%<br>🟢 | 2%<br>🟢 |
+| [tmux](https://github.com/romkatv/zsh-bench/tree/master/configs/tmux) | ✔️ | ❌ | ❌ | ❌ | ❌ | 24%<br>🟢 | 8%<br>🟢 | 2%<br>🟢 | 2%<br>🟢 |
+| [compsys](https://github.com/romkatv/zsh-bench/tree/master/configs/compsys) | ❌ | ✔️ | ❌ | ❌ | ❌ | 46%<br>🟢 | 15%<br>🟢 | 1%<br>🟢 | 2%<br>🟢 |
+| [zsh-syntax-highlighting](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-syntax-highlighting) | ❌ | ❌ | ✔️ | ❌ | ❌ | 38%<br>🟢 | 19%<br>🟢 | 5%<br>🟢 | 39%<br>🟢 |
+| [zsh-autosuggestions](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-autosuggestions) | ❌ | ❌ | ❌ | ✔️ | ❌ | 36%<br>🟢 | 14%<br>🟢 | 98%<br>🟡 | 5%<br>🟢 |
+| [git-branch](https://github.com/romkatv/zsh-bench/tree/master/configs/git-branch) | ❌ | ❌ | ❌ | ❌ | ✔️ | 79%<br>🟡 | 27%<br>🟢 | 287%<br>🔴 | 1%<br>🟢 |
+| [agnoster](https://github.com/romkatv/zsh-bench/tree/master/configs/agnoster) | ❌ | ❌ | ❌ | ❌ | ✔️ | 145%<br>🟠 | 48%<br>🟢 | 706%<br>🔴 | 1%<br>🟢 |
+| [starship](https://github.com/romkatv/zsh-bench/tree/master/configs/starship) | ❌ | ❌ | ❌ | ❌ | ✔️ | 108%<br>🟠 | 36%<br>🟢 | 468%<br>🔴 | 1%<br>🟢 |
+| [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | ❌ | ❌ | ❌ | ❌ | ✔️ | 9%<br>🟢 | 20%<br>🟢 | 19%<br>🟢 | 2%<br>🟢 |
+| [powerlevel10k-full](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k-full) | ❌ | ❌ | ❌ | ❌ | ✔️ | 14%<br>🟢 | 44%<br>🟢 | 202%<br>🔴 | 6%<br>🟢 |
+| [prezto](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto) | ❌ | ✔️ | ❌ | ❌ | ❌ | 146%<br>🟠 | 50%<br>🟢 | 27%<br>🟢 | 4%<br>🟢 |
+| [ohmyzsh](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh) | ❌ | ✔️ | ❌ | ❌ | ✔️ | 257%<br>🔴 | 87%<br>🟡 | 729%<br>🔴 | 2%<br>🟢 |
+| [zim](https://github.com/romkatv/zsh-bench/tree/master/configs/zim) | ❌ | ✔️ | ✔️ | ✔️ | ✔️ | 115%<br>🟠 | 46%<br>🟢 | 372%<br>🔴 | 80%<br>🟡 |
+| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 43%<br>🟢 | 40%<br>🟢 | 23%<br>🟢 | 23%<br>🟢 |
+| [diy](https://github.com/romkatv/zsh-bench/tree/master/configs/diy) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 153%<br>🟠 | 57%<br>🟡 | 300%<br>🔴 | 46%<br>🟢 |
+| [diy+](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 34%<br>🟢 | 63%<br>🟡 | 21%<br>🟢 | 62%<br>🟡 |
+| [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 33%<br>🟢 | 52%<br>🟡 | 22%<br>🟢 | 86%<br>🟡 |
+| [diy++unsafe](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bunsafe) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 26%<br>🟢 | 49%<br>🟢 | 22%<br>🟢 | 49%<br>🟢 |
+| [diy++fsyh](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bfsyh) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 34%<br>🟢 | 53%<br>🟡 | 20%<br>🟢 | 21%<br>🟢 |
+| [zcomet](https://github.com/romkatv/zsh-bench/tree/master/configs/zcomet) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 24%<br>🟢 | 55%<br>🟡 | 22%<br>🟢 | 66%<br>🟡 |
+| [zinit](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 34%<br>🟢 | 85%<br>🟡 | 20%<br>🟢 | 52%<br>🟡 |
+| [zplug](https://github.com/romkatv/zsh-bench/tree/master/configs/zplug) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 283%<br>🔴 | 198%<br>🟠 | 22%<br>🟢 | 87%<br>🟡 |
+| [ohmyzsh+](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 34%<br>🟢 | 75%<br>🟡 | 26%<br>🟢 | 50%<br>🟢 |
+| [prezto+](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 47%<br>🟢 | 68%<br>🟡 | 32%<br>🟢 | 53%<br>🟡 |
+| [zim+](https://github.com/romkatv/zsh-bench/tree/master/configs/zim%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 34%<br>🟢 | 51%<br>🟡 | 22%<br>🟢 | 80%<br>🟡 |
+| [zinit-turbo](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit-turbo) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 34%<br>🟢 | 55%<br>🟡 | 25%<br>🟢 | 59%<br>🟡 |
+| [zsh-defer](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-defer) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 34%<br>🟢 | 40%<br>🟢 | 25%<br>🟢 | 52%<br>🟡 |
+| [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) | ❌ | ❌ | ❌ | ❌ | ❌ | 16%<br>🟢 | 6%<br>🟢 | 1%<br>🟢 | 2%<br>🟢 |
