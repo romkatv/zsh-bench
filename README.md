@@ -735,12 +735,20 @@ is no reason for you to care one way or another about this number.
 
 ### Full benchmark data
 
-- Date: 2021-11-09.
-- OS: Ubuntu 21.10.
-- CPU: AMD Ryzen Threadripper 3970x.
-- Storage: NVMe M.2.
-- Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.txt),
-  [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.md).
+- Fast desktop machine (all benchmark results inlined in this document are from this run):
+  - Date: 2021-11-09.
+  - OS: Ubuntu 21.10.
+  - CPU: AMD Ryzen Threadripper 3970x.
+  - Storage: NVMe M.2.
+  - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.txt),
+    [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/benchmarks.md).
+- Raspberry Pi 4 Model B:
+  - Date: 2021-11-09.
+  - OS: Raspbian Buster (32 bit).
+  - CPU: ARM Cortex-A72.
+  - Storage: microSD.
+  - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/linux-raspberrypi.txt),
+    [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/linux-raspberrypi.md).
 
 ### Conclusions
 
