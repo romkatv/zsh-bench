@@ -747,6 +747,7 @@ is no reason for you to care one way or another about this number.
   - OS: macOS Monterey.
   - Chip: Apple M1.
   - Storage: SSD.
+  - Power: battery (not plugged into the power outlet).
   - Results: [raw](https://github.com/romkatv/zsh-bench/blob/master/doc/macos-laptop.txt),
     [normalized](https://github.com/romkatv/zsh-bench/blob/master/doc/macos-laptop.md).
 - Raspberry Pi 4 Model B:
