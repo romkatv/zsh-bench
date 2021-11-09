@@ -2,7 +2,8 @@
 
 emulate -L zsh -o err_return -o extended_glob
 
-git clone -q --depth=1 --recursive https://github.com/sorin-ionescu/prezto.git ~/.zprezto &>/dev/null
+git clone -q --depth=1 --recursive --shallow-submodules \
+  https://github.com/sorin-ionescu/prezto.git ~/.zprezto &>/dev/null
 
 () {
   local rc
