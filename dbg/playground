@@ -11,7 +11,7 @@ if [[ ${ZSH_VERSION-} != (5.<8->*|<6->.*) ]]; then
   return 1
 fi
 
-zmodload zsh/zutil
+zmodload zsh/zutil zsh/system zsh/zselect
 
 local -a help privileged
 zparseopts -D -K -F -- {h,-help}=help {p,-privileged}=privileged
@@ -30,31 +30,103 @@ if (( ARGC != 1 )); then
 fi
 
 local -r cfg=$1
-local -r img=ubuntu:impish
 
-if [[ ! -v commands[docker] ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: command not found: docker"
+() {
+  local cmd
+  for cmd in docker tar unbuffer base64 stty cat tr; do
+    if [[ ! -v commands[$cmd] ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: command not found: ${(q-)cmd}"
+      return 1
+    fi
+  done
+}
+
+if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: all standard file descriptors must be TTY"
   return 1
 fi
 
-function docker-run() {
-  command docker run                       \
-    -e TERM -e COLORTERM -e LC_ALL=C.UTF-8 \
-    --rm -it ${privileged:+--privileged} $img sh -c -- "$@"
-}
+local -r img=ubuntu:impish
+local -r docker=(docker run -e TERM -e COLORTERM -it --rm ${privileged:+--privileged} $img)
 
-if ! docker-run true; then
+if ! command $docker sh -c true; then
   print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try with sudo?"
   return 1
 fi
 
-local cmd=(
-  'apt-get update -qq'
-  'DEBIAN_FRONTEND=noninteractive DEBCONF_NOWARNINGS=yes apt-get install -qq -y git >/dev/null'
-  'git clone -q --depth=1 https://github.com/romkatv/zsh-bench.git ~/zsh-bench'
-  '~/zsh-bench/internal/docker-playground '${(qqq)cfg})
+local -a self
+() {
+  local s
+  s=$(cd -q -- ${ZSH_SCRIPT:h:h} &&
+        command tar -czf - -- ^.git | command base64 | command tr -d '\n')
+  while (( $#s )); do
+    self+=(${s[1,63]})
+    s[1,63]=
+  done
+}
+
+local stty
+stty=$(command stty -g)
 
 print -r -- "==> starting $img in docker ..."
-docker-run ${(j: && :)cmd}
+
+{
+  stty -icanon -echo -icrnl
+
+  unsetopt pipe_fail
+  (
+    print -rC1 -- $sysparams[pid]
+    (
+      print -rC1 -- $sysparams[pid]
+      while true; do zselect -t 100 || true; done
+    ) || true
+    while (( $#self )); do
+      zselect -t 10 || true
+      print -rC1 -- "${(@)self[1,16]}"
+      self[1,16]=()
+    done
+    trap "print -n '\\003'; return" INT
+    while true; do
+      () { cat }
+    done
+  ) | {
+    trap '' INT
+    local ppid pid ret
+    IFS= read -r ppid
+    IFS= read -r pid
+    local args=(1 $cfg '~/zsh-bench/internal/create-repo ~/repo' 'cd ~/repo' 'exec zsh -l')
+    local cmd=(
+      'mkdir ~/zsh-bench'
+      'cd ~/zsh-bench'
+      'stty -echo'
+      'echo ready'
+      'head -n '$#self' | base64 -d | tar -xzm'
+      'stty echo'
+      '~/zsh-bench/internal/install-deps command-not-found'
+      'exec ~/zsh-bench/internal/install-config '${(j: :)${(@qqq)args}})
+    (
+      trap '' INT
+      setopt pipe_fail
+      unbuffer -p $docker sh -c -- ${(j: && :)cmd} | {
+        trap '' INT
+        local REPLY
+        while true; do
+          IFS= read -r
+          [[ $REPLY == ready(|$'\r') ]] && break
+        done
+        kill -- $pid 2>/dev/null
+        command cat
+      }
+    ) || ret=$?
+    kill -- $ppid 2>/dev/null
+    return ret
+  }
+} always {
+  local key
+  while true; do
+    read -t0 -k key || break
+  done
+  command stty $stty
+}
 
 } "$@"
