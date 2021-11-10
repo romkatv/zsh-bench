@@ -108,7 +108,7 @@ if (( ARGC )); then
       }
 
       if ! docker-run true; then
-        print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try with sudo"
+        print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try with sudo?"
         return 1
       fi
 
@@ -212,11 +212,7 @@ if script_version=$(LC_ALL=C script -V 2>/dev/null) &&
   local -ir bsd_script=0
 
   function script() {
-    if (( ARGC == 1 )); then
-      with-env command script -fqe -- "$1" >/dev/null
-    else
-      with-env command script -fqec "${(j: :)@:2}" -- "$1" >/dev/null
-    fi
+    with-env command script -fqec "${(j: :)@:2}" -- "$1" >/dev/null
   }
 else
   local -ir bsd_script=1
@@ -318,7 +314,7 @@ else
       print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
     fi
     if [[ -n ${_zb_fd-} ]]; then
-      exec {_zb_fd}>&- || true
+      exec {_zb_fd}>&- 2>/dev/null || true
     fi
     if [[ -n ${_zb_tmpdir-} ]]; then
       local -i delay=1

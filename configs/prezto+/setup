@@ -7,9 +7,6 @@ cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
 git clone -q --depth=1 --recursive --shallow-submodules \
   https://github.com/sorin-ionescu/prezto.git ~/.zprezto &>/dev/null
 
-() {
-  local rc
-  for rc in ~/.zprezto/runcoms/^(README.md|zpreztorc)(.); do
-    <$rc >>~/.${rc:t}
-  done
-}
+<~/.zprezto/runcoms/zprofile >>~/.zshrc
+<~/.zprezto/runcoms/zshrc >>~/.zshrc
+<~/.zprezto/runcoms/zlogin >>~/.zlogin
