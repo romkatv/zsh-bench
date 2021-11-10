@@ -819,7 +819,7 @@ Run [playground](https://github.com/romkatv/zsh-bench/blob/master/dbg/playground
 ephemeral docker container based on Ubuntu 21.10 with zsh as login shell:
 
 ```zsh
-~/zsh-bench/playground zsh4humans
+~/zsh-bench/dbg/playground zsh4humans
 ```
 
 You can pass any [config name](https://github.com/romkatv/zsh-bench/tree/master/configs) in place of
@@ -901,7 +901,7 @@ You can use [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs
 for black-box testing of `zsh-bench`:
 
 ```zsh
-~/zsh-bench/playground synthetic
+~/zsh-bench/dbg/playground synthetic
 ```
 
 By default [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) behaves
@@ -933,3 +933,9 @@ latencies than these.
 It's not important to benchmark your shell. It is important for *me* to benchmark zsh plugins and
 configs that I publish so that users of my code have fast shell. Shell users—or anyone for that
 matter—prefer fast software over slow whether they are enthusiasts or not.
+
+### How to fix `playground: command not found: unbuffer` error when trying to run the [playground](https://github.com/romkatv/zsh-bench/blob/master/dbg/playground)?
+
+`unbuffer` is from `expect` and will need to be installed.
+
+See [command-not-found](https://command-not-found.com/unbuffer) for instructions on how to install with most package managers.
