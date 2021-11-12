@@ -342,9 +342,6 @@ fi
 
 cd -q -- $_zb_tmpdir
 
-command mkdir bin
-command ln -s -- $commands[zsh] bin/-zsh
-
 function make-pat() {
   local name=$1
   shift

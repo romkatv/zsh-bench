@@ -21,6 +21,7 @@ if (( $#help )); then
   print -r --
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
+  print -r -- '  -p,--privileged'
   return
 fi
 
