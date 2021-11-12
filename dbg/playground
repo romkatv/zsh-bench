@@ -11,10 +11,12 @@ if [[ ${ZSH_VERSION-} != (5.<8->*|<6->.*) ]]; then
   return 1
 fi
 
+local -r root_dir=${ZSH_SCRIPT:a:h:h}
+
 zmodload zsh/zutil zsh/system zsh/zselect
 
-local -a help privileged
-zparseopts -D -K -F -- {h,-help}=help {p,-privileged}=privileged
+local -a help privileged isolation
+zparseopts -D -K -F -- {h,-help}=help {p,-privileged}=privileged {I,-isolation}:=isolation
 
 if (( $#help )); then
   print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. CONFIG"
@@ -22,7 +24,13 @@ if (( $#help )); then
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
   print -r -- '  -p,--privileged'
+  print -r -- '  -I,--isolation <docker|user> [default=docker]'
   return
+fi
+
+if [[ $#isolation -ne 0 && $isolation[2] != (docker|user) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --isolation: ${(q-)isolation[2]}"
+  return 1
 fi
 
 if (( ARGC != 1 )); then
@@ -37,9 +45,20 @@ if [[ -z $cfg ]]; then
   return 1
 fi
 
-if [[ ! -e ${ZSH_SCRIPT:h:h}/configs/$cfg ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: ${ZSH_SCRIPT:h:h}/configs/$cfg"
+if [[ ! -e $root_dir/configs/$cfg ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: $root_dir/configs/$cfg"
   return 1
+fi
+
+if [[ ${isolation[2]-} == user ]]; then
+  if (( EUID )); then
+    print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user; try with sudo"
+    return 1
+  fi
+  print -r -- "==> setting up zsh-bench-user with $cfg ..."
+  exec -- $root_dir/internal/install-config 1 $cfg \
+    '~/zsh-bench/internal/create-repo ~/repo' 'cd ~/repo' 'exec zsh -l'
+  return
 fi
 
 () {
@@ -66,7 +85,7 @@ if ! $docker_run sh -c true; then
 fi
 
 local self
-self=${"$(cd -q -- ${ZSH_SCRIPT:h:h} && command tar -cz -- ^.git && print -n x)"[1,-2]}
+self=${"$(cd -q -- $root_dir && command tar -cz -- ^.git && print -n x)"[1,-2]}
 
 local setup=(
   'mkdir ~/zsh-bench'
