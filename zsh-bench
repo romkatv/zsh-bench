@@ -20,7 +20,6 @@ zmodload zsh/zutil
 
 local -a help
 local -a scratch_dir
-local -a drop_caches
 local -a standalone
 local -a isolation
 local -a iters=(--iters 16)
@@ -30,7 +29,6 @@ zparseopts -D -K -F --          \
   {s,-standalone}=standalone    \
   {I,-isolation}:=isolation     \
   {d,-scratch-dir}:=scratch_dir \
-  {c,-drop-caches}:=drop_caches \
   {i,-iters}:=iters             \
   {g,-git}:=git
 
@@ -41,7 +39,6 @@ if (( $#help )); then
   print -r -- '  -h,--help'
   print -r -- '  -i,--iters <NUM> [default=16]'
   print -r -- '  -g,--git <yes|no|empty> [default=yes]'
-  print -r -- '  -c,--drop-caches <1|2|3>'
   print -r -- '  -d,--scratch-dir <directory>'
   print -r -- '  -I,--isolation <docker|user> [default=docker]'
   print -r -- '  -s,--standalone'
@@ -65,11 +62,6 @@ fi
 
 if [[ $#scratch_dir -ne 0 && -z $scratch_dir[2] ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: --scratch-dir cannot have empty value"
-  return 1
-fi
-
-if [[ $#drop_caches -ne 0 && $drop_caches[2] != <1-3> ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --drop-caches: ${(q-)drop_caches[2]}"
   return 1
 fi
 
@@ -104,7 +96,7 @@ if (( ARGC )); then
       local -r img=ubuntu:impish
 
       function docker-run() {
-        command docker run -e LC_ALL=C.UTF-8 --rm -i ${drop_caches:+--privileged} $img sh -c -- "$@"
+        command docker run -e LC_ALL=C.UTF-8 --rm -i $img sh -c -- "$@"
       }
 
       if ! docker-run true; then
@@ -114,7 +106,7 @@ if (( ARGC )); then
 
       print -r -- "==> starting $img in docker ..."
 
-      local args=($iters $git $drop_caches $standalone -- $@)
+      local args=($iters $git $standalone -- $@)
       local cmd=(
         'mkdir ~/zsh-bench'
         'cd ~/zsh-bench'
@@ -131,11 +123,6 @@ if (( ARGC )); then
         print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user; try with sudo"
         return 1
       fi
-      if (( $#drop_caches )); then
-        # TODO: support this.
-        print -ru2 -- "${ZSH_SCRIPT:t}: --drop-caches is not supported with --isolation user"
-        return 1
-      fi
       $self_dir/internal/benchmark-many $iters $git $standalone -- $@
     ;;
 
@@ -150,33 +137,6 @@ fi
 if (( $#isolation )); then
   print -ru2 -- "${ZSH_SCRIPT:t}: --isolation cannot be used without positional arguments"
   return 1
-fi
-
-if (( $#drop_caches )); then
-  if [[ ! -e /proc/sys/vm/drop_caches ]]; then
-    # TODO: make it work on macOS.
-    print -ru2 -- "${ZSH_SCRIPT:t}: --drop-caches works only on Linux"
-    return 1
-  elif [[ ! -v commands[sync] ]]; then
-    print -ru2 -- "${ZSH_SCRIPT:t}: command not found: sync"
-  elif [[ -w /proc/sys/vm/drop_caches ]]; then
-    function maybe-drop-caches() {
-      sync
-      /proc/sys/vm/drop_caches <<<$drop_caches[2]
-    }
-  elif [[ ! -v commands[sudo] ]]; then
-    print -ru2 -- "${ZSH_SCRIPT:t}: command not found: sudo"
-  elif [[ ! -v commands[tee] ]]; then
-    print -ru2 -- "${ZSH_SCRIPT:t}: command not found: tee"
-  else
-    function maybe-drop-caches() {
-      sync
-      sudo tee /proc/sys/vm/drop_caches <<<$drop_caches[2] >/dev/null
-    }
-  fi
-  maybe-drop-caches
-else
-  function maybe-drop-caches() { }
 fi
 
 zmodload zsh/datetime zsh/zselect zsh/system
@@ -518,7 +478,6 @@ fi
 
 repeat $iters[2]; do
   command rm -f -- $info_file $merged_file {$timing_file,$out_file}{,.orig}
-  maybe-drop-caches
 
   {
     print -r  -- ' "builtin" "." '${(qqq)src}
@@ -692,8 +651,6 @@ repeat $iters[2]; do
   if (( ! $+command_lag_ms || info[7] < command_lag_ms )); then
     local -F3 command_lag_ms='info[7]'
   fi
-
-  maybe-drop-caches
 
   local -F start_s=EPOCHREALTIME
   command zsh -lic '"builtin" "exit"' </dev/null &>/dev/null || true

@@ -4,4 +4,4 @@ set -ue
 
 dir="$(dirname -- "$0")"
 "$dir"/install-deps
-"$dir"/benchmark-many --privileged "$@"
+"$dir"/benchmark-many "$@"

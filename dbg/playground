@@ -105,7 +105,7 @@ local setup=(
 local login=(
   'exec'
   '~/zsh-bench/internal/install-config'
-  '1'
+  $#privileged
   ${(qqq)cfg}
   '"~/zsh-bench/internal/create-repo ~/repo"'
   '"cd ~/repo"'
