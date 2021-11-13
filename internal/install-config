@@ -4,18 +4,18 @@ emulate -L zsh -o err_return -o no_unset -o warn_create_global -o extended_glob
 
 () {
 
-(( ARGC > 2 ))
+(( ARGC > 3 ))
 
 zmodload zsh/zselect
 
 unset user
-typeset -gr user=zsh-bench-user
+typeset -gr user=$1
 local -r root_dir=${ZSH_SCRIPT:a:h:h}
-local -r privileged=$1
-local -r cfg=$2
-shift 2
+local -r privileged=$2
+local -r cfg=$3
+shift 3
 
-print -r -- "==> setting up zsh-bench-user ${cfg:+with $cfg }..."
+print -r -- "==> setting up $user ${cfg:+with $cfg }..."
 
 local cmds=(ps rm cp chown sudo zsh tee)
 (( privileged )) && cmds+=(cat visudo)

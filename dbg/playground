@@ -80,7 +80,8 @@ if [[ $isolation[2] == user ]]; then
   fi
   local -a create_repo
   [[ -v commands[git] ]] && create_repo=('~/zsh-bench/internal/create-repo ~/repo' 'cd ~/repo')
-  exec -- $root_dir/internal/install-config $#privileged "$cfg" $create_repo 'exec zsh -l'
+  exec -- $root_dir/internal/install-config \
+    'zsh-playground-user' $#privileged "$cfg" $create_repo 'exec zsh -l'
   return
 fi
 
@@ -132,6 +133,7 @@ if [[ -n $cfg ]]; then
   local login=(
     'exec'
     '~/zsh-bench/internal/install-config'
+    'zsh-playground-user'
     $#privileged
     ${(qqq)cfg}
     '"~/zsh-bench/internal/create-repo ~/repo"'

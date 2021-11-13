@@ -126,7 +126,7 @@ function process-line() {
   line=${line%%[[:space:]]#\#*}
   [[ -z $line ]] && return
   local -a match mbegin mend
-  if [[ $line == (#b)'==> setting up zsh-bench-user with '(?*)' ...' ]]; then
+  if [[ $line == (#b)'==> setting up '[^[:space:]]##' with '(?*)' ...' ]]; then
     flush
     row[1]="[$match](https://github.com/romkatv/zsh-bench/tree/master/configs/${match//+/%2B})"
     return
