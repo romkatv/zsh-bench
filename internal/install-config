@@ -10,7 +10,7 @@ zmodload zsh/zselect
 
 unset user
 typeset -gr user=$1
-local -r root_dir=${ZSH_SCRIPT:a:h:h}
+local -r root_dir=${ZSH_SCRIPT:A:h:h}
 local -r privileged=$2
 local -r cfg=$3
 shift 3

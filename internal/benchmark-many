@@ -7,7 +7,7 @@ setopt no_unset extended_glob typeset_silent no_multi_byte \
 () {
 
 local -r user=zsh-bench-user
-local -r root_dir=${ZSH_SCRIPT:a:h:h}
+local -r root_dir=${ZSH_SCRIPT:A:h:h}
 
 zmodload zsh/zutil
 
