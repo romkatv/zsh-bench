@@ -295,7 +295,10 @@ latter is my project. All configs were used unmodified.
 or git prompt. Users who need these features—most do—should enable them explicitly.
 
 **ohmyzsh** and **zim** by default use a theme with similar performance characteristics of
-**agnoster**, so they have high *command lag* in larger git repositories.
+**agnoster**, so they have high *command lag* in larger git repositories. **zim** is the only config
+among these that doesn't detect untracked files. This appears to have been a conscious decision by
+**zim** developers for performance reasons. Apparently, it doesn't help: **zim** has higher
+*prompt lag* than **agnoster**.
 
 **zim** enables syntax highlight and autosuggestions by default, so it naturally has higher *input
 lag* than projects that don't. Fast zsh startup is a major [explicit goal](
