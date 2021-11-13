@@ -33,21 +33,23 @@ if [[ $#isolation -ne 0 && $isolation[2] != (docker|user) ]]; then
   return 1
 fi
 
-if (( ARGC != 1 )); then
-  print -ru2 -- "${ZSH_SCRIPT:t}: exactly one positional argument is required"
+if (( ARGC > 1 )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: too many positional arguments"
   return 1
 fi
 
-local -r cfg=$1
+if (( ARGC )); then
+  local -r cfg=$1
 
-if [[ -z $cfg ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: config name cannot be empty"
-  return 1
-fi
+  if [[ -z $cfg ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: config name cannot be empty"
+    return 1
+  fi
 
-if [[ ! -e $root_dir/configs/$cfg ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: $root_dir/configs/$cfg"
-  return 1
+  if [[ ! -e $root_dir/configs/$cfg ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: $root_dir/configs/$cfg"
+    return 1
+  fi
 fi
 
 if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
@@ -56,6 +58,10 @@ if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
 fi
 
 if [[ ${isolation[2]-} == user ]]; then
+  if (( ! ARGC )); then
+    print -ru2 -- "${ZSH_SCRIPT:t}: exactly one positional argument is required"
+    return 1
+  fi
   if (( EUID )); then
     print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user; try with sudo"
     return 1
@@ -95,7 +101,7 @@ print -r -- "==> starting $img in docker ..."
 local setup=(
   'cpuset="$(cat /proc/1/cpuset)"'
   '[ -n "$cpuset" ]'
-  'printf "==> docker container ID: %s\\n" "${cpuset##*/}" >&2'
+  'printf "==> docker container ID: %.12s\\n" "${cpuset##*/}" >&2'
   'mkdir ~/zsh-bench'
   'cd ~/zsh-bench'
   'head -c '$#self' | tar -xzm'
@@ -104,17 +110,22 @@ local setup=(
   '~/zsh-bench/internal/install-deps command-not-found >&2'
   'zsh="$(which zsh)"'
   'chsh -s "$zsh"'
+  '~/zsh-bench/configs/minimal/setup'
   'printf "%s\\n" "$cpuset"'
   'cat >/dev/null')
 
-local login=(
-  'exec'
-  '~/zsh-bench/internal/install-config'
-  $#privileged
-  ${(qqq)cfg}
-  '"~/zsh-bench/internal/create-repo ~/repo"'
-  '"cd ~/repo"'
-  '"exec zsh -l"')
+if (( ARGC )); then
+  local login=(
+    'exec'
+    '~/zsh-bench/internal/install-config'
+    $#privileged
+    ${(qqq)cfg}
+    '"~/zsh-bench/internal/create-repo ~/repo"'
+    '"cd ~/repo"'
+    '"exec zsh -l"')
+else
+  local login=('cd && exec zsh -l')
+fi
 
 local tty
 exec {tty}<&0
@@ -137,18 +148,20 @@ exec {tty}<&0
 } | {
   local pid
   IFS= read -r pid
-  local cpuset
-  IFS= read -r cpuset
-  exec 0<&$tty {tty}<&-
-  if [[ $cpuset != /docker/[[:xdigit:]]## ]]; then
-    print -ru2 -- "${ZSH_SCRIPT:t}: unexpected content of /proc/1/cpuset in the docker container"
-    kill -- $pid 2>/dev/null
-    return 1
-  fi
-  local ret
-  command docker exec -e TERM -e COLORTERM -it -- ${cpuset:t} sh -c ${(j: :)login} || ret=$?
-  kill -- $pid 2>/dev/null || true
-  return ret
+  {
+    local cpuset
+    IFS= read -r cpuset
+    exec 0<&$tty {tty}<&-
+    if [[ $cpuset != /docker/[[:xdigit:]]## ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: unexpected content of /proc/1/cpuset in the docker container"
+      return 1
+    fi
+    local ret
+    command docker exec -e TERM -e COLORTERM -it -- ${cpuset:t} sh -c ${(j: :)login} || ret=$?
+    return ret
+  } always {
+    kill -- $pid 2>/dev/null || true
+  }
 }
 
 } "$@"

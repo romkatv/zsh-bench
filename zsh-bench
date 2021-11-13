@@ -112,7 +112,7 @@ if (( ARGC )); then
       local args=($iters $git $standalone -- $@)
       local cmd=(
         'cpuset="$(cat /proc/1/cpuset)"'
-        'printf "==> docker container ID: %s\\n" "${cpuset##*/}"'
+        'printf "==> docker container ID: %.12s\\n" "${cpuset##*/}"'
         'mkdir ~/zsh-bench'
         'cd ~/zsh-bench'
         'head -c '$#self' | tar -xzm'

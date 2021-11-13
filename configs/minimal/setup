@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return -o extended_glob
+
+cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
