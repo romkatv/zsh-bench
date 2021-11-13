@@ -60,6 +60,8 @@ if (( ARGC )); then
     print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: $root_dir/configs/$cfg"
     return 1
   fi
+else
+  local -r cfg=
 fi
 
 if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
@@ -67,11 +69,7 @@ if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
   return 1
 fi
 
-if [[ $isolation == user ]]; then
-  if (( ! ARGC )); then
-    print -ru2 -- "${ZSH_SCRIPT:t}: exactly one positional argument is required"
-    return 1
-  fi
+if [[ $isolation[2] == user ]]; then
   if (( EUID )); then
     if (( in_docker )); then
       print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user"
@@ -82,11 +80,11 @@ if [[ $isolation == user ]]; then
   fi
   local -a create_repo
   [[ -v commands[git] ]] && create_repo=('~/zsh-bench/internal/create-repo ~/repo' 'cd ~/repo')
-  exec -- $root_dir/internal/install-config $#privileged $cfg $create_repo 'exec zsh -l'
+  exec -- $root_dir/internal/install-config $#privileged "$cfg" $create_repo 'exec zsh -l'
   return
 fi
 
-[[ $isolation == docker ]]
+[[ $isolation[2] == docker ]]
 
 () {
   local cmd
@@ -130,7 +128,7 @@ local setup=(
   'printf "%s\\n" "$cpuset"'
   'cat >/dev/null')
 
-if (( ARGC )); then
+if [[ -n $cfg ]]; then
   local login=(
     'exec'
     '~/zsh-bench/internal/install-config'

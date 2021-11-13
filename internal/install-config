@@ -15,7 +15,7 @@ local -r privileged=$1
 local -r cfg=$2
 shift 2
 
-print -r -- "==> setting up zsh-bench-user with $cfg ..."
+print -r -- "==> setting up zsh-bench-user ${cfg:+with $cfg }..."
 
 local cmds=(ps rm cp chown sudo zsh tee)
 (( privileged )) && cmds+=(cat visudo)
@@ -151,7 +151,7 @@ END
 local cmd=(
   ${(f)"$(typeset -pm 'LC_*|LANG|LANGUAGE')"}
   'cd'
-  '~/zsh-bench/configs/'${(qqq)cfg}'/setup'
+  ${cfg:+'~/zsh-bench/configs/'${(qqq)cfg}'/setup'}
   $@)
 command sudo -Hu $user =zsh -c -- ${(j: && :)cmd}
 
