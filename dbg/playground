@@ -50,12 +50,16 @@ if [[ ! -e $root_dir/configs/$cfg ]]; then
   return 1
 fi
 
+if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: all standard file descriptors must be TTY"
+  return 1
+fi
+
 if [[ ${isolation[2]-} == user ]]; then
   if (( EUID )); then
     print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user; try with sudo"
     return 1
   fi
-  print -r -- "==> setting up zsh-bench-user with $cfg ..."
   local -a create_repo
   [[ -v commands[git] ]] && create_repo=('~/zsh-bench/internal/create-repo ~/repo' 'cd ~/repo')
   exec -- $root_dir/internal/install-config $#privileged $cfg $create_repo 'exec zsh -l'
@@ -72,15 +76,13 @@ fi
   done
 }
 
-if [[ ! -t 0 ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: stdin must be TTY"
-  return 1
-fi
-
 local -r img=ubuntu:impish
-local -r docker_run=(command docker run -i --rm ${privileged:+--privileged} --init -- $img)
 
-if ! $docker_run sh -c true; then
+function docker-run() {
+  command docker run -i --rm ${privileged:+--privileged} --init -- $img sh -uec "$1"
+}
+
+if ! docker-run true; then
   print -ru2 -- "${ZSH_SCRIPT:t}: cannot run docker; try with sudo?"
   return 1
 fi
@@ -88,7 +90,12 @@ fi
 local self
 self=${"$(cd -q -- $root_dir && command tar -cz -- ^.git && print -n x)"[1,-2]}
 
+print -r -- "==> starting $img in docker ..."
+
 local setup=(
+  'cpuset="$(cat /proc/1/cpuset)"'
+  '[ -n "$cpuset" ]'
+  'printf "==> docker container ID: %s\\n" "${cpuset##*/}" >&2'
   'mkdir ~/zsh-bench'
   'cd ~/zsh-bench'
   'head -c '$#self' | tar -xzm'
@@ -97,8 +104,6 @@ local setup=(
   '~/zsh-bench/internal/install-deps command-not-found >&2'
   'zsh="$(which zsh)"'
   'chsh -s "$zsh"'
-  'cpuset="$(cat /proc/1/cpuset)"'
-  '[ -n "$cpuset" ]'
   'printf "%s\\n" "$cpuset"'
   'cat >/dev/null')
 
@@ -128,7 +133,7 @@ exec {tty}<&0
   local pid
   IFS= read -r pid
   print -r -- $pid
-  $docker_run sh -uec ${(j: && :)setup}
+  docker-run ${(j: && :)setup}
 } | {
   local pid
   IFS= read -r pid

@@ -16,7 +16,7 @@ local NULLCMD=cat
 
 local -r self_dir=${ZSH_SCRIPT:A:h}
 
-zmodload zsh/zutil
+zmodload zsh/zutil zsh/system zsh/zselect
 
 local -a help
 local -a scratch_dir
@@ -96,7 +96,7 @@ if (( ARGC )); then
       local -r img=ubuntu:impish
 
       function docker-run() {
-        command docker run -e LC_ALL=C.UTF-8 --rm -i $img sh -c -- "$@"
+        command docker run -e LC_ALL=C.UTF-8 --rm -i --init -- $img sh -uec "$1"
       }
 
       if ! docker-run true; then
@@ -104,18 +104,49 @@ if (( ARGC )); then
         return 1
       fi
 
+      local self
+      self=${"$(cd -q -- $self_dir && command tar -cz -- ^.git && print -n x)"[1,-2]}
+
       print -r -- "==> starting $img in docker ..."
 
       local args=($iters $git $standalone -- $@)
       local cmd=(
+        'cpuset="$(cat /proc/1/cpuset)"'
+        'printf "==> docker container ID: %s\\n" "${cpuset##*/}"'
         'mkdir ~/zsh-bench'
         'cd ~/zsh-bench'
-        'tar -xmz'
-        'exec ./internal/docker-bench '${(j: :)${(@qqq)args}})
-      (
-        cd -q -- $self_dir
-        command tar -czf - -- ^.git
-      ) | docker-run ${(j: && :)cmd}
+        'head -c '$#self' | tar -xzm'
+        '( ( cat <&3 >/dev/null || true; /bin/kill -TERM -- -$$; ) & ) 3<&0'
+        './internal/docker-bench '${(j: :)${(@qqq)args}})
+
+      local stdout
+      exec {stdout}>&1
+
+      {
+        exec {stdout}>&-
+        print -r -- $sysparams[pid]
+        print -rn -- $self
+        trap 'exit 0' TERM PIPE
+        while true; do
+          zselect -t 360000 || true
+          print 2>/dev/null || exit 0
+        done
+      } | {
+        local pid
+        IFS= read -r pid
+        print -r -- $pid
+        docker-run ${(j: && :)cmd} >&$stdout
+      } | {
+        exec {stdout}>&-
+        local pid dummy
+        IFS= read -r pid
+        {
+          IFS= read -r dummy && return 'error()'
+          return 0
+        } always {
+          kill -- $pid 2>/dev/null || true
+        }
+      }
     ;;
 
     user)
@@ -139,7 +170,9 @@ if (( $#isolation )); then
   return 1
 fi
 
-zmodload zsh/datetime zsh/zselect zsh/system
+print -r -- "==> benchmarking login shell ${USER:+of $USER }..."
+
+zmodload zsh/datetime
 
 local -r stats=(
   creates_tty

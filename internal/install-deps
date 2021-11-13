@@ -2,7 +2,7 @@
 
 set -ue
 
-printf '==> setting up a container ...\n'
+printf '==> setting up the container ...\n'
 
 aptget() {
   DEBIAN_FRONTEND=noninteractive DEBCONF_NOWARNINGS=yes \

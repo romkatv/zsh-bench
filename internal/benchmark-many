@@ -20,7 +20,6 @@ zparseopts -D -K -F -a flags -- \
 
 local cfg
 for cfg; do
-  print -r -- "==> benchmarking $cfg ..."
   $root_dir/internal/install-config 0 $cfg '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)flags}}
 done
 
