@@ -815,11 +815,11 @@ This [comment](
 
 Several tools are included in zsh-bench to aid in debugging and validation of benchmark results.
 
-Run [playground](https://github.com/romkatv/zsh-bench/blob/master/dbg/playground) to create an
-ephemeral docker container based on Ubuntu 21.10 with zsh as login shell:
+Run `zsh-playground` to create an ephemeral docker container based on Ubuntu 21.10 with zsh as login
+shell:
 
 ```zsh
-~/zsh-bench/dbg/playground zsh4humans
+~/zsh-bench/zsh-playground zsh4humans
 ```
 
 You can pass any [config name](https://github.com/romkatv/zsh-bench/tree/master/configs) in place of
@@ -901,7 +901,7 @@ You can use [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs
 for black-box testing of `zsh-bench`:
 
 ```zsh
-~/zsh-bench/dbg/playground synthetic
+~/zsh-bench/zsh-playground synthetic
 ```
 
 By default [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) behaves

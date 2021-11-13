@@ -11,7 +11,7 @@ if [[ ${ZSH_VERSION-} != (5.<8->*|<6->.*) ]]; then
   return 1
 fi
 
-local -r root_dir=${ZSH_SCRIPT:a:h:h}
+local -r root_dir=${ZSH_SCRIPT:a:h}
 
 zmodload zsh/zutil zsh/system zsh/zselect
 
