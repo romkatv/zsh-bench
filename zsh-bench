@@ -24,6 +24,7 @@ local -a standalone
 local -a isolation
 local -a iters=(--iters 16)
 local -a git=(--git yes)
+
 zparseopts -D -K -F --          \
   {h,-help}=help                \
   {s,-standalone}=standalone    \
@@ -66,6 +67,17 @@ if [[ $#scratch_dir -ne 0 && -z $scratch_dir[2] ]]; then
 fi
 
 if (( ARGC )); then
+  if (( ! $#isolation )); then
+    if [[ -r /proc/1/cpuset(#qN-.) &&
+          "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
+      local -a isolation=(--isolation user)
+      local -ri in_docker=1
+    else
+      local -a isolation=(--isolation docker)
+      local -ri in_docker=0
+    fi
+  fi
+
   if (( $#scratch_dir )); then
     print -ru2 -- "${ZSH_SCRIPT:t}: ${scratch_dir[1]} is incompatible with positional arguments"
     return 1
@@ -81,7 +93,7 @@ if (( ARGC )); then
     done
   } "$@"
 
-  case ${isolation[2]-docker} in
+  case $isolation[2] in
     docker)
       () {
         local cmd
@@ -151,7 +163,11 @@ if (( ARGC )); then
 
     user)
       if (( EUID )); then
-        print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user; try with sudo"
+        if (( in_docker )); then
+          print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user"
+        else
+          print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user; try with sudo"
+        fi
         return 1
       fi
       $self_dir/internal/benchmark-many $iters $git $standalone -- $@

@@ -15,7 +15,17 @@ local -r root_dir=${ZSH_SCRIPT:a:h:h}
 
 zmodload zsh/zutil zsh/system zsh/zselect
 
-local -a help privileged isolation
+local -a help privileged
+
+if [[ -r /proc/1/cpuset(#qN-.) &&
+      "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
+  local -a isolation=(--isolation user)
+  local -ri in_docker=1
+else
+  local -a isolation=(--isolation docker)
+  local -ri in_docker=0
+fi
+
 zparseopts -D -K -F -- {h,-help}=help {p,-privileged}=privileged {I,-isolation}:=isolation
 
 if (( $#help )); then
@@ -28,7 +38,7 @@ if (( $#help )); then
   return
 fi
 
-if [[ $#isolation -ne 0 && $isolation[2] != (docker|user) ]]; then
+if [[ $isolation[2] != (docker|user) ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --isolation: ${(q-)isolation[2]}"
   return 1
 fi
@@ -57,13 +67,17 @@ if [[ ! -t 0 || ! -t 1 || ! -t 2 ]]; then
   return 1
 fi
 
-if [[ ${isolation[2]-} == user ]]; then
+if [[ $isolation == user ]]; then
   if (( ! ARGC )); then
     print -ru2 -- "${ZSH_SCRIPT:t}: exactly one positional argument is required"
     return 1
   fi
   if (( EUID )); then
-    print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user; try with sudo"
+    if (( in_docker )); then
+      print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user"
+    else
+      print -ru2 -- "${ZSH_SCRIPT:t}: you must be root for --isolation user; try with sudo"
+    fi
     return 1
   fi
   local -a create_repo
@@ -71,6 +85,8 @@ if [[ ${isolation[2]-} == user ]]; then
   exec -- $root_dir/internal/install-config $#privileged $cfg $create_repo 'exec zsh -l'
   return
 fi
+
+[[ $isolation == docker ]]
 
 () {
   local cmd
