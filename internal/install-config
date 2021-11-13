@@ -80,6 +80,11 @@ function delete-user() {
     if pids=($(command ps -u $user -o pid= 2>/dev/null)) && (( $#pids )); then
       kill -- $pids 2>/dev/null || true
     fi
+    {
+      { command rm -rf -- '' /tmp/**/*(Nu[$user]) } 2>/dev/null || true
+    } always {
+      TRY_BLOCK_ERROR=0
+    }
     try-delete-user &>/dev/null && return
     zselect -t $((100 * delay)) || true
     (( delay *= 2 ))
