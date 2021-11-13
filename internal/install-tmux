@@ -15,29 +15,32 @@ DEBIAN_FRONTEND=noninteractive DEBCONF_NOWARNINGS=yes \
 
 local tmpdir
 {
-  tmpdir=$(mktemp -d)
+  tmpdir=$(sudo -u nobody mktemp -d)
   cd -- $tmpdir
 
   local v=3.2a
+  local sha256=497bc4ee16f10b53b161bf0253b6f9e20cd0f86c5d0104f149212cb0778ae13a
   curl -fsSLO https://github.com/tmux/tmux/archive/refs/tags/$v.tar.gz
-  tar -xzf $v.tar.gz
+  sha256sum --check --quiet <<<"$sha256 $v.tar.gz"
+  sudo -u nobody tar -xz <$v.tar.gz
+  rm -- $v.tar.gz
   cd tmux-$v
 
   # Apply a patch for https://github.com/tmux/tmux/issues/2909.
-  patch --quiet -u tty.c <<-\END
+  sudo -u nobody patch --quiet -u tty.c <<-\END
 	@@ -313 +313 @@
 	-		tcflush(c->fd, TCIOFLUSH);
 	+		tcflush(c->fd, TCOFLUSH);
 	END
 
-  ./autogen.sh 2>/dev/null
-  CFLAGS=-Wno-unused-result ./configure --quiet
+  sudo -u nobody ./autogen.sh 2>/dev/null
+  sudo -u nobody env CFLAGS=-Wno-unused-result ./configure --quiet
 
   local cpus
   cpus=$(getconf _NPROCESSORS_ONLN)
   [[ $cpus == <1-> ]]
 
-  make -s -j $cpus
+  sudo -u nobody make -s -j $cpus
   make -s install >/dev/null
 } always {
   if [[ -n $tmpdir ]]; then

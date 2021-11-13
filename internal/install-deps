@@ -17,11 +17,19 @@ aptget upgrade -y
 aptget install -y -- bsdutils curl git make ncurses-bin perl sudo util-linux zsh direnv tzdata "$@"
 [ $# -eq 0 ] || aptget update
 
-starship="$(curl -fsSL https://starship.rs/install.sh)"
-sh -c "$starship" sh -y >/dev/null
+(
+  cd /
+  starship="$(curl -fsSL https://starship.rs/install.sh)"
+  tmpdir="$(sudo -u nobody mktemp -d)"
+  sh -c "$starship" sh -y -b "$tmpdir" >/dev/null
+  install -- "$tmpdir"/starship /usr/local/bin/
+  rm -rf -- "$tmpdir"
+)
 
-dir="$(dirname -- "$0")"
-"$dir"/install-tmux
+(
+  dir="$(dirname -- "$0")"
+  "$dir"/install-tmux
+)
 
 git config --system core.untrackedCache true
 git config --system user.name           "Zsh Bench"
