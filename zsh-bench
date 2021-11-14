@@ -41,7 +41,7 @@ if (( $#help )); then
   print -r -- '  -i,--iters <NUM> [default=16]'
   print -r -- '  -g,--git <yes|no|empty> [default=yes]'
   print -r -- '  -d,--scratch-dir <directory>'
-  print -r -- '  -I,--isolation <docker|user> [default=docker]'
+  print -r -- '  -I,--isolation <docker|user>'
   print -r -- '  -s,--standalone'
   return
 fi

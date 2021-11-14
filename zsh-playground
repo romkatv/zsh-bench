@@ -34,7 +34,7 @@ if (( $#help )); then
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
   print -r -- '  -p,--privileged'
-  print -r -- '  -I,--isolation <docker|user> [default=docker]'
+  print -r -- '  -I,--isolation <docker|user>'
   return
 fi
 
@@ -100,7 +100,7 @@ fi
 local -r img=ubuntu:21.04
 
 function docker-run() {
-  local flags=(-i --rm --init -e TERM -e COLORTERM)
+  local flags=(-i --rm --init -e TERM -e COLORTERM -w /root)
   if (( $#privileged )); then
     flags+=(--privileged -v /:/host)
   fi
