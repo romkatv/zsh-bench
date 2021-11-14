@@ -105,10 +105,11 @@ if (( ARGC )); then
         done
       }
 
-      local -r img=ubuntu:impish
+      local -r img=ubuntu:21.04
 
       function docker-run() {
-        command docker run -e LC_ALL=C.UTF-8 --rm -i --init -- $img sh -uec "$1"
+        DOCKER_CONTENT_TRUST=1 command docker run -e LC_ALL=C.UTF-8 --rm -i --init -- \
+          $img sh -uec "$1"
       }
 
       if ! docker-run true; then
