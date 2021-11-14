@@ -818,35 +818,7 @@ This [comment](
 
 Several tools are included in zsh-bench to aid in debugging and validation of benchmark results.
 
-Run `zsh-playground` to create an ephemeral docker container based on Ubuntu 21.10 with zsh as login
-shell:
-
-```zsh
-~/zsh-bench/zsh-playground zsh4humans
-```
-
-You can pass any [config name](https://github.com/romkatv/zsh-bench/tree/master/configs) in place of
-`zsh4humans`.
-
-After a few minutes you should have interactive zsh with `~/repo` as the current working directory.
-This is a git repository with 1,000 directories and 10,000 files. `zsh-bench` performs its
-measurements in a directory just like this. You can check how it feels to restart zsh
-(`exec zsh -l`) or to run simple commands (`true`, `pwd`, `print`, etc.) in this directory.
-
-You can install additional software with `sudo apt install <pkg>` and change any files you like.
-This won't affect your host system. Once you `exit`, the docker container will get deleted and no
-trace of it will be left.
-
-Benchmark login shell within the container:
-
-```zsh
-~/zsh-bench/zsh-bench --iters 64
-```
-
-With `--iters 64` all measurements are performed 64 times and the lowest values are be reported.
-All published benchmark results in this document have been compiled with this option.
-
-Pass `--scratch-dir /tmp/zsh-bench` to keep temporary benchmark data in a fixed location.
+Perform one iteration of login shell benchmark and retain temporary benchmark data:
 
 ```zsh
 ~/zsh-bench/zsh-bench --iters 1 --scratch-dir /tmp/zsh-bench
@@ -858,7 +830,7 @@ Replay the screen of the TTY that `zsh-bench` was acting on during benchmarking:
 ~/zsh-bench/dbg/replay --scratch-dir /tmp/zsh-bench
 ```
 
-Replay at 10% speed and at most 1s delay between TTY updates.
+Replay at 10% speed and at most 1s delay between TTY updates:
 
 ```zsh
 ~/zsh-bench/dbg/replay --scratch-dir /tmp/zsh-bench --delay-multiplier 10 --max-delay-ms 1000
@@ -899,31 +871,6 @@ as the timestamp, you'll see what `zsh-bench` considered *first prompt* and the 
 `ZB*-msg` where `*` is a random number). Capability `has_git_prompt` should be set if and only if
 `ZB*-branch` appears before `ZB*-msg`. In other words, `has_git_prompt` signifies that the first
 prompt shows git branch.
-
-You can use [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) config
-for black-box testing of `zsh-bench`:
-
-```zsh
-~/zsh-bench/zsh-playground synthetic
-```
-
-By default [synthetic](https://github.com/romkatv/zsh-bench/tree/master/configs/synthetic) behaves
-like [no-rcs](https://github.com/romkatv/zsh-bench/tree/master/configs/no-rcs). If you run
-`~/zsh-bench/zsh-bench`, you should see very low latencies.
-
-Restart zsh with specific latencies:
-
-```zsh
-ZB_FIRST_PROMPT_LAG_MS=50   \
-ZB_FIRST_COMMAND_LAG_MS=150 \
-ZB_COMMAND_LAG_MS=10        \
-ZB_INPUT_LAG_MS=20          \
-exec zsh -l
-```
-
-Now zsh should be lagging a tiny bit. The values in the command above are the
-[threshold latencies](#how-fast-is-fast). `~/zsh-bench/zsh-bench` should report slightly higher
-latencies than these.
 
 ## License
 
