@@ -100,8 +100,11 @@ fi
 local -r img=ubuntu:21.04
 
 function docker-run() {
-  DOCKER_CONTENT_TRUST=1 command docker run -i --rm ${privileged:+--privileged} --init -- \
-    $img sh -uec "$1"
+  local flags=(-i --rm --init -e TERM -e COLORTERM)
+  if (( $#privileged )); then
+    flags+=(--privileged -v /:/host)
+  fi
+  DOCKER_CONTENT_TRUST=1 command docker run $flags -- $img sh -uec "$1"
 }
 
 if ! docker-run true; then
