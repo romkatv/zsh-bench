@@ -74,11 +74,13 @@ commands in your history after running `zsh-bench`.
 ### Benchmark predefined zsh configs
 
 ```zsh
-~/zsh-bench/zsh-bench <name> [name]..
+~/zsh-bench/zsh-bench --isolation docker -- <name> [name]..
 ```
 
 This requires `docker`. Names of predefined zsh configs are directories under
 [configs](https://github.com/romkatv/zsh-bench/tree/master/configs).
+
+With `--isolation user` benchmarking is done as user `zsh-bench-user` on the host.
 
 ## How it works
 
