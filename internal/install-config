@@ -134,6 +134,9 @@ if [[ $OSTYPE == darwin* ]]; then
 else
   command useradd -ms =zsh $user
   command passwd -qd $user
+  if [[ -n $cfg ]]; then
+    command rm -rf -- /home/$user/*(DN)
+  fi
   command cp -r -- $root_dir /home/$user/zsh-bench
   command chown -R $user:$user /home/$user/zsh-bench
   local sudoersd=/etc/sudoers.d
@@ -158,6 +161,6 @@ local cmd=(
   'cd'
   ${cfg:+'~/zsh-bench/configs/'${(qqq)cfg}'/setup'}
   $@)
-command sudo -Hu $user =zsh -c -- ${(j: && :)cmd}
+exec sudo -Hu $user =zsh -c -- ${(j: && :)cmd}
 
 } "$@"

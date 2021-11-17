@@ -208,7 +208,7 @@ unset -- $stats
 
 () {
   local cmd
-  for cmd in cat cp git ln mkdir mkfifo mktemp rm script touch zsh mv; do
+  for cmd in cat cp git ln mkdir mkfifo mktemp rm script touch zsh mv xargs; do
     if [[ ! -v commands[$cmd] ]]; then
       print -ru2 -- "${ZSH_SCRIPT:t}: command not found: ${(q-)cmd}"
       return 1
@@ -419,8 +419,8 @@ unset -m 'GIT_*|TMUX*' || true
 () {
   case $git[2] in
     yes)
-      print -rC1 -- {1..10}/{1..10}/{1..10}         | xargs mkdir -p --
-      print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | xargs touch --
+      print -rC1 -- {1..10}/{1..10}/{1..10}         | command xargs mkdir -p --
+      print -rC1 -- {1..10}/{1..10}/{1..10}/{1..10} | command xargs touch --
     ;;
     no) return;;
     empty) ;;

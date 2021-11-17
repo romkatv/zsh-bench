@@ -16,6 +16,7 @@ local -r root_dir=${ZSH_SCRIPT:A:h}
 zmodload zsh/zutil zsh/system zsh/zselect
 
 local -a help privileged
+local -a git=(--git no)
 
 if [[ -r /proc/1/cpuset(#qN-.) &&
       "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
@@ -26,7 +27,11 @@ else
   local -ri in_docker=0
 fi
 
-zparseopts -D -K -F -- {h,-help}=help {p,-privileged}=privileged {I,-isolation}:=isolation
+zparseopts -D -K -F --       \
+  {h,-help}=help             \
+  {p,-privileged}=privileged \
+  {I,-isolation}:=isolation  \
+  {g,-git}:=git
 
 if (( $#help )); then
   print -r -- "usage: ${ZSH_SCRIPT:t} [OPTION].. CONFIG"
@@ -35,11 +40,17 @@ if (( $#help )); then
   print -r -- '  -h,--help'
   print -r -- '  -p,--privileged'
   print -r -- '  -I,--isolation <docker|user>'
+  print -r -- '  -g,--git <yes|no|empty> [default=no]'
   return
 fi
 
 if [[ $isolation[2] != (docker|user) ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --isolation: ${(q-)isolation[2]}"
+  return 1
+fi
+
+if [[ $git[2] != (yes|no|empty) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --git: ${(q-)git[2]}"
   return 1
 fi
 
@@ -78,8 +89,10 @@ if [[ $isolation[2] == user ]]; then
     fi
     return 1
   fi
-  local -a create_repo
-  [[ -v commands[git] ]] && create_repo=('~/zsh-bench/internal/create-repo ~/repo' 'cd ~/repo')
+  local create_repo=()
+  if [[ $git[2] != no ]]; then
+    create_repo=('~/zsh-bench/internal/create-repo ~/repo '${(q-)git[2]} 'cd ~/repo')
+  fi
   exec -- $root_dir/internal/install-config \
     'zsh-playground-user' $#privileged "$cfg" $create_repo 'exec zsh -l'
   return
@@ -133,6 +146,13 @@ local setup=(
   'printf "%s\\n" "$cpuset"'
   'cat >/dev/null')
 
+local -a create_repo=()
+if [[ $git[2] != no ]]; then
+  create_repo=(
+    '~/zsh-bench/internal/create-repo ~/repo '${(q-)git[2]}
+    'cd ~/repo')
+fi
+
 if [[ -n $cfg ]]; then
   local login=(
     'exec'
@@ -140,11 +160,11 @@ if [[ -n $cfg ]]; then
     'zsh-playground-user'
     $#privileged
     ${(qqq)cfg}
-    '"~/zsh-bench/internal/create-repo ~/repo"'
-    '"cd ~/repo"'
+    ${(@qqq)create_repo}
     '"exec zsh -l"')
 else
-  local login=('cd && exec zsh -l')
+  local cmds=('cd' $create_repo 'exec zsh -l')
+  local login=(${(j: && :)cmds})
 fi
 
 local tty
