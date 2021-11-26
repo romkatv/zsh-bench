@@ -507,10 +507,8 @@ sysopen -ao cloexec -u _zb_fd >(
       print -rn -- ' "builtin" ":" >>'${(qqq)fifo_file}
       print -rn -- ' && "builtin" ":" <'${(qqq)fifo_file}
       print -r  -- ' || "builtin" "exit"'
-      print -r  -- ' print -P "[%*] $$ running" >>/tmp/log'
       local REPLY
       sysread || true
-      print -r  -- ' print -P "[%*] $$ exiting" >>/tmp/log'
       print -r -- ' "builtin" "exit" "0"'
     } | script /dev/null ${(qqq)commands[zsh]} '"-li"'
   } &!
