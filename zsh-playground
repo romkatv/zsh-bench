@@ -62,8 +62,8 @@ fi
 if (( ARGC )); then
   local -r cfg=$1
 
-  if [[ -z $cfg ]]; then
-    print -ru2 -- "${ZSH_SCRIPT:t}: config name cannot be empty"
+  if [[ -z $cfg || $cfg == */* ]]; then
+    print -ru2 -- "${ZSH_SCRIPT:t}: invalid config name: ${(q-)cfg}"
     return 1
   fi
 

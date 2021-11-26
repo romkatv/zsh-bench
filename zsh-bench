@@ -86,6 +86,10 @@ if (( ARGC )); then
   () {
     local cfg
     for cfg; do
+      if [[ -z $cfg || $cfg == */* ]]; then
+        print -ru2 -- "${ZSH_SCRIPT:t}: invalid config name: ${(q-)cfg}"
+        return 1
+      fi
       if [[ ! -e $self_dir/configs/$cfg ]]; then
         print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: $self_dir/configs/$cfg"
         return 1
