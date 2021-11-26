@@ -113,7 +113,7 @@ fi
 local -r img=ubuntu:21.04
 
 function docker-run() {
-  local flags=(-i --rm --init -e TERM -e COLORTERM -w /root)
+  local flags=(-i --rm --init -e TERM -e COLORTERM -e LC_ALL=C.UTF-8 -w /root)
   if (( $#privileged )); then
     flags+=(--privileged -v /:/host)
   fi
@@ -197,7 +197,8 @@ exec {tty}<&0
       return 1
     fi
     local ret
-    command docker exec -e TERM -e COLORTERM -it -- ${cpuset:t} sh -c ${(j: :)login} || ret=$?
+    command docker exec -e TERM -e COLORTERM LC_ALL=C.UTF-8 -it -- \
+      ${cpuset:t} sh -c ${(j: :)login} || ret=$?
     return ret
   } always {
     kill -- $pid 2>/dev/null || true
