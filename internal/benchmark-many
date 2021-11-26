@@ -11,8 +11,9 @@ local -r root_dir=${ZSH_SCRIPT:A:h:h}
 
 zmodload zsh/zutil
 
-local -a flags
+local -a flags config_dir=(_ $root_dir/configs)
 zparseopts -D -K -F -a flags -- \
+  {c,-config-dir}:=config_dir   \
   {s,-standalone}               \
   {d,-scratch-dir}:             \
   {i,-iters}:                   \
@@ -21,7 +22,7 @@ zparseopts -D -K -F -a flags -- \
 local cfg
 for cfg; do
   $root_dir/internal/install-config \
-    zsh-bench-user 0 $cfg '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)flags}}
+    zsh-bench-user 0 $config_dir[2] $cfg '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)flags}}
 done
 
 } "$@"

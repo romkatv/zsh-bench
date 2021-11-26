@@ -4,7 +4,7 @@ emulate -L zsh -o err_return -o no_unset -o warn_create_global -o extended_glob
 
 () {
 
-(( ARGC > 3 ))
+(( ARGC > 4 ))
 
 zmodload zsh/zselect
 
@@ -12,8 +12,9 @@ unset user
 typeset -gr user=$1
 local -r root_dir=${ZSH_SCRIPT:A:h:h}
 local -r privileged=$2
-local -r cfg=$3
-shift 3
+local -r config_dir=$3
+local -r cfg=$4
+shift 4
 
 print -r -- "==> setting up $user ${cfg:+with $cfg }..."
 
@@ -129,15 +130,28 @@ if [[ $OSTYPE == darwin* ]]; then
   command dscl . -create /Users/$user NFSHomeDirectory /Users/$user
   command mkdir /Users/$user
   command cp -r -- $root_dir /Users/$user/zsh-bench
+  command rm -rf -- /Users/$user/zsh-bench/configs
+  if [[ -n $cfg ]]; then
+    command rm -rf -- '' /Users/$user/^zsh-bench(DN)
+    command mkdir -p -- /Users/$user/zsh-bench/configs
+    command cp -r -- $config_dir/$cfg /Users/$user/zsh-bench/configs/$cfg
+  else
+    command cp -r -- $config_dir /Users/$user/zsh-bench/configs
+  fi
   command chown -R ${user}:staff /Users/$user
   local sudoersd=/private/etc/sudoers.d
 else
   command useradd -ms =zsh $user
   command passwd -qd $user
-  if [[ -n $cfg ]]; then
-    command rm -rf -- /home/$user/*(DN)
-  fi
   command cp -r -- $root_dir /home/$user/zsh-bench
+  command rm -rf -- /home/$user/zsh-bench/configs
+  if [[ -n $cfg ]]; then
+    command rm -rf -- '' /home/$user/^zsh-bench(DN)
+    command mkdir -p -- /home/$user/zsh-bench/configs
+    command cp -r -- $config_dir/$cfg /home/$user/zsh-bench/configs/$cfg
+  else
+    command cp -r -- $config_dir /home/$user/zsh-bench/configs
+  fi
   command chown -R $user:$user /home/$user/zsh-bench
   local sudoersd=/etc/sudoers.d
 fi

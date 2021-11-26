@@ -19,6 +19,7 @@ local -r self_dir=${ZSH_SCRIPT:A:h}
 zmodload zsh/zutil zsh/system zsh/zselect
 
 local -a help
+local -a config_dir
 local -a scratch_dir
 local -a standalone
 local -a isolation
@@ -29,6 +30,7 @@ zparseopts -D -K -F --          \
   {h,-help}=help                \
   {s,-standalone}=standalone    \
   {I,-isolation}:=isolation     \
+  {c,-config-dir}:=config_dir   \
   {d,-scratch-dir}:=scratch_dir \
   {i,-iters}:=iters             \
   {g,-git}:=git
@@ -83,6 +85,8 @@ if (( ARGC )); then
     return 1
   fi
 
+  (( $#config_dir )) || config_dir=(--config-dir $self_dir/configs)
+
   () {
     local cfg
     for cfg; do
@@ -90,8 +94,16 @@ if (( ARGC )); then
         print -ru2 -- "${ZSH_SCRIPT:t}: invalid config name: ${(q-)cfg}"
         return 1
       fi
-      if [[ ! -e $self_dir/configs/$cfg ]]; then
-        print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: $self_dir/configs/$cfg"
+      if [[ ! -e $config_dir[2]/$cfg ]]; then
+        print -ru2 -- "${ZSH_SCRIPT:t}: directory does not exist: $config_dir[2]/$cfg"
+        return 1
+      fi
+      if [[ ! -e $config_dir[2]/$cfg/setup ]]; then
+        print -ru2 -- "${ZSH_SCRIPT:t}: file does not exist: $config_dir[2]/$cfg/setup"
+        return 1
+      fi
+      if [[ ! -f $config_dir[2]/$cfg/setup || ! -x $config_dir[2]/$cfg/setup ]]; then
+        print -ru2 -- "${ZSH_SCRIPT:t}: not an executable file: $config_dir[2]/$cfg/setup"
         return 1
       fi
     done
@@ -121,8 +133,9 @@ if (( ARGC )); then
         return 1
       fi
 
-      local self
-      self=${"$(cd -q -- $self_dir && command tar -cz -- ^.git && print -n x)"[1,-2]}
+      local self configs
+      self=${"$(cd -q -- $self_dir && command tar -cz -- ^(.git|configs) && print -n x)"[1,-2]}
+      configs=${"$(cd -q -- $config_dir[2] && command tar -cz -- $@ && print -n x)"[1,-2]}
 
       print -r -- "==> starting $img in docker ..."
 
@@ -133,8 +146,13 @@ if (( ARGC )); then
         'mkdir ~/zsh-bench'
         'cd ~/zsh-bench'
         'head -c '$#self' | tar -xzm'
+        'mkdir configs'
+        'cd configs'
+        'head -c '$#configs' | tar -xzm'
+        'cd ..'
         '( ( cat <&3 >/dev/null || true; /bin/kill -TERM -- -$$; ) & ) 3<&0'
-        './internal/docker-bench '${(j: :)${(@qqq)args}})
+        './internal/install-deps'
+        './internal/benchmark-many '${(j: :)${(@qqq)args}})
 
       local stdout
       exec {stdout}>&1
@@ -143,6 +161,7 @@ if (( ARGC )); then
         exec {stdout}>&-
         print -r -- $sysparams[pid]
         print -rn -- $self
+        print -rn -- $configs
         trap 'exit 0' TERM PIPE
         while true; do
           zselect -t 360000 || true
@@ -175,7 +194,7 @@ if (( ARGC )); then
         fi
         return 1
       fi
-      $self_dir/internal/benchmark-many $iters $git $standalone -- $@
+      $self_dir/internal/benchmark-many $config_dir $iters $git $standalone -- $@
     ;;
 
     *)
@@ -184,6 +203,11 @@ if (( ARGC )); then
   esac
 
   return
+fi
+
+if (( $#config_dir )); then
+  print -ru2 -- "${ZSH_SCRIPT:t}: --config-dir cannot be used without positional arguments"
+  return 1
 fi
 
 if (( $#isolation )); then
