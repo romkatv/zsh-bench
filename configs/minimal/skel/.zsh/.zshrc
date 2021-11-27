@@ -2,7 +2,8 @@ emulate zsh
 setopt autocd autopushd cbases extendedglob extendedhistory globdots globstarshort \
   histexpiredupsfirst histfindnodups histignoredups histignorespace histsavenodups \
   histverify interactivecomments magicequalsubst noautoremoveslash nobeep nobgnice \
-  noflowcontrol nomultios rcquotes rmstarsilent sharehistory transientrprompt
+  noflowcontrol nomultios nonotify rcquotes rmstarsilent sharehistory              \
+  transientrprompt
 
 : ${ZDOTDIR:=~}
 
@@ -247,7 +248,7 @@ zle_highlight=(paste:none)
 PS1=$'\n%(#.%F{1}.%F{3})%n%f@%F{3}%m%f'
 if [[ -r /proc/1/cpuset(#qN-.) &&
       "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
-  RPS='in %F{2}docker%f'
+  RPS1='in %F{2}docker%f'
 elif [[ -n $SSH_CONNECTION ]]; then
   RPS1='via %F{2}ssh%f'
 fi
