@@ -4,6 +4,8 @@ setopt autocd autopushd cbases extendedglob extendedhistory globdots globstarsho
   histverify interactivecomments magicequalsubst noautoremoveslash nobeep nobgnice \
   noflowcontrol nomultios rcquotes rmstarsilent sharehistory transientrprompt
 
+: ${ZDOTDIR:=~}
+
 zle-expand() zle _expand_alias || zle .expand-word || true
 zle -N zle-expand
 
@@ -188,25 +190,6 @@ zmodload zsh/terminfo
 autoload -Uz compinit bashcompinit zmv run-help ${^fpath}/run-help-*(N:t)
 [[ -v aliases[run-help] ]] && unalias run-help
 
-HISTFILE=${ZDOTDIR:-~}/.zsh_history
-HISTSIZE=1000000000
-SAVEHIST=1000000000
-
-DIRSTACKSIZE=1000
-ZLE_RPROMPT_INDENT=0
-PROMPT_EOL_MARK='%K{red} %k'
-TIMEFMT='user=%U system=%S cpu=%P total=%*E'
-zle_highlight=(paste:none)
-
-PS1='%F{4}%~%f %F{%(?.2.1)}%#%f '
-RPS1='%(#.%F{1}.%F{3})%n%f@%F{3}%m%f'
-if [[ -r /proc/1/cpuset(#qN-.) &&
-      "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
-  RPS1+=' in %F{2}docker%f'
-elif [[ -n $SSH_CONNECTION ]]; then
-  RPS1+=' via %F{2}ssh%f'
-fi
-
 export LESS='-iRFXMx4'
 [[ -v commands[less] ]] && export PAGER=less
 
@@ -240,8 +223,61 @@ zstyle ':completion:*:rm:*'          file-patterns     '*:all-files'
 zstyle ':completion:*:functions'     ignored-patterns  '-*|_*'
 zstyle ':completion:*:parameters'    ignored-patterns  '_*'
 
-compinit
+() {
+  compinit -u -d $1
+  [[ $1.zwc -nt $1 ]] || zcompile -R -- $1.zwc $1
+} $ZDOTDIR/.zcompdump.$EUID
+
 bashcompinit
+
+if [[ -z $ZDOTDIR(#qNU) && ! -e $ZDOTDIR/.zsh_history ]]; then
+  HISTFILE=$ZDOTDIR/.zsh_history.$EUID
+else
+  HISTFILE=$ZDOTDIR/.zsh_history
+fi
+HISTSIZE=1000000000
+SAVEHIST=1000000000
+
+DIRSTACKSIZE=1000
+ZLE_RPROMPT_INDENT=0
+PROMPT_EOL_MARK='%K{red} %k'
+TIMEFMT='user=%U system=%S cpu=%P total=%*E'
+zle_highlight=(paste:none)
+
+PS1=$'\n%(#.%F{1}.%F{3})%n%f@%F{3}%m%f'
+if [[ -r /proc/1/cpuset(#qN-.) &&
+      "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
+  RPS='in %F{2}docker%f'
+elif [[ -n $SSH_CONNECTION ]]; then
+  RPS1='via %F{2}ssh%f'
+fi
+
+PS1+=$' %B%F{4}%~%f%b\n%F{%(?.2.1)}%#%f '
+
+zle-line-init() {
+  [[ ${CONTEXT-} == start ]] || return 0
+
+  while true; do
+    local -i ret=0
+    zle .recursive-edit || ret=$?
+    [[ $ret == 0 && ${KEYS-} == $'\4' ]] || break
+    [[ -o ignore_eof ]] || exit 0
+  done
+
+  local saved_prompt=$PROMPT
+  typeset -g PROMPT='%F{%(?.2.1)}%#%f '
+  zle .reset-prompt || true
+  typeset -g PROMPT=$saved_prompt
+
+  if (( ret )); then
+    zle .send-break  || true
+  else
+    zle .accept-line || true
+  fi
+  return ret
+}
+
+zle -N zle-line-init
 
 () {
   local k v kv=(grep '--color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}')
