@@ -138,8 +138,9 @@ if ! docker-run true; then
   return 1
 fi
 
-local self configs=
+local self rcs configs=
 self=${"$(cd -q -- $root_dir && command tar -cz -- ^(.git|configs) && print -n x)"[1,-2]}
+rcs=${"$(cd -q -- $root_dir/configs && command tar -cz -- minimal && print -n x)"[1,-2]}
 () {
   (( $# )) || set -- $config_dir[2]/*(ND:t)
   (( $# )) || return 0
@@ -158,12 +159,15 @@ local setup=(
   'mkdir configs'
   'cd configs'
   ${configs:+'head -c '$#configs' | tar -xzm'}
+  'cd'
+  'head -c '$#rcs' | tar -xzm'
   'cd /'
   '( ( cat <&3 >/dev/null || true; /bin/kill -TERM -- -$$; ) & ) 3<&0'
   '~/zsh-bench/internal/install-deps >&2'
   'zsh="$(which zsh)"'
   'chsh -s "$zsh"'
-  'cp -- ~/zsh-bench/internal/.zshrc ~/'
+  '~/minimal/setup'
+  'rm -rf -- ~/minimal'
   'printf "%s\\n" "$cpuset"'
   'cat >/dev/null')
 
@@ -197,6 +201,7 @@ exec {tty}<&0
   print -r -- $sysparams[pid]
   print -rn -- $self
   print -rn -- $configs
+  print -rn -- $rcs
   trap 'exit 0' TERM PIPE
   while true; do
     zselect -t 360000 || true
