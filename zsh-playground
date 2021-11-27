@@ -199,7 +199,7 @@ else
     print -ru2 -- "${ZSH_SCRIPT:t}: --git is incompatible with --isolation user and positional arguments"
     return 1
   fi
-  local cmds=('cd' 'PATH="$PATH:$HOME/zsh-bench" exec zsh -l')
+  local cmds=('cd' 'SHELL=/usr/bin/zsh PATH="$PATH:$HOME/zsh-bench" exec zsh -l')
   local login=(${(j: && :)cmds})
 fi
 
