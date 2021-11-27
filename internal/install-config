@@ -122,38 +122,32 @@ if [[ $OSTYPE == darwin* ]]; then
     (( prev = id ))
   done
   (( gap || (gap = prev + 1) ))
-  command dscl . -create /Users/$user
-  command dscl . -create /Users/$user UserShell =zsh
-  command dscl . -create /Users/$user RealName "Zsh Bench User"
-  command dscl . -create /Users/$user UniqueID $gap
-  command dscl . -create /Users/$user PrimaryGroupID 20
-  command dscl . -create /Users/$user NFSHomeDirectory /Users/$user
-  command mkdir /Users/$user
-  command cp -r -- $root_dir /Users/$user/zsh-bench
-  command rm -rf -- /Users/$user/zsh-bench/configs
-  if [[ -n $cfg ]]; then
-    command rm -rf -- '' /Users/$user/^zsh-bench(DN)
-    command mkdir -p -- /Users/$user/zsh-bench/configs
-    command cp -r -- $config_dir/$cfg /Users/$user/zsh-bench/configs/$cfg
-  else
-    command cp -r -- $config_dir /Users/$user/zsh-bench/configs
-  fi
-  command chown -R ${user}:staff /Users/$user
+  command dscl . -create $home
+  command dscl . -create $home UserShell =zsh
+  command dscl . -create $home RealName "Zsh Bench User"
+  command dscl . -create $home UniqueID $gap
+  command dscl . -create $home PrimaryGroupID 20
+  command dscl . -create $home NFSHomeDirectory $home
+  command mkdir -- $home
+  local group=staff
   local sudoersd=/private/etc/sudoers.d
 else
   command useradd -ms =zsh $user
   command passwd -qd $user
-  command cp -r -- $root_dir /home/$user/zsh-bench
-  command rm -rf -- /home/$user/zsh-bench/configs
-  if [[ -n $cfg ]]; then
-    command rm -rf -- '' /home/$user/^zsh-bench(DN)
-    command mkdir -p -- /home/$user/zsh-bench/configs
-    command cp -r -- $config_dir/$cfg /home/$user/zsh-bench/configs/$cfg
-  else
-    command cp -r -- $config_dir /home/$user/zsh-bench/configs
-  fi
-  command chown -R $user:$user /home/$user/zsh-bench
+  command rm -rf -- '' $home/*(ND)
+  local group=$user
   local sudoersd=/etc/sudoers.d
+fi
+
+command mkdir -- $home/zsh-bench
+command cp -r -- $root_dir/^(.git|configs)(D) $home/zsh-bench/
+command cp -r -- $config_dir $home/zsh-bench/configs
+if [[ ! -e $home/zsh-bench/internal/minimal ]]; then
+  command cp -r -- $root_dir/configs/minimal $home/zsh-bench/internal/
+fi
+command chown -R ${user}:${group} -- $home
+if [[ -z $cfg ]]; then
+  command sudo -u $user -- $home/zsh-bench/internal/minimal/setup
 fi
 
 if (( privileged )); then
@@ -172,6 +166,7 @@ END
 
 local cmd=(
   ${(f)"$(typeset -pm 'LC_*|LANG|LANGUAGE')"}
+  'typeset -gaU path=("${path[@]}" ~/zsh-bench)'
   'cd'
   ${cfg:+'~/zsh-bench/configs/'${(qqq)cfg}'/setup'}
   $@)

@@ -15,8 +15,7 @@ local -r root_dir=${ZSH_SCRIPT:A:h}
 
 zmodload zsh/zutil zsh/system zsh/zselect
 
-local -a help privileged config_dir=(--config-dir $root_dir/configs)
-local -a git=(--git no)
+local -a help privileged git config_dir=(--config-dir $root_dir/configs)
 
 if [[ -r /proc/1/cpuset(#qN-.) &&
       "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
@@ -52,11 +51,6 @@ fi
 
 if [[ $isolation[2] != (docker|user) ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --isolation: ${(q-)isolation[2]}"
-  return 1
-fi
-
-if [[ $git[2] != (yes|no|empty) ]]; then
-  print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --git: ${(q-)git[2]}"
   return 1
 fi
 
@@ -103,8 +97,14 @@ if [[ $isolation[2] == user ]]; then
     return 1
   fi
   local create_repo=()
-  if [[ $git[2] != no ]]; then
-    create_repo=('~/zsh-bench/internal/create-repo ~/repo '${(q-)git[2]} 'cd ~/repo')
+  if (( $#git )); then
+    if [[ $git[2] != (yes|no|empty) ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --git: ${(q-)git[2]}"
+      return 1
+    fi
+    if [[ $git[2] != no ]]; then
+      create_repo=('~/zsh-bench/internal/create-repo ~/repo '${(q-)git[2]} 'cd ~/repo')
+    fi
   fi
   exec -- $root_dir/internal/install-config \
     'zsh-playground-user' $#privileged $config_dir[2] "$cfg" $create_repo 'exec zsh -l'
@@ -138,14 +138,16 @@ if ! docker-run true; then
   return 1
 fi
 
-local self rcs configs=
+local self configs= minimal=
 self=${"$(cd -q -- $root_dir && command tar -cz -- ^(.git|configs) && print -n x)"[1,-2]}
-rcs=${"$(cd -q -- $root_dir/configs && command tar -cz -- minimal && print -n x)"[1,-2]}
 () {
   (( $# )) || set -- $config_dir[2]/*(ND:t)
   (( $# )) || return 0
   configs=${"$(cd -q -- $config_dir[2] && command tar -cz -- $@ && print -n x)"[1,-2]}
 } $cfg
+if [[ ! -e $root_dir/internal/minimal ]]; then
+  minimal=${"$(cd -q -- $root_dir/configs && command tar -cz -- minimal && print -n x)"[1,-2]}
+fi
 
 print -r -- "==> starting $img in docker ..."
 
@@ -159,26 +161,30 @@ local setup=(
   'mkdir configs'
   'cd configs'
   ${configs:+'head -c '$#configs' | tar -xzm'}
-  'cd'
-  'head -c '$#rcs' | tar -xzm'
+  'cd ../internal'
+  ${minimal:+'head -c '$#minimal' | tar -xzm'}
   'cd /'
   '( ( cat <&3 >/dev/null || true; /bin/kill -TERM -- -$$; ) & ) 3<&0'
   '~/zsh-bench/internal/install-deps >&2'
   'zsh="$(which zsh)"'
   'chsh -s "$zsh"'
-  '~/minimal/setup'
-  'rm -rf -- ~/minimal'
+  '~/zsh-bench/internal/minimal/setup'
   'printf "%s\\n" "$cpuset"'
   'cat >/dev/null')
 
-local -a create_repo=()
-if [[ $git[2] != no ]]; then
-  create_repo=(
-    '~/zsh-bench/internal/create-repo ~/repo '${(q-)git[2]}
-    'cd ~/repo')
-fi
-
 if [[ -n $cfg ]]; then
+  local -a create_repo=()
+  if (( $#git )); then
+    if [[ $git[2] != (yes|no|empty) ]]; then
+      print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --git: ${(q-)git[2]}"
+      return 1
+    fi
+    if [[ $git[2] != no ]]; then
+      create_repo=(
+        '~/zsh-bench/internal/create-repo ~/repo '${(q-)git[2]}
+        'cd ~/repo')
+    fi
+  fi
   local login=(
     'exec'
     '~/zsh-bench/internal/install-config'
@@ -189,7 +195,11 @@ if [[ -n $cfg ]]; then
     ${(@qqq)create_repo}
     '"exec zsh -l"')
 else
-  local cmds=('cd' $create_repo 'exec zsh -l')
+  if (( $#git )); then
+    print -ru2 -- "${ZSH_SCRIPT:t}: --git is incompatible with --isolation user and positional arguments"
+    return 1
+  fi
+  local cmds=('cd' 'PATH="$PATH:$HOME/zsh-bench" exec zsh -l')
   local login=(${(j: && :)cmds})
 fi
 
@@ -201,7 +211,7 @@ exec {tty}<&0
   print -r -- $sysparams[pid]
   print -rn -- $self
   print -rn -- $configs
-  print -rn -- $rcs
+  print -rn -- $minimal
   trap 'exit 0' TERM PIPE
   while true; do
     zselect -t 360000 || true
