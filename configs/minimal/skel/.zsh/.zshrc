@@ -1,10 +1,11 @@
 emulate zsh
-setopt autocd autopushd noautoremoveslash nobeep nobgnice cbases extendedglob \
-       extendedhistory noflowcontrol globdots globstarshort                   \
-       histexpiredupsfirst histfindnodups histignoredups histignorespace      \
-       histsavenodups histverify interactivecomments magicequalsubst          \
-       nomultios rcquotes rmstarsilent sharehistory transientrprompt          \
-       typesetsilent dotglob
+setopt autocd autopushd cbases extendedglob extendedhistory globdots globstarshort \
+  histexpiredupsfirst histfindnodups histignoredups histignorespace histsavenodups \
+  histverify interactivecomments magicequalsubst noautoremoveslash nobeep nobgnice \
+  noflowcontrol nomultios rcquotes rmstarsilent sharehistory transientrprompt
+
+zle-expand() zle _expand_alias || zle .expand-word || true
+zle -N zle-expand
 
 () {
   # Delete all existing keymaps and reset to the default state.
@@ -150,6 +151,7 @@ setopt autocd autopushd noautoremoveslash nobeep nobgnice cbases extendedglob \
     bindkey -M $keymap '^[j'     kill-buffer                    # alt+j
     bindkey -M $keymap '^[J'     kill-buffer                    # alt+J
     bindkey -M $keymap '^[/'     redo                           # alt+/
+    bindkey -M $keymap '^ '      zle-expand                     # ctrl+space
   done
 
   bindkey   -M emacs   '^[[3~'   delete-char                    # delete
@@ -182,13 +184,22 @@ setopt autocd autopushd noautoremoveslash nobeep nobgnice cbases extendedglob \
   bindkey   -M viins   '^[F'     vi-forward-word                # alt+F
 }
 
+zmodload zsh/terminfo
+autoload -Uz compinit bashcompinit zmv run-help ${^fpath}/run-help-*(N:t)
+[[ -v aliases[run-help] ]] && unalias run-help
+
 HISTFILE=${ZDOTDIR:-~}/.zsh_history
 HISTSIZE=1000000000
 SAVEHIST=1000000000
 
+DIRSTACKSIZE=1000
 ZLE_RPROMPT_INDENT=0
+PROMPT_EOL_MARK='%K{red} %k'
+TIMEFMT='user=%U system=%S cpu=%P total=%*E'
+zle_highlight=(paste:none)
+
 PS1='%F{4}%~%f %F{%(?.2.1)}%#%f '
-RPS1='%F{3}%n%f@%F{3}%m%f'
+RPS1='%(#.%F{1}.%F{3})%n%f@%F{3}%m%f'
 if [[ -r /proc/1/cpuset(#qN-.) &&
       "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
   RPS1+=' in %F{2}docker%f'
@@ -196,11 +207,52 @@ elif [[ -n $SSH_CONNECTION ]]; then
   RPS1+=' via %F{2}ssh%f'
 fi
 
-autoload -Uz compinit run-help ${^fpath}/run-help-*(N:t)
-[[ -v aliases[run-help] ]] && unalias run-help
+export LESS='-iRFXMx4'
+[[ -v commands[less] ]] && export PAGER=less
 
-zstyle ':completion:*' menu         yes select
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+() {
+  (( $# )) && export LESSOPEN="| /usr/bin/env ${(q)1} %s 2>/dev/null"
+} ${commands[lesspipe]:-${commands[lesspipe.sh]}}
+
+export LS_COLORS='fi=00:mi=00:mh=00:ln=01;36:or=01;31:di=01;34:ow=04;01;34:st=34:tw=04;34:'
+LS_COLORS+='pi=01;33:so=01;33:do=01;33:bd=01;33:cd=01;33:su=01;35:sg=01;35:ca=01;35:ex=01;32'
+if (( terminfo[colors] >= 256 )); then
+  LS_COLORS+=':no=38;5;248'
+else
+  LS_COLORS+=':no=1;30'
+fi
+
+export LSCOLORS='ExGxDxDxCxDxDxFxFxexEx'
+export TREE_COLORS=${LS_COLORS//04;}
+
+zstyle ':completion:*'               squeeze-slashes   yes
+zstyle ':completion:*:paths'         accept-exact-dirs yes
+zstyle ':completion:*'               single-ignored    show
+zstyle ':completion:*:rm:*'          ignore-line       other
+zstyle ':completion:*:kill:*'        ignore-line       other
+zstyle ':completion:*:diff:*'        ignore-line       other
+zstyle ':completion:*'               menu              yes select
+zstyle ':completion:*:-tilde-:*'     tag-order         directory-stack named-directories users
+zstyle ':completion:*:-subscript-:*' tag-order         'indexes parameters'
+zstyle ':completion:*'               list-colors       ${(s.:.)LS_COLORS}
+zstyle ':completion:*'               matcher-list      'm:{a-z}={A-Z}'
+zstyle ':completion:*:rm:*'          file-patterns     '*:all-files'
+zstyle ':completion:*:functions'     ignored-patterns  '-*|_*'
+zstyle ':completion:*:parameters'    ignored-patterns  '_*'
+
 compinit
+bashcompinit
 
-alias ls='ls -A'
+() {
+  local k v kv=(grep '--color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}')
+  if [[ -v commands[dircolors] ]]; then
+    kv+=(diff '--color=auto' ls '--color=auto')
+  else
+    kv+=(ls '-G')
+  fi
+  for k v in $kv; do
+    [[ ${k:c:A:t} == busybox* ]] || alias $k="$k $v"
+  done
+}
+
+alias ls="${aliases[ls]:-ls} -A"
