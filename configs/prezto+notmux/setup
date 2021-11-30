@@ -1,0 +1,21 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return -o extended_glob
+
+cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
+
+git clone -q --depth=1 --recursive --shallow-submodules \
+  https://github.com/sorin-ionescu/prezto.git ~/.zprezto &>/dev/null
+
+<~/.zprezto/runcoms/zprofile >>~/.zshrc
+<~/.zprezto/runcoms/zshrc >>~/.zshrc
+<~/.zprezto/runcoms/zlogin >>~/.zlogin
+
+() {
+  local f
+  for f in ~/.zprezto/**/{*.zsh,*.zsh-theme,functions/*}(.); do
+    zcompile -R -- "$f".zwc "$f" 2>/dev/null || true
+  done
+}
+
+make -s -C ~/.zprezto/modules/prompt/external/powerlevel10k pkg

@@ -1,0 +1,3 @@
+zstyle ':prezto:*:*' color 'yes'
+zstyle ':prezto:load' pmodule 'completion' 'autosuggestions' 'syntax-highlighting' 'prompt'
+zstyle ':prezto:module:prompt' theme 'powerlevel10k'
