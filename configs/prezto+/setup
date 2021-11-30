@@ -10,3 +10,12 @@ git clone -q --depth=1 --recursive --shallow-submodules \
 <~/.zprezto/runcoms/zprofile >>~/.zshrc
 <~/.zprezto/runcoms/zshrc >>~/.zshrc
 <~/.zprezto/runcoms/zlogin >>~/.zlogin
+
+() {
+  local f
+  for f in ~/.zprezto/**/{*.zsh,*.zsh-theme,functions/*}(.); do
+    zcompile -R -- "$f".zwc "$f" 2>/dev/null || true
+  done
+}
+
+make -s -C ~/.zprezto/modules/prompt/external/powerlevel10k pkg
