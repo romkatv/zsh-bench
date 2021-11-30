@@ -25,9 +25,11 @@ local -a standalone
 local -a isolation
 local -a iters=(--iters 16)
 local -a git=(--git yes)
+local -a login=(--login yes)
 
 zparseopts -D -K -F --          \
   {h,-help}=help                \
+  {l,-login}:=login             \
   {s,-standalone}=standalone    \
   {I,-isolation}:=isolation     \
   {c,-config-dir}:=config_dir   \
@@ -41,6 +43,7 @@ if (( $#help )); then
   print -r -- 'OPTIONS'
   print -r -- '  -h,--help'
   print -r -- '  -i,--iters <NUM> [default=16]'
+  print -r -- '  -l,--login <yes|no> [default=yes]'
   print -r -- '  -g,--git <yes|no|empty> [default=yes]'
   print -r -- '  -d,--scratch-dir <directory>'
   print -r -- '  -I,--isolation <docker|user>'
@@ -55,6 +58,11 @@ fi
 
 if [[ $git[2] != (yes|no|empty) ]]; then
   print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --git: ${(q-)git[2]}"
+  return 1
+fi
+
+if [[ $login[2] != (yes|no) ]]; then
+  print -ru2 -- "${ZSH_SCRIPT:t}: invalid value of --login: ${(q-)login[2]}"
   return 1
 fi
 
@@ -139,7 +147,7 @@ if (( ARGC )); then
 
       print -r -- "==> starting $img in docker ..."
 
-      local args=($iters $git $standalone -- $@)
+      local args=($iters $git $standalone $login -- $@)
       local cmd=(
         'cpuset="$(cat /proc/1/cpuset)"'
         'printf "==> docker container ID: %.12s\\n" "${cpuset##*/}"'
@@ -194,7 +202,7 @@ if (( ARGC )); then
         fi
         return 1
       fi
-      $self_dir/internal/benchmark-many $config_dir $iters $git $standalone -- $@
+      $self_dir/internal/benchmark-many $config_dir $iters $git $standalone $login -- $@
     ;;
 
     *)
@@ -215,7 +223,19 @@ if (( $#isolation )); then
   return 1
 fi
 
-print -r -- "==> benchmarking login shell ${USER:+of $USER }..."
+case $login[2] in
+  yes)
+    local loginopt=l
+    print -r -- "==> benchmarking login shell ${USER:+of $USER }..."
+  ;;
+  no)
+    local loginopt=
+    print -r -- "==> benchmarking interactive shell ${USER:+of $USER }..."
+  ;;
+  *)
+    return 'error()'
+  ;;
+esac
 
 zmodload zsh/datetime
 
@@ -502,7 +522,7 @@ function mask-shell-integration() {
 
 () {
   local out
-  out=$(with-env command zsh -lic '"builtin" "exit"' 2>&1 </dev/null || true)
+  out=$(with-env command zsh -${loginopt}ic '"builtin" "exit"' 2>&1 </dev/null || true)
   mask-shell-integration
   if [[ $out == *${~prompt_pat}* ]]; then
     print -ru2 -- "${ZSH_SCRIPT:t}: zsh is printing hostname or the last part of the current directory"
@@ -538,7 +558,7 @@ sysopen -ao cloexec -u _zb_fd >(
       local REPLY
       sysread || true
       print -r -- ' "builtin" "exit" "0"'
-    } | script /dev/null ${(qqq)commands[zsh]} '"-li"'
+    } | script /dev/null ${(qqq)commands[zsh]} ${(qqq):-"-${loginopt}i"}
   } &!
 )
 
@@ -574,13 +594,13 @@ repeat $iters[2]; do
     if (( bsd_script )); then
       local -a reply
       zselect -r 0
-      script $merged_file $commands[zsh] -l
+      script $merged_file $commands[zsh] ${loginopt:+-$loginopt}
     else
       local cmd='"builtin" "emulate" "-R" "zsh"'
       cmd+=' && "builtin" "zmodload" "zsh/zselect"'
       cmd+=' && "builtin" "zselect" "-r" "0"'
       cmd+=' && "builtin" "print" "-rn" "--" '${(qqqq)start}
-      cmd+=' && "builtin" "exec" "--" '${(qqq)commands[zsh]}' "-l"'
+      cmd+=' && "builtin" "exec" "--" '${(qqq)commands[zsh]}' '${(qqq):-"-${loginopt}i"}
       script /dev/null '"command"' '"script"' -fqet${(qqq)timing_file} \
         '"-c"' ${(qqq)cmd} ${(qqq)out_file}
     fi
@@ -729,7 +749,7 @@ repeat $iters[2]; do
   fi
 
   local -F start_s=EPOCHREALTIME
-  command zsh -lic '"builtin" "exit"' </dev/null &>/dev/null || true
+  command zsh -${loginopt}ic '"builtin" "exit"' </dev/null &>/dev/null || true
   local -F took_ms='1e3 * (EPOCHREALTIME - start_s)'
   if (( ! $+exit_time_ms || took_ms < exit_time_ms )); then
     local -F3 exit_time_ms=took_ms

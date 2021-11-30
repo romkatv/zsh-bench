@@ -15,6 +15,7 @@ local -a flags config_dir=(_ $root_dir/configs)
 zparseopts -D -K -F -a flags -- \
   {c,-config-dir}:=config_dir   \
   {s,-standalone}               \
+  {l,-login}:                   \
   {d,-scratch-dir}:             \
   {i,-iters}:                   \
   {g,-git}:
