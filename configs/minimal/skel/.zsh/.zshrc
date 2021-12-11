@@ -245,40 +245,13 @@ PROMPT_EOL_MARK='%K{red} %k'
 TIMEFMT='user=%U system=%S cpu=%P total=%*E'
 zle_highlight=(paste:none)
 
-PS1=$'\n%(#.%F{1}.%F{3})%n%f@%F{3}%m%f'
+PS1='%(#.%F{1}.%F{5})%n%f@%F{3}%m%f %B%F{4}%~%f%b %F{%(?.2.1)}%#%f '
 if [[ -r /proc/1/cpuset(#qN-.) &&
       "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
   RPS1='in %F{2}docker%f'
 elif [[ -n $SSH_CONNECTION ]]; then
   RPS1='via %F{2}ssh%f'
 fi
-
-PS1+=$' %B%F{4}%~%f%b\n%F{%(?.2.1)}%#%f '
-
-zle-line-init() {
-  [[ ${CONTEXT-} == start ]] || return 0
-
-  while true; do
-    local -i ret=0
-    zle .recursive-edit || ret=$?
-    [[ $ret == 0 && ${KEYS-} == $'\4' ]] || break
-    [[ -o ignore_eof ]] || exit 0
-  done
-
-  local saved_prompt=$PROMPT
-  typeset -g PROMPT='%F{%(?.2.1)}%#%f '
-  zle .reset-prompt || true
-  typeset -g PROMPT=$saved_prompt
-
-  if (( ret )); then
-    zle .send-break  || true
-  else
-    zle .accept-line || true
-  fi
-  return ret
-}
-
-zle -N zle-line-init
 
 () {
   local k v kv=(grep '--color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}')
