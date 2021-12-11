@@ -200,7 +200,7 @@ zle -N zle-expand
 }
 
 zmodload zsh/terminfo
-autoload -Uz compinit bashcompinit zmv run-help ${^fpath}/run-help-*(N:t)
+autoload -Uz compinit bashcompinit zmv run-help ${^fpath}/run-help-^*.zwc(N:t)
 [[ -v aliases[run-help] ]] && unalias run-help
 
 export LESS='-iRFXMx4'
