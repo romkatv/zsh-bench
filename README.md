@@ -80,7 +80,7 @@ commands in your history after running `zsh-bench`.
 This requires `docker`. Names of predefined zsh configs are directories under
 [configs](https://github.com/romkatv/zsh-bench/tree/master/configs).
 
-With `--isolation user` benchmarking is done as user `zsh-bench-user` on the host.
+With `--isolation user` benchmarking is done as user `zsh-bench` on the host.
 
 ## How it works
 

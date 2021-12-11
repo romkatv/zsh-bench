@@ -6,7 +6,7 @@ setopt no_unset extended_glob typeset_silent no_multi_byte \
 
 () {
 
-local -r user=zsh-bench-user
+local -r user=zsh-bench
 local -r root_dir=${ZSH_SCRIPT:A:h:h}
 
 zmodload zsh/zutil
@@ -23,7 +23,7 @@ zparseopts -D -K -F -a flags -- \
 local cfg
 for cfg; do
   $root_dir/internal/install-config \
-    zsh-bench-user 0 $config_dir[2] $cfg '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)flags}}
+    zsh-bench 0 $config_dir[2] $cfg '~/zsh-bench/zsh-bench '${(j: :)${(@qqq)flags}}
 done
 
 } "$@"

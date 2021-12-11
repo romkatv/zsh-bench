@@ -107,7 +107,7 @@ if [[ $isolation[2] == user ]]; then
     fi
   fi
   exec -- $root_dir/internal/install-config \
-    'zsh-playground-user' $#privileged $config_dir[2] "$cfg" $create_repo 'exec zsh -l'
+    'zsh-playground' $#privileged $config_dir[2] "$cfg" $create_repo 'exec zsh -l'
   return
 fi
 
@@ -188,7 +188,7 @@ if [[ -n $cfg ]]; then
   local login=(
     'exec'
     '~/zsh-bench/internal/install-config'
-    'zsh-playground-user'
+    'zsh-playground'
     $#privileged
     '~/zsh-bench/configs'
     ${(qqq)cfg}
