@@ -257,13 +257,16 @@ PROMPT_EOL_MARK='%K{red} %k'
 TIMEFMT='user=%U system=%S cpu=%P total=%*E'
 zle_highlight=(paste:none)
 
-PS1='%(#.%F{1}.%F{5})%n%f@%F{3}%m%f %B%F{4}%~%f%b %F{%(?.2.1)}%#%f '
+PS1='%(#.%F{1}.%F{5})%n%f'
 if [[ -r /proc/1/cpuset(#qN-.) &&
       "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
+  PS1+='@%F{3}%m%f'
   RPS1='in %F{2}docker%f'
 elif [[ -n $SSH_CONNECTION ]]; then
+  PS1+='@%F{3}%m%f'
   RPS1='via %F{2}ssh%f'
 fi
+PS1+=' %B%F{4}%~%f%b %F{%(?.2.1)}%#%f '
 
 () {
   local k v kv=(grep '--color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}')
