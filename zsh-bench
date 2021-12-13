@@ -76,15 +76,19 @@ if [[ $#scratch_dir -ne 0 && -z $scratch_dir[2] ]]; then
   return 1
 fi
 
+if [[ -r /proc/1/cpuset(#qN-.) &&
+      "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
+  local -ri in_docker=1
+else
+  local -ri in_docker=0
+fi
+
 if (( ARGC )); then
   if (( ! $#isolation )); then
-    if [[ -r /proc/1/cpuset(#qN-.) &&
-          "$(</proc/1/cpuset)" == /docker/[[:xdigit:]](#c64) ]]; then
+    if (( in_docker )); then
       local -a isolation=(--isolation user)
-      local -ri in_docker=1
     else
       local -a isolation=(--isolation docker)
-      local -ri in_docker=0
     fi
   fi
 
