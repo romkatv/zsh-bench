@@ -16,7 +16,7 @@ local -r config_dir=$3
 local -r cfg=$4
 shift 4
 
-print -r -- "==> setting up $user ${cfg:+with $cfg }..."
+print -r -- "==> setting up user $user ${cfg:+with $cfg }..."
 
 local cmds=(ps rm cp chown sudo zsh tee)
 (( privileged )) && cmds+=(cat visudo)
