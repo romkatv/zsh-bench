@@ -142,7 +142,7 @@ fi
 command mkdir -- $home/zsh-bench
 command cp -r -- $root_dir/^(.git|configs)(D) $home/zsh-bench/
 command cp -r -- $config_dir $home/zsh-bench/configs
-if [[ ! -e $home/zsh-bench/internal/minimal ]]; then
+if [[ -z $cfg ]]; then
   command cp -r -- $root_dir/configs/minimal $home/zsh-bench/internal/
 fi
 command chown -R ${user}:${group} -- $home
