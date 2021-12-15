@@ -11,6 +11,9 @@ if [[ ${ZSH_VERSION-} != (5.<8->*|<6->.*) ]]; then
   return 1
 fi
 
+autoload zmathfunc
+zmathfunc
+
 local IFS=$' \t\n\C-@'
 local NULLCMD=cat
 
@@ -23,12 +26,14 @@ local -a config_dir
 local -a scratch_dir
 local -a standalone
 local -a isolation
+local -a raw
 local -a iters=(--iters 16)
 local -a git=(--git yes)
 local -a login=(--login yes)
 
 zparseopts -D -K -F --          \
   {h,-help}=help                \
+  {r,-raw}=raw                  \
   {l,-login}:=login             \
   {s,-standalone}=standalone    \
   {I,-isolation}:=isolation     \
@@ -48,6 +53,7 @@ if (( $#help )); then
   print -r -- '  -d,--scratch-dir <directory>'
   print -r -- '  -I,--isolation <docker|user>'
   print -r -- '  -s,--standalone'
+  print -r -- '  -r,--raw'
   return
 fi
 
@@ -151,7 +157,7 @@ if (( ARGC )); then
 
       print -r -- "==> starting $img in docker ..."
 
-      local args=($iters $git $standalone $login -- $@)
+      local args=($iters $git $standalone $login $raw -- $@)
       local cmd=(
         'cpuset="$(cat /proc/1/cpuset)"'
         'printf "==> docker container ID: %.12s\\n" "${cpuset##*/}"'
@@ -206,7 +212,7 @@ if (( ARGC )); then
         fi
         return 1
       fi
-      $self_dir/internal/benchmark-many $config_dir $iters $git $standalone $login -- $@
+      $self_dir/internal/benchmark-many $config_dir $iters $git $standalone $login $raw -- $@
     ;;
 
     *)
@@ -257,6 +263,18 @@ local -r stats=(
 
 local -- $stats
 unset -- $stats
+
+function record-metric() {
+  local t=$1
+  local name=$2
+  local -$t val=$3
+  if (( $#raw )); then
+    typeset -ga $name
+    set -A $name ${(P)name} $val
+  elif [[ ! -v $name || val -lt $name ]]; then
+    typeset -g$t $name=$val
+  fi
+}
 
 () {
   local cmd
@@ -695,23 +713,19 @@ repeat $iters[2]; do
     print -ru2 -- "${ZSH_SCRIPT:t}: cannot find prompt; make sure it contains hostname or the last part of the current directory"
     return 1
   fi
-  if (( ! $+first_prompt_lag_ms || REPLY < first_prompt_lag_ms )); then
-    local -F3 first_prompt_lag_ms=REPLY
-  fi
+  record-metric F3 first_prompt_lag_ms REPLY
 
   if ! timeof $msg_pat; then
     print -ru2 -- "${ZSH_SCRIPT:t}: cannot find the output of the first command"
     return 1
   fi
-  if (( ! $+first_command_lag_ms || REPLY < first_command_lag_ms )); then
-    local -F3 first_command_lag_ms=REPLY
-  fi
+  record-metric F3 first_command_lag_ms REPLY
 
   local -F first_cmd=REPLY
   if timeof $branch_pat && (( REPLY <= first_cmd )); then
-    typeset -i has_git_prompt=1
+    record-metric i has_git_prompt 1
   else
-    typeset -i has_git_prompt=${has_git_prompt-0}
+    record-metric i has_git_prompt 0
   fi
 
   if [[ ! -e $info_file ]]; then
@@ -725,39 +739,30 @@ repeat $iters[2]; do
   (( $#info == 7 )) || return 'error()'
 
   if [[ $info[1] == (screen|tmux)* ]]; then
-    local -i creates_tty=${creates_tty-1}
+    record-metric i creates_tty 1
   else
-    local -i creates_tty=0
+    record-metric i creates_tty 0
   fi
 
   [[ $info[2] == <0-1><0-1> ]] || return 'error()'
-  local -i has_compsys=$(( ${has_compsys-1} && info[2] == 11 ))
+  record-metric i has_compsys $(( info[2] == 11 ))
 
   [[ $info[3] == <0-1> ]] || return 'error()'
-  local -i has_autosuggestions=$(( ${has_autosuggestions-1} && info[3] ))
+  record-metric i has_autosuggestions $(( info[3] != 0 ))
 
   [[ $info[4] == <0-1><0-1> ]] || return 'error()'
-  local -i has_syntax_highlighting=$(( ${has_syntax_highlighting-1} && info[4] ))
+  record-metric i has_syntax_highlighting $(( info[4] != 0 ))
 
-  local -i i
-  for i in 5 6; do
-    [[ $info[i] == <->.<-> ]] || return 'error()'
-    if (( ! $+input_lag_ms || info[i] < input_lag_ms )); then
-      local -F3 input_lag_ms='info[i]'
-    fi
-  done
+  [[ $info[5] == <->.<-> ]] || return 'error()'
+  [[ $info[6] == <->.<-> ]] || return 'error()'
+  record-metric F3 input_lag_ms 'min(info[5], info[6])'
 
   [[ $info[7] == <->.<-> ]] || return 'error()'
-  if (( ! $+command_lag_ms || info[7] < command_lag_ms )); then
-    local -F3 command_lag_ms='info[7]'
-  fi
+  record-metric F3 command_lag_ms 'info[7]'
 
   local -F start_s=EPOCHREALTIME
   command zsh -${loginopt}ic '"builtin" "exit"' </dev/null &>/dev/null || true
-  local -F took_ms='1e3 * (EPOCHREALTIME - start_s)'
-  if (( ! $+exit_time_ms || took_ms < exit_time_ms )); then
-    local -F3 exit_time_ms=took_ms
-  fi
+  record-metric F3 exit_time_ms '1e3 * (EPOCHREALTIME - start_s)'
 
   zselect -t 10 || true
 done
@@ -765,7 +770,13 @@ done
 () {
   local name
   for name in $stats; do
-    [[ ! -v $name ]] || print -r -- "$name=${(q-)${(P)name}}"
+    [[ -v $name ]] || continue
+    print -rn -- $name=
+    if [[ $parameters[$name] == array* ]]; then
+      print -r -- "( ${(j: :)${(@q-)${(P)name}}} )"
+    else
+      print -r -- "${(q-)${(P)name}}"
+    fi
   done
 }
 

@@ -16,6 +16,7 @@ zparseopts -D -K -F -a flags -- \
   {c,-config-dir}:=config_dir   \
   {s,-standalone}               \
   {l,-login}:                   \
+  {r,-raw}:                     \
   {d,-scratch-dir}:             \
   {i,-iters}:                   \
   {g,-git}:
