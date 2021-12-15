@@ -621,11 +621,11 @@ All configs have very low *first prompt lag* thanks to powerlevel10k. The only e
 has one function to install plugins and another to load them. Installation of plugins can print
 status messages and perform network I/O, so it should be done before the first prompt is printed.
 Unfortunately, this function in **zplug** is rather slow, hence high *first prompt lag*. **zcomet**,
-**zinit** and **zim** dodge this bullet by not providing this kind of API in the first place, so
-these configs are [cutting corners](#cutting-corners). It's not that **zcomet**, **zinit** or
-**zim** are acting recklessly here but rather their limitations don't allow me to cleanly use
-*Instant Prompt*. When using these plugin managers you either have to give up *Instant Prompt* and
-have *first prompt lag* over the threshold or cut corners and get subpar UX.
+and **zinit** dodge this bullet by not providing this kind of API in the first place, so
+these configs are [cutting corners](#cutting-corners). It's not that **zcomet** and **zinit** are
+acting recklessly here but rather their limitations don't allow me to cleanly use *Instant Prompt*.
+When using these plugin managers you either have to give up *Instant Prompt* and have
+*first prompt lag* over the threshold or cut corners and get subpar UX.
 
 **zsh4humans** has lower *first command lag* and *input lag* than anything else. It achieves this by
 implementing tight integration between the core shell features: prompt, syntax highlighting
@@ -716,10 +716,10 @@ Consider **prezto+** for comparison. With this config `exit` takes longer than w
 starts faster: when you open a terminal, prompt appears virtually instantly and
 the first command executes sooner.
 
-**zim** isn't the only plugin manager optimizing for `exit` and presenting it as a
-meaningful measure of performance. Many other plugin managers have been using this metric for lack
-of alternatives. The widely held belief that **zinit** is the fastest plugin manager is based
-on the timing of `exit`. Deferred initialization—pioneered by zinit turbo
+**zim** isn't the only project that's been optimized for `exit`. Many zsh plugin managers have been
+targeting this metric and presenting it as a meaningful measure of performance. The widely held
+belief that **zinit** is the fastest plugin manager is based on the timing of `exit`. Deferred
+initialization—pioneered by zinit turbo
 mode—[may not be very useful in practice](#deferred-initialization) but it's extremely effective on
 this metric. Unsurprisingly, **zinit** has been [optimized for it](
   https://web.archive.org/web/20201122095227/https://github.com/zdharma/pm-perf-test).
@@ -737,6 +737,10 @@ is true.
 The output of `time zsh -lic "exit"` tells you how long it takes to execute
 `zsh -lic "exit"` and nothing else. If you aren't in the habit of running `zsh -lic "exit"`, there
 is no reason for you to care one way or another about this number.
+
+Since the release of zsh-bench several projects have switched from targeting `exit` to meaningful
+performance metrics. The ones I know of are **zcomet** and **zim**. There is hope that this trend
+will continue.
 
 ### Full benchmark data
 
