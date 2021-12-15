@@ -3,13 +3,15 @@ if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
   exec tmux
 fi
 
-if [[ ! -e ${ZIM_HOME}/zimfw.zsh ]]; then
+if [[ ! -e $ZIM_HOME/zimfw.zsh ]]; then
   # Download zimfw script if missing.
-  command curl -fsSL --create-dirs -o ${ZIM_HOME}/zimfw.zsh https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
+  curl -fsSLo $ZIM_HOME/zimfw.zsh --create-dirs \
+    https://github.com/zimfw/zimfw/releases/latest/download/zimfw.zsh
 fi
-if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
-  # Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
-  source ${ZIM_HOME}/zimfw.zsh init -q
+if [[ ! $ZIM_HOME/init.zsh -nt ~/.zimrc ]]; then
+  # Install missing modules and update $ZIM_HOME/init.zsh.
+  source $ZIM_HOME/zimfw.zsh install |
+    grep -vF 'Done with install. Restart your terminal for any changes to take effect.'
 fi
 
 # Activate Powerlevel10k Instant Prompt.
@@ -20,6 +22,6 @@ fi
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
 # Load plugins.
-source ${ZIM_HOME}/init.zsh
+source $ZIM_HOME/init.zsh
 
 source ~/.p10k.zsh

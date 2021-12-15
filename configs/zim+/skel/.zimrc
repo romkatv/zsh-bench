@@ -1,4 +1,4 @@
-zmodule completion
-zmodule zsh-users/zsh-syntax-highlighting
-zmodule zsh-users/zsh-autosuggestions
+zmodule completion --use degit
+zmodule zsh-users/zsh-syntax-highlighting --use degit
+zmodule zsh-users/zsh-autosuggestions --use degit
 zmodule romkatv/powerlevel10k --use degit
