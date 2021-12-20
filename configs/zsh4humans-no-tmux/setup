@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+
+cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
+curl -fsSLo ~/.zshenv https://raw.githubusercontent.com/romkatv/zsh4humans/v5/.zshenv
