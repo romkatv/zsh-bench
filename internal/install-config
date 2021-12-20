@@ -150,7 +150,7 @@ command cp -r -- $config_dir $home/zsh-bench/configs
 if [[ -z $cfg ]]; then
   command cp -r -- $root_dir/configs/minimal $home/zsh-bench/internal/
 fi
-command chown -R ${user}:${group} -- $home
+command chown -R ${user}:${group} $home
 if [[ -z $cfg ]]; then
   command sudo -u $user -- $home/zsh-bench/internal/minimal/setup
 fi
