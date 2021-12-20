@@ -236,11 +236,11 @@ fi
 case $login[2] in
   yes)
     local loginopt=l
-    print -r -- "==> benchmarking login shell ${USER:+of $USER }..."
+    print -r -- "==> benchmarking login shell ${USER:+of user $USER }..."
   ;;
   no)
     local loginopt=
-    print -r -- "==> benchmarking interactive shell ${USER:+of $USER }..."
+    print -r -- "==> benchmarking interactive shell ${USER:+of user $USER }..."
   ;;
   *)
     return 'error()'
@@ -397,13 +397,12 @@ else
       exec {_zb_fd}>&- 2>/dev/null || true
     fi
     if [[ -n ${_zb_tmpdir-} ]]; then
-      local -i delay=1
       cd -q -- /
-      repeat 5; do
+      local -i delay
+      for delay in {0..4}; do
+        zselect -t $((100 * ((1 << delay) - 1))) || true
         command rm -rf -- $_zb_tmpdir 2>/dev/null || true
         [[ -e $_zb_tmpdir ]] || break
-        zselect -t $((100 * delay)) || true
-        (( delay *= 2 ))
       done
     fi
     [[ $1 == EXIT ]] || exit $((127 + ${signals[(Ie)$1]}))

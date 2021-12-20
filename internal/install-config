@@ -68,18 +68,22 @@ fi
 () {
   local -a ps
   if ps=(${(f)"$(command ps -u $user -o tty= 2>/dev/null)"}) &&
-     (( ps[(I)*[^?[:space:]][[:space:]]#] )); then
-    print -ru2 -- "${ZSH_SCRIPT:t}: $user is logged in"
+     (( ps[(I)${(b)TTY#/dev/}[[:space:]]#] )); then
+    print -ru2 -- "${ZSH_SCRIPT:t}: user $user is logged in on this TTY"
     return 1
   fi
 }
 
 function delete-user() {
-  local -i delay=1
   local -a pids
-  repeat 5; do
+  local -i delay
+  for delay in {0..4}; do
+    zselect -t $((100 * ((1 << delay) - 1))) || true
     if pids=($(command ps -u $user -o pid= 2>/dev/null)) && (( $#pids )); then
-      kill -- $pids 2>/dev/null || true
+      local sig=
+      (( delay > 2 )) && sig=-9
+      kill $sig -- $pids || true
+      (( delay < 4 )) && continue
     fi
     {
       { command rm -rf -- '' /tmp/**/*(Nu[$user]) } 2>/dev/null || true
@@ -87,8 +91,6 @@ function delete-user() {
       TRY_BLOCK_ERROR=0
     }
     try-delete-user &>/dev/null && return
-    zselect -t $((100 * delay)) || true
-    (( delay *= 2 ))
   done
   print -ru2 -- "${ZSH_SCRIPT:t}: cannot delete user $user"
   return 1
@@ -100,8 +102,11 @@ function cleanup() {
   if [[ $1 != EXIT ]]; then
     print -ru2 -- "${ZSH_SCRIPT:t}: SIG$1: cleaning up..."
   fi
-  delete-user || true
-  [[ $1 == EXIT ]] || exit $((127 + ${signals[(Ie)$1]}))
+  {
+    delete-user
+  } always {
+    [[ $1 == EXIT ]] || exit $((127 + ${signals[(Ie)$1]}))
+  }
 }
 
 local sig trapped=(${${(A)=:-INT TERM HUP EXIT}:*signals})
@@ -170,6 +175,6 @@ local cmd=(
   'cd'
   ${cfg:+'~/zsh-bench/configs/'${(qqq)cfg}'/setup'}
   $@)
-exec sudo -Hu $user =zsh -c -- ${(j: && :)cmd}
+sudo -Hu $user =zsh -c -- ${(j: && :)cmd}
 
 } "$@"
