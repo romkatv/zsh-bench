@@ -3,5 +3,4 @@
 emulate -L zsh -o err_return
 
 cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
-curl -fsSLo ~/zsh/.zshenv https://raw.githubusercontent.com/romkatv/zsh4humans/v5/.zshenv
 git clone -q --depth=1 https://github.com/kovidgoyal/kitty.git

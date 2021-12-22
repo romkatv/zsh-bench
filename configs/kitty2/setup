@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh -o err_return
+
+cp -r -- ${ZSH_SCRIPT:h}/skel/*(D) ~/
+git clone -q --depth=1 -b zsh-integration https://github.com/romkatv/kitty.git
