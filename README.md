@@ -39,7 +39,7 @@ Benchmark for interactive zsh.
 - I've used these threshold values to normalize benchmark results to see what is fast and what is
   slow.
 - Armed with this set of tools I've optimized two of my zsh projects:
-  [powerlevel10k](https://github.com/romkatv/zsh4humans) and
+  [powerlevel10k](https://github.com/romkatv/powerlevel10k) and
   [zsh4humans](https://github.com/romkatv/zsh4humans). They used to be fairly fast but now they
   are literally indistinguishable from instantaneous as far as human perception goes.
 - I've benchmarked many zsh techniques, plugins, frameworks and plugin managers and have shared
@@ -182,7 +182,7 @@ terminals, etc. I believe the ballpark should be the same though.
 
 ## Benchmark results
 
-I implemented `zsh-bench` in order to optimize [powerlevel10k](https://github.com/romkatv/zsh4humans)
+I implemented `zsh-bench` in order to optimize [powerlevel10k](https://github.com/romkatv/powerlevel10k)
 and [zsh4humans](https://github.com/romkatv/zsh4humans). In the process I benchmarked many zsh
 techniques, plugins, frameworks and plugin managers. I'm sharing some of my findings here.
 
