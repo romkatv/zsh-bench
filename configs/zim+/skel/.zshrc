@@ -3,6 +3,8 @@ if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
   exec tmux
 fi
 
+ZIM_HOME=~/.zim
+zstyle ':zim:zmodule' use 'degit'
 if [[ ! -e $ZIM_HOME/zimfw.zsh ]]; then
   # Download zimfw script if missing.
   curl -fsSLo $ZIM_HOME/zimfw.zsh --create-dirs \
@@ -10,8 +12,7 @@ if [[ ! -e $ZIM_HOME/zimfw.zsh ]]; then
 fi
 if [[ ! $ZIM_HOME/init.zsh -nt ~/.zimrc ]]; then
   # Install missing modules and update $ZIM_HOME/init.zsh.
-  source $ZIM_HOME/zimfw.zsh install |
-    grep -vF 'Done with install. Restart your terminal for any changes to take effect.'
+  source $ZIM_HOME/zimfw.zsh init
 fi
 
 # Activate Powerlevel10k Instant Prompt.
