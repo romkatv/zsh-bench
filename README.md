@@ -304,7 +304,7 @@ half the *prompt lag* of **ohmyzsh**.
 
 **zim** enables syntax highlight and autosuggestions by default, so it naturally has higher *input
 lag* than projects that don't. Fast zsh startup is a major [explicit goal](
-  https://github.com/zimfw/zimfw/wiki/Speed/a902e5597c9db37fb77716f0a4e0f9ad9220aca2) of zim and we
+  https://github.com/zimfw/zimfw/wiki/Speed) of zim and we
 can see that it beats **ohmyzsh** on *first prompt lag* and *first command lag*.
 
 **zsh4humans** ticks all capability checkboxes and has all latencies comfortably in the green zone.
@@ -822,8 +822,14 @@ Similarly on [reddit](https://www.reddit.com/r/zsh/comments/q5e2du/ann_zshbench_
 
 #### zim
 
-[Initial response](https://github.com/zimfw/zsh-framework-benchmark/pull/8#issuecomment-945197891)
-and [eventual summary](https://github.com/romkatv/zsh-bench/issues/5#issuecomment-1029519185).
+This [summary](https://github.com/romkatv/zsh-bench/issues/5#issuecomment-1029519185):
+
+> Thanks to [@romkatv](https://github.com/romkatv)'s input and to his thoughts in [zsh-bench](https://github.com/romkatv/zsh-bench), this is what we've improved in [Zim](https://github.com/zimfw/zimfw):
+>
+> * We changed [our benchmarks](https://github.com/zimfw/zsh-framework-benchmark) to measure the time to the first prompt appearance (instead of the time to run `exit`). We're using a different tool ([expect](https://linux.die.net/man/1/expect)) than zsh-bench ([script](https://linux.die.net/man/1/script)) to measure that time, and [@romkatv](https://github.com/romkatv) helped us make use the times between our different approaches match.
+> * We don't compile Zsh startup scripts, and we don't compile any scripts in the background anymore. The former is considered ["cutting corners"](https://github.com/romkatv/zsh-bench/blob/3ed27aa21c13cba81b0c0065a54df5cfd50ef79c/README.md#cutting-corners) in zsh-bench, and the latter [unreliable](https://github.com/romkatv/zsh-bench/pull/11#issuecomment-994979683). In fact, now Zim does not run anything in the background during your shell experience.
+> * We've added a `check-dumpfile` action to `zimfw`. It runs after updating files (in the build, install and update actions), and checks if a new completion configuration needs to be dumped. It's intended to be used with `compinit -C` to guarantee the same checks that `compinit` does, since using `compinit -C` alone is also considered ["cutting corners"](https://github.com/romkatv/zsh-bench/blob/3ed27aa21c13cba81b0c0065a54df5cfd50ef79c/README.md#cutting-corners) in zsh-bench.
+> * We've also updated our templates to set `ZSH_AUTOSUGGEST_MANUAL_REBIND=1` and source the zsh-users/zsh-autosuggestions module last.
 
 ### Debugging and validation
 
