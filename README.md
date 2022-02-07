@@ -822,8 +822,8 @@ Similarly on [reddit](https://www.reddit.com/r/zsh/comments/q5e2du/ann_zshbench_
 
 #### zim
 
-This [comment](
-  https://github.com/zimfw/zsh-framework-benchmark/pull/8#issuecomment-945197891).
+[Initial response](https://github.com/zimfw/zsh-framework-benchmark/pull/8#issuecomment-945197891)
+and [eventual summary](https://github.com/romkatv/zsh-bench/issues/5#issuecomment-1029519185).
 
 ### Debugging and validation
 
