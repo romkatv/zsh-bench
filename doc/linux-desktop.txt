@@ -301,6 +301,18 @@ first_command_lag_ms=60.723
 command_lag_ms=2.678
 input_lag_ms=14.280
 exit_time_ms=16.671
+==> setting up user zsh-bench with antidote ...
+==> benchmarking login shell of user zsh-bench ...
+creates_tty=1
+has_compsys=1
+has_syntax_highlighting=1
+has_autosuggestions=1
+has_git_prompt=1
+first_prompt_lag_ms=4.883
+first_command_lag_ms=73.503
+command_lag_ms=2.481
+input_lag_ms=13.021
+exit_time_ms=31.059
 ==> setting up user zsh-bench with zinit-turbo ...
 ==> benchmarking login shell of user zsh-bench ...
 creates_tty=1
