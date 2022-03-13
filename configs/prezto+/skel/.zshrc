@@ -6,5 +6,11 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Load and initialize the completion system.
+autoload -Uz compinit && compinit
+if [[ ! ~/.zcompdump.zwc -nt ~/.zcompdump ]]; then
+  zcompile ~/.zcompdump
+fi
+
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 source ~/.p10k.zsh
