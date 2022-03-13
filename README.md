@@ -204,11 +204,11 @@ latency budget.
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
-| [no-rcs](https://github.com/romkatv/zsh-bench/tree/master/configs/no-rcs) | ❌ | ❌ | ❌ | ❌ | ❌ | 2%<br>🟢 | 1%<br>🟢 | 1%<br>🟢 | 1%<br>🟢 |
+| [no-rcs](https://github.com/romkatv/zsh-bench/tree/master/configs/no-rcs) | ❌ | ❌ | ❌ | ❌ | ❌ | 3%<br>🟢 | 1%<br>🟢 | 1%<br>🟢 | 1%<br>🟢 |
 | [tmux](https://github.com/romkatv/zsh-bench/tree/master/configs/tmux) | ✔️ | ❌ | ❌ | ❌ | ❌ | 9%<br>🟢 | 3%<br>🟢 | 1%<br>🟢 | 1%<br>🟢 |
 | [compsys](https://github.com/romkatv/zsh-bench/tree/master/configs/compsys) | ❌ | ✔️ | ❌ | ❌ | ❌ | 45%<br>🟢 | 15%<br>🟢 | 1%<br>🟢 | 1%<br>🟢 |
-| [zsh-syntax-highlighting](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-syntax-highlighting) | ❌ | ❌ | ✔️ | ❌ | ❌ | 25%<br>🟢 | 16%<br>🟢 | 6%<br>🟢 | 62%<br>🟡 |
-| [zsh-autosuggestions](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-autosuggestions) | ❌ | ❌ | ❌ | ✔️ | ❌ | 36%<br>🟢 | 15%<br>🟢 | 109%<br>🟠 | 4%<br>🟢 |
+| [zsh-syntax-highlighting](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-syntax-highlighting) | ❌ | ❌ | ✔️ | ❌ | ❌ | 25%<br>🟢 | 16%<br>🟢 | 6%<br>🟢 | 63%<br>🟡 |
+| [zsh-autosuggestions](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-autosuggestions) | ❌ | ❌ | ❌ | ✔️ | ❌ | 36%<br>🟢 | 14%<br>🟢 | 107%<br>🟠 | 4%<br>🟢 |
 | [git-branch](https://github.com/romkatv/zsh-bench/tree/master/configs/git-branch) | ❌ | ❌ | ❌ | ❌ | ✔️ | 35%<br>🟢 | 12%<br>🟢 | 57%<br>🟡 | 1%<br>🟢 |
 
 **no-rcs** is zsh in its pure form, without any
@@ -244,9 +244,9 @@ I've benchmarked several different git prompts.
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
 | [git-branch](https://github.com/romkatv/zsh-bench/tree/master/configs/git-branch) | ❌ | ❌ | ❌ | ❌ | ✔️ | 35%<br>🟢 | 12%<br>🟢 | 57%<br>🟡 | 1%<br>🟢 |
-| [agnoster](https://github.com/romkatv/zsh-bench/tree/master/configs/agnoster) | ❌ | ❌ | ❌ | ❌ | ✔️ | 73%<br>🟡 | 25%<br>🟢 | 271%<br>🔴 | 1%<br>🟢 |
-| [starship](https://github.com/romkatv/zsh-bench/tree/master/configs/starship) | ❌ | ❌ | ❌ | ❌ | ✔️ | 112%<br>🟠 | 38%<br>🟢 | 483%<br>🔴 | 1%<br>🟢 |
-| [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | ❌ | ❌ | ❌ | ❌ | ✔️ | 4%<br>🟢 | 15%<br>🟢 | 19%<br>🟢 | 1%<br>🟢 |
+| [agnoster](https://github.com/romkatv/zsh-bench/tree/master/configs/agnoster) | ❌ | ❌ | ❌ | ❌ | ✔️ | 72%<br>🟡 | 24%<br>🟢 | 262%<br>🔴 | 1%<br>🟢 |
+| [starship](https://github.com/romkatv/zsh-bench/tree/master/configs/starship) | ❌ | ❌ | ❌ | ❌ | ✔️ | 86%<br>🟡 | 29%<br>🟢 | 376%<br>🔴 | 1%<br>🟢 |
+| [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | ❌ | ❌ | ❌ | ❌ | ✔️ | 4%<br>🟢 | 15%<br>🟢 | 20%<br>🟢 | 1%<br>🟢 |
 
 The git repo used by the benchmark has 1,000 directories and 10,000 files in it. Not too few,
 not too many. All benchmarks ran with untracked cache enabled. Wall time of `git status` stood at
@@ -283,10 +283,10 @@ Let's see what some of the popular premade zsh configs offer out of the box.
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
-| [prezto](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto) | ❌ | ✔️ | ❌ | ❌ | ❌ | 107%<br>🟠 | 38%<br>🟢 | 17%<br>🟢 | 1%<br>🟢 |
-| [ohmyzsh](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh) | ❌ | ✔️ | ❌ | ❌ | ✔️ | 203%<br>🔴 | 69%<br>🟡 | 362%<br>🔴 | 2%<br>🟢 |
-| [zim](https://github.com/romkatv/zsh-bench/tree/master/configs/zim) | ❌ | ✔️ | ✔️ | ✔️ | ✔️ | 117%<br>🟠 | 51%<br>🟡 | 189%<br>🟠 | 66%<br>🟡 |
-| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 19%<br>🟢 | 36%<br>🟢 | 29%<br>🟢 | 26%<br>🟢 |
+| [prezto](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto) | ❌ | ✔️ | ❌ | ❌ | ❌ | 116%<br>🟠 | 42%<br>🟢 | 15%<br>🟢 | 2%<br>🟢 |
+| [ohmyzsh](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh) | ❌ | ✔️ | ❌ | ❌ | ✔️ | 222%<br>🔴 | 76%<br>🟡 | 386%<br>🔴 | 2%<br>🟢 |
+| [zim](https://github.com/romkatv/zsh-bench/tree/master/configs/zim) | ❌ | ✔️ | ✔️ | ✔️ | ✔️ | 127%<br>🟠 | 55%<br>🟡 | 201%<br>🔴 | 72%<br>🟡 |
+| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 20%<br>🟢 | 39%<br>🟢 | 30%<br>🟢 | 27%<br>🟢 |
 
 The names of these configs match the respective public projects from which they were copied:
 [ohmyzsh](https://github.com/ohmyzsh/ohmyzsh), [prezto](https://github.com/sorin-ionescu/prezto),
@@ -300,7 +300,7 @@ or git prompt. Users who need these features—most do—should enable them expl
 **agnoster**, so they have high *command lag* in larger git repositories. **zim** is the only config
 among these that doesn't detect untracked files. This appears to have been a conscious decision by
 **zim** developers for performance reasons. We can see that it helps: **zim** has approximately
-half the *prompt lag* of **ohmyzsh**.
+half the *command lag* of **ohmyzsh**.
 
 **zim** enables syntax highlight and autosuggestions by default, so it naturally has higher *input
 lag* than projects that don't. Fast zsh startup is a major [explicit goal](
@@ -324,9 +324,9 @@ the availability of high-quality building blocks, this shouldn't be very difficu
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
-| [diy](https://github.com/romkatv/zsh-bench/tree/master/configs/diy) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 126%<br>🟠 | 50%<br>🟢 | 156%<br>🟠 | 62%<br>🟡 |
-| [diy+](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 53%<br>🟡 | 25%<br>🟢 | 65%<br>🟡 |
-| [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 44%<br>🟢 | 25%<br>🟢 | 65%<br>🟡 |
+| [diy](https://github.com/romkatv/zsh-bench/tree/master/configs/diy) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 135%<br>🟠 | 53%<br>🟡 | 170%<br>🟠 | 68%<br>🟡 |
+| [diy+](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 57%<br>🟡 | 26%<br>🟢 | 71%<br>🟡 |
+| [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 45%<br>🟢 | 25%<br>🟢 | 66%<br>🟡 |
 
 **diy** is the simplest config that provides all capabilities. I've made it by concatenating configs
 of the [basic building blocks](#basics). Here's the whole `.zshrc`:
@@ -379,7 +379,7 @@ recommend them.
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
-| [diy++unsafe](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bunsafe) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 38%<br>🟢 | 25%<br>🟢 | 65%<br>🟡 |
+| [diy++unsafe](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bunsafe) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 38%<br>🟢 | 25%<br>🟢 | 66%<br>🟡 |
 
 The first optimization is to compile to wordcode `.zshrc` itself. This will cause you a lot of grief
 if you do something like this:
@@ -427,8 +427,8 @@ turned on.
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
-| [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | ❌ | ❌ | ❌ | ❌ | ✔️ | 4%<br>🟢 | 15%<br>🟢 | 19%<br>🟢 | 1%<br>🟢 |
-| [powerlevel10k-full](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k-full) | ❌ | ❌ | ❌ | ❌ | ✔️ | 8%<br>🟢 | 28%<br>🟢 | 65%<br>🟡 | 7%<br>🟢 |
+| [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | ❌ | ❌ | ❌ | ❌ | ✔️ | 4%<br>🟢 | 15%<br>🟢 | 20%<br>🟢 | 1%<br>🟢 |
+| [powerlevel10k-full](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k-full) | ❌ | ❌ | ❌ | ❌ | ✔️ | 8%<br>🟢 | 31%<br>🟢 | 71%<br>🟡 | 8%<br>🟢 |
 
 **powerlevel10k-full** has substantially higher *command lag* but it's still under 100%, meaning
 that prompt is still indistinguishable from instantaneous. However, there is not much *command lag*
@@ -441,7 +441,7 @@ enable *everything*. Here's a ridiculously overwrought prompt:
 
 It has **18** segments. The full config enables **64**!
 
-Notice that **powerlevel10k-full** also increases *input lag* by 6% (that's 1.2ms) compared to the
+Notice that **powerlevel10k-full** also increases *input lag* by 7% (that's 1.4ms) compared to the
 smaller config. Powerlevel10k can dynamically update prompt depending on the current command you are
 typing. Here's an example from powerlevel10k docs where the current kubernetes context and gcloud
 credentials are shown only when they are relevant to the current command.
@@ -583,15 +583,15 @@ benchmarked several plugin managers and frameworks. All configs here have all co
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
-| [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 44%<br>🟢 | 25%<br>🟢 | 65%<br>🟡 |
-| [diy++unsafe](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bunsafe) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 38%<br>🟢 | 25%<br>🟢 | 65%<br>🟡 |
-| [zcomet](https://github.com/romkatv/zsh-bench/tree/master/configs/zcomet) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 50%<br>🟢 | 27%<br>🟢 | 71%<br>🟡 |
-| [zinit](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 88%<br>🟡 | 27%<br>🟢 | 72%<br>🟡 |
-| [zplug](https://github.com/romkatv/zsh-bench/tree/master/configs/zplug) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 123%<br>🟠 | 119%<br>🟠 | 27%<br>🟢 | 72%<br>🟡 |
-| [ohmyzsh+](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 66%<br>🟡 | 31%<br>🟢 | 72%<br>🟡 |
-| [prezto+](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 53%<br>🟡 | 38%<br>🟢 | 78%<br>🟡 |
-| [zim+](https://github.com/romkatv/zsh-bench/tree/master/configs/zim%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 40%<br>🟢 | 27%<br>🟢 | 71%<br>🟡 |
-| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 19%<br>🟢 | 36%<br>🟢 | 29%<br>🟢 | 26%<br>🟢 |
+| [diy++](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 45%<br>🟢 | 25%<br>🟢 | 66%<br>🟡 |
+| [diy++unsafe](https://github.com/romkatv/zsh-bench/tree/master/configs/diy%2B%2Bunsafe) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 38%<br>🟢 | 25%<br>🟢 | 66%<br>🟡 |
+| [zcomet](https://github.com/romkatv/zsh-bench/tree/master/configs/zcomet) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 49%<br>🟢 | 27%<br>🟢 | 71%<br>🟡 |
+| [zinit](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 86%<br>🟡 | 27%<br>🟢 | 72%<br>🟡 |
+| [zplug](https://github.com/romkatv/zsh-bench/tree/master/configs/zplug) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 119%<br>🟠 | 114%<br>🟠 | 27%<br>🟢 | 72%<br>🟡 |
+| [ohmyzsh+](https://github.com/romkatv/zsh-bench/tree/master/configs/ohmyzsh%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 65%<br>🟡 | 32%<br>🟢 | 72%<br>🟡 |
+| [prezto+](https://github.com/romkatv/zsh-bench/tree/master/configs/prezto%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 10%<br>🟢 | 53%<br>🟡 | 39%<br>🟢 | 80%<br>🟡 |
+| [zim+](https://github.com/romkatv/zsh-bench/tree/master/configs/zim%2B) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 11%<br>🟢 | 41%<br>🟢 | 27%<br>🟢 | 71%<br>🟡 |
+| [zsh4humans](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh4humans) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | 20%<br>🟢 | 39%<br>🟢 | 30%<br>🟢 | 27%<br>🟢 |
 
 **diy++** and **diy++unsafe** are listed here to serve as baseline for comparing latency.
 
@@ -617,13 +617,13 @@ This is not a good choice in my opinion. The small speedup isn't worth it.
 
 **zim** isn't the only project on this list that trades usability for performance by invoking
 `compinit` with `-C`. **zplug**, **ohmyzsh** and **prezto** do that too. **zsh4humans** is the only
-project that goes the opposite way -- it performs more checks than the regular `compinit` in order
+project that goes the opposite way -- it performs *more* checks than the regular `compinit` in order
 to improve usability of the completion system. For example, if you add a completion function to
 an existing file with a `#compdef` directive, none of the configs except for **zsh4humans** will
 pick up this change until you manually delete `.zcompdump`. Restarting zsh or even rebooting the
 machine won't help. **zsh4humans** manages to achieve *first command lag* lower than any other
-config despite the additional quality of life improvements. Cutting corners isn't necessary for
-achieving low latency goals.
+config despite the additional quality of life improvements. This shows that cutting corners isn't
+necessary for achieving low latency goals.
 
 All configs have very low *first prompt lag* thanks to powerlevel10k. The only exception is
 **zplug**. **zplug** provides a nice API that plays well with [Instant Prompt](#instant-prompt). It
@@ -641,9 +641,9 @@ implementing tight integration between the core shell features: prompt, syntax h
 and autosuggestions. You can enable *extra* plugins in **zsh4humans** but the core comes as a single
 unit.
 
-**zsh4humans** has *first prompt lag* 9% (4.7ms in absolute terms) higher than **diy++**. A lot of
+**zsh4humans** has *first prompt lag* 10% (5.2ms in absolute terms) higher than **diy++**. A lot of
 features are packed into that chunk of time but this isn't the place to describe them. The resulting
-*first prompt lag* is still just 19% of the threshold of perception, so I'm feeling pretty secure
+*first prompt lag* is still just 20% of the threshold of perception, so I'm feeling pretty secure
 that this latency won't be noticeable. Importantly, when users add extra initialization code to
 their zsh startup files, it doesn't increase *first prompt lag*. It increases only
 *first command lag*, which **zsh4humans** has at a lower value than other configs. Overall I'm
@@ -665,8 +665,8 @@ to do. This can be done with [zinit turbo mode](
 
 | config | tmux | compsys | syntax highlight | auto suggest | git prompt | first prompt lag | first cmd lag | cmd lag | input lag |
 |-|-:|-:|-:|-:|-:|-:|-:|-:|-:|
-| [zinit-turbo](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit-turbo) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 10%<br>🟢 | 44%<br>🟢 | 27%<br>🟢 | 67%<br>🟡 |
-| [zsh-defer](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-defer) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 11%<br>🟢 | 28%<br>🟢 | 32%<br>🟢 | 74%<br>🟡 |
+| [zinit-turbo](https://github.com/romkatv/zsh-bench/tree/master/configs/zinit-turbo) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 10%<br>🟢 | 41%<br>🟢 | 25%<br>🟢 | 63%<br>🟡 |
+| [zsh-defer](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-defer) | ✔️ | ✔️ | ❌ | ❌ | ✔️ | 10%<br>🟢 | 24%<br>🟢 | 29%<br>🟢 | 68%<br>🟡 |
 
 In these configs the initialization of syntax highlighting and autosuggestions was deferred. When
 deferring initialization of some features, you have to be prepared to use zsh without those features
@@ -711,8 +711,8 @@ zsh startup speed.
 
 | config | first prompt lag (ms) | first command lag (ms) | exit time (ms) |
 |-|-:|-:|-:|
-| [agnoster](https://github.com/romkatv/zsh-bench/tree/master/configs/agnoster) | 37 | 37 | 3 |
-| [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | 2 | 22 | 7 |
+| [agnoster](https://github.com/romkatv/zsh-bench/tree/master/configs/agnoster) | 36 | 37 | 3 |
+| [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) | 2 | 23 | 8 |
 
 When using **agnoster**, `exit` finishes in just 3ms. Yet, when you open a terminal, you'll be
 looking at an empty screen for 37ms. What exactly happens on the 3ms mark that counts as "startup"?
@@ -720,7 +720,6 @@ looking at an empty screen for 37ms. What exactly happens on the 3ms mark that c
 Consider **powerlevel10k** for comparison. With this config `exit` takes longer than with
 **agnoster** but zsh starts faster: when you open a terminal, prompt appears virtually instantly and
 the first command executes sooner.
-
 
 Many zsh plugin managers have been optimized for fast `exit` and are presenting it as a meaningful
 measure of performance. The widely held belief that **zinit** is the fastest plugin manager is based
@@ -744,13 +743,13 @@ The output of `time zsh -lic "exit"` tells you how long it takes to execute
 is no reason for you to care one way or another about this number.
 
 Since the release of zsh-bench several projects have switched from targeting `exit` to meaningful
-performance metrics. The ones I know of are **zcomet** and **zim**. There is hope that this trend
-will continue.
+performance metrics. The ones I know of are **zcomet**, **zim** and **antidote**. There is hope that
+this trend will continue.
 
 ### Full benchmark data
 
 - Fast desktop machine (all benchmark results inlined in this document are from this run):
-  - Date: 2022-02-03.
+  - Date: 2022-03-13.
   - OS: Ubuntu 21.10.
   - CPU: AMD Ryzen Threadripper 3970x.
   - Storage: NVMe M.2.
