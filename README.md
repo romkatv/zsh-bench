@@ -810,12 +810,18 @@ From [README.md](
   https://github.com/agkozak/zcomet/blob/52f2eaa7e7c09fb32e31e10ce1d45cb719065be4/README.md#news):
 
 > - October 13, 2021
->     + I have adopted [@romkatv](https://github.com/romkatv)'s [zsh-bench](https://github.com/romkatv/zsh-bench) benchmarks as a standard for measuring performance.
->     + `zcomet` no longer `zcompiles` rc files, and the default behavior of `zcomet compinit` is merely to run `compinit` while specifying a sensibly named cache file (again, props to **@romkatv** for suggesting these changes).
+>     + I have adopted [@romkatv](https://github.com/romkatv)'s
+>       [zsh-bench](https://github.com/romkatv/zsh-bench) benchmarks as a standard for measuring
+>       performance.
+>     + `zcomet` no longer `zcompiles` rc files, and the default behavior of `zcomet compinit` is
+>       merely to run `compinit` while specifying a sensibly named cache file (again, props to
+>       **@romkatv** for suggesting these changes).
 
-Similarly on [reddit](https://www.reddit.com/r/zsh/comments/q5e2du/ann_zshbench_benchmark_for_interactive_zsh/hgjnryv/):
+Similarly on [reddit](
+  https://www.reddit.com/r/zsh/comments/q5e2du/ann_zshbench_benchmark_for_interactive_zsh/hgjnryv/):
 
-> I've taken your advice: `zcomet` no longer compiles rc files, and `zcomet compinit` is no longer `compinit -C` by default.
+> I've taken your advice: `zcomet` no longer compiles rc files, and `zcomet compinit` is no longer
+> `compinit -C` by default.
 >
 > Next I'll look into the issue of compatibility with your *Instant Prompt*.
 
@@ -823,12 +829,30 @@ Similarly on [reddit](https://www.reddit.com/r/zsh/comments/q5e2du/ann_zshbench_
 
 This [summary](https://github.com/romkatv/zsh-bench/issues/5#issuecomment-1029519185):
 
-> Thanks to [@romkatv](https://github.com/romkatv)'s input and to his thoughts in [zsh-bench](https://github.com/romkatv/zsh-bench), this is what we've improved in [Zim](https://github.com/zimfw/zimfw):
+> Thanks to [@romkatv](https://github.com/romkatv)'s input and to his thoughts in
+> [zsh-bench](https://github.com/romkatv/zsh-bench), this is what we've improved in
+> [Zim](https://github.com/zimfw/zimfw):
 >
-> * We changed [our benchmarks](https://github.com/zimfw/zsh-framework-benchmark) to measure the time to the first prompt appearance (instead of the time to run `exit`). We're using a different tool ([expect](https://linux.die.net/man/1/expect)) than zsh-bench ([script](https://linux.die.net/man/1/script)) to measure that time, and [@romkatv](https://github.com/romkatv) helped us make use the times between our different approaches match.
-> * We don't compile Zsh startup scripts, and we don't compile any scripts in the background anymore. The former is considered ["cutting corners"](https://github.com/romkatv/zsh-bench/blob/3ed27aa21c13cba81b0c0065a54df5cfd50ef79c/README.md#cutting-corners) in zsh-bench, and the latter [unreliable](https://github.com/romkatv/zsh-bench/pull/11#issuecomment-994979683). In fact, now Zim does not run anything in the background during your shell experience.
-> * We've added a `check-dumpfile` action to `zimfw`. It runs after updating files (in the build, install and update actions), and checks if a new completion configuration needs to be dumped. It's intended to be used with `compinit -C` to guarantee the same checks that `compinit` does, since using `compinit -C` alone is also considered ["cutting corners"](https://github.com/romkatv/zsh-bench/blob/3ed27aa21c13cba81b0c0065a54df5cfd50ef79c/README.md#cutting-corners) in zsh-bench.
-> * We've also updated our templates to set `ZSH_AUTOSUGGEST_MANUAL_REBIND=1` and source the zsh-users/zsh-autosuggestions module last.
+> * We changed [our benchmarks](https://github.com/zimfw/zsh-framework-benchmark) to measure the
+>   time to the first prompt appearance (instead of the time to run `exit`). We're using a different
+>   tool ([expect](https://linux.die.net/man/1/expect)) than zsh-bench
+>   ([script](https://linux.die.net/man/1/script)) to measure that time, and
+>   [@romkatv](https://github.com/romkatv) helped us make use the times between our different
+>   approaches match.
+> * We don't compile Zsh startup scripts, and we don't compile any scripts in the background
+>   anymore. The former is considered
+>   ["cutting corners"](https://github.com/romkatv/zsh-bench/blob/3ed27aa21c13cba81b0c0065a54df5cfd50ef79c/README.md#cutting-corners)
+>   in zsh-bench, and the latter
+>   [unreliable](https://github.com/romkatv/zsh-bench/pull/11#issuecomment-994979683). In fact, now
+>   Zim does not run anything in the background during your shell experience. We've added a
+>   `check-dumpfile` action to `zimfw`. It runs after updating files (in the build, install and
+>   update actions), and checks if a new completion configuration needs to be dumped. It's intended
+>   to be used with `compinit -C` to guarantee the same checks that `compinit` does, since using
+>   `compinit -C` alone is also considered
+>   ["cutting corners"](https://github.com/romkatv/zsh-bench/blob/3ed27aa21c13cba81b0c0065a54df5cfd50ef79c/README.md#cutting-corners)
+>   in zsh-bench.
+> * We've also updated our templates to set `ZSH_AUTOSUGGEST_MANUAL_REBIND=1` and source the
+>   zsh-users/zsh-autosuggestions module last.
 
 ### Debugging and validation
 
