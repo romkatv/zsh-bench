@@ -726,7 +726,7 @@ measure of performance. The widely held belief that **zinit** is the fastest plu
 on the timing of `exit`. Deferred initialization—pioneered by zinit turbo
 mode—[may not be very useful in practice](#deferred-initialization) but it's extremely effective on
 this metric. Unsurprisingly, **zinit** has been [optimized for it](
-  https://web.archive.org/web/20201122095227/https://github.com/zdharma/pm-perf-test).
+  https://github.com/zdharma-continuum/pm-perf-test).
 
 This doesn't mean developers have been engaging in conscious deception. It was easy to unknowingly
 fall into the trap. The timing of `exit` is very close to *first prompt lag* and
