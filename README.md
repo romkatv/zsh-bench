@@ -690,9 +690,9 @@ workarounds that often rely on the plugin's implementation details. This exposes
 higher risk of breakage when updating plugins.
 
 Deferred initialization can reduce only *first cmd lag*. If done properly, it has no effect on
-other latencies. Given that there are many configs to choose from that are below the threshold on
-*first cmd lag*, deferred initialization doesn't solve any real problems while adding quite a few of
-its own.
+other latencies. Given that there are many configs to choose from that are below the perception
+threshold on *first cmd lag*, deferred initialization doesn't solve any real problems while adding
+quite a few of its own.
 
 So much for deferred initialization. Cannot recommend.
 
