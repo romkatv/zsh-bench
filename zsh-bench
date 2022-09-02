@@ -139,7 +139,7 @@ if (( ARGC )); then
         done
       }
 
-      local -r img=ubuntu:21.04
+      local -r img=ubuntu:22.04
 
       function docker-run() {
         DOCKER_CONTENT_TRUST=1 command docker run -e LC_ALL=C.UTF-8 --rm -i --init -- \
