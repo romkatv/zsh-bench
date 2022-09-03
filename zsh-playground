@@ -123,7 +123,7 @@ fi
   done
 }
 
-local -r img=ubuntu:21.04
+local -r img=ubuntu:22.04
 
 function docker-run() {
   local flags=(-i --rm --init -e TERM -e COLORTERM -e LC_ALL=C.UTF-8 -w /root)
