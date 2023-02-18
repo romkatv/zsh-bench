@@ -56,6 +56,21 @@ git clone https://github.com/romkatv/zsh-bench ~/zsh-bench
 
 ## Usage
 
+```text
+usage: zsh-bench [OPTION].. [CONFIG]..
+
+OPTIONS
+  -h,--help
+  -i,--iters <NUM> [default=16]
+  -l,--login <yes|no> [default=yes]
+  -g,--git <yes|no|empty> [default=yes]
+  -c,--config-dir <directory> [default=configs dir in zsh-bench dir]
+  -d,--scratch-dir <directory>
+  -I,--isolation <docker|user>
+  -s,--standalone
+  -r,--raw
+```
+
 ### Benchmark zsh on your machine
 
 ```zsh
