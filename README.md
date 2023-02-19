@@ -64,7 +64,7 @@ OPTIONS
   -i,--iters <NUM> [default=16]
   -l,--login <yes|no> [default=yes]
   -g,--git <yes|no|empty> [default=yes]
-  -c,--config-dir <directory> [default=configs dir in zsh-bench dir]
+  -c,--config-dir <directory> [default=<zsh-bench-dir>/configs]
   -d,--scratch-dir <directory>
   -I,--isolation <docker|user>
   -s,--standalone
