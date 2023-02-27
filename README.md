@@ -620,13 +620,11 @@ enabled only the plugins that are required to tick off all capabilities and disa
 **zsh4humans** can install and load arbitrary plugins but the default config already enables
 everything we care about. So I'm benchmarking the stock config with no changes here.
 
-All configs in this list except for **zsh4humans** treat [zsh-syntax-highlighting](
+Most configs in this list treat `compinit`, [zsh-syntax-highlighting](
   https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-syntax-highlighting),
 [zsh-autosuggestions](https://github.com/romkatv/zsh-bench/tree/master/configs/zsh-autosuggestions)
 and [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) as black
 boxes. They cannot beat **diy++unsafe** on benchmarks.
-
-**zim+** beats **diy++**—the safe version—on one metric.
 
 **zplug**, **ohmyzsh** and **prezto** trade usability for performance by invoking `compinit` with
 `-C`. This is not a good choice in my opinion. The small speedup isn't worth it. **zsh4humans** and
