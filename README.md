@@ -626,15 +626,13 @@ All configs in this list except for **zsh4humans** treat [zsh-syntax-highlightin
 and [powerlevel10k](https://github.com/romkatv/zsh-bench/tree/master/configs/powerlevel10k) as black
 boxes. They cannot beat **diy++unsafe** on benchmarks.
 
-**zim+** beats **diy++**—the safe version—on one metric. **zim** relies on an
-[unsafe optimization](#cutting-corners) to gain this advantage: it invokes `compinit` with `-C`.
-This is not a good choice in my opinion. The small speedup isn't worth it.
+**zim+** beats **diy++**—the safe version—on one metric.
 
-**zim** isn't the only project on this list that trades usability for performance by invoking
-`compinit` with `-C`. **zplug**, **ohmyzsh** and **prezto** do that too. **zsh4humans** is the only
-project that goes the opposite way -- it performs *more* checks than the regular `compinit` in order
-to improve usability of the completion system. For example, if you add a completion function to
-an existing file with a `#compdef` directive, none of the configs except for **zsh4humans** will
+**zplug**, **ohmyzsh** and **prezto** trade usability for performance by invoking `compinit` with
+`-C`. This is not a good choice in my opinion. The small speedup isn't worth it. **zsh4humans** and
+**zim** go the opposite way -- they perform *more* checks than the regular `compinit` in order to
+improve usability of the completion system. For example, if you add a completion function to an
+existing file with a `#compdef` directive, only **zsh4humans** and **zim** will
 pick up this change until you manually delete `.zcompdump`. Restarting zsh or even rebooting the
 machine won't help. **zsh4humans** manages to achieve *first command lag* lower than any other
 config despite the additional quality of life improvements. This shows that cutting corners isn't
@@ -859,11 +857,10 @@ This [summary](https://github.com/romkatv/zsh-bench/issues/5#issuecomment-102951
 >   ["cutting corners"](https://github.com/romkatv/zsh-bench/blob/3ed27aa21c13cba81b0c0065a54df5cfd50ef79c/README.md#cutting-corners)
 >   in zsh-bench, and the latter
 >   [unreliable](https://github.com/romkatv/zsh-bench/pull/11#issuecomment-994979683). In fact, now
->   Zim does not run anything in the background during your shell experience. We've added a
->   `check-dumpfile` action to `zimfw`. It runs after updating files (in the build, install and
->   update actions), and checks if a new completion configuration needs to be dumped. It's intended
->   to be used with `compinit -C` to guarantee the same checks that `compinit` does, since using
->   `compinit -C` alone is also considered
+>   Zim does not run anything in the background during your shell experience.
+> * We're using the same improved completion dumpfile check that zsh4humans uses during startup in
+>   our [completion](https://github.com/zimfw/completion) module, since using `compinit -C` alone is
+>   also considered
 >   ["cutting corners"](https://github.com/romkatv/zsh-bench/blob/3ed27aa21c13cba81b0c0065a54df5cfd50ef79c/README.md#cutting-corners)
 >   in zsh-bench.
 > * We've also updated our templates to set `ZSH_AUTOSUGGEST_MANUAL_REBIND=1` and source the
