@@ -630,7 +630,7 @@ boxes. They cannot beat **diy++unsafe** on benchmarks.
 `-C`. This is not a good choice in my opinion. The small speedup isn't worth it. **zsh4humans** and
 **zim** go the opposite way -- they perform *more* checks than the regular `compinit` in order to
 improve usability of the completion system. For example, if you add a completion function to an
-existing file with a `#compdef` directive, only **zsh4humans** and **zim** will
+existing file with a `#compdef` directive, none of the configs except for **zsh4humans** and **zim** will
 pick up this change until you manually delete `.zcompdump`. Restarting zsh or even rebooting the
 machine won't help. **zsh4humans** manages to achieve *first command lag* lower than any other
 config despite the additional quality of life improvements. This shows that cutting corners isn't
