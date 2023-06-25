@@ -14,7 +14,7 @@ autoload -Uz compinit bashcompinit zmv run-help ${^fpath}/run-help-^*.zwc(N:t)
 HISTSIZE=1000000000
 SAVEHIST=1000000000
 HISTFILE=$ZDOTDIR/.zsh_history
-[[ -e $HISTFILE || -n ${HISTFILE:t}(#qNU) ]] || HISTFILE+=.$EUID
+[[ -e $HISTFILE || -n ${HISTFILE:h}(#qNU) ]] || HISTFILE+=.$EUID
 
 DIRSTACKSIZE=1000
 TIMEFMT='user=%U system=%S cpu=%P total=%*E'
