@@ -250,31 +250,31 @@ esac
 
 zmodload zsh/datetime
 
-local -r stats=(
+local -r stats_single_value=(
   creates_tty
   has_compsys
   has_syntax_highlighting
   has_autosuggestions
   has_git_prompt
+)
+
+local -r stats_distribution=(
   first_prompt_lag_ms
   first_command_lag_ms
   command_lag_ms
   input_lag_ms
-  exit_time_ms)
+  exit_time_ms
+)
 
-local -- $stats
-unset -- $stats
+local -- $stats_single_value $stats_distribution
+unset -- $stats_single_value $stats_distribution
 
 function record-metric() {
   local t=$1
   local name=$2
   local -$t val=$3
-  if (( $#raw )); then
-    typeset -ga $name
-    set -A $name ${(P)name} $val
-  elif [[ ! -v $name || val -lt $name ]]; then
-    typeset -g$t $name=$val
-  fi
+  typeset -ga $name
+  set -A $name ${(P)name} $val
 }
 
 () {
@@ -767,15 +767,41 @@ repeat $iters[2]; do
   zselect -t 10 || true
 done
 
+function mean() {
+  local -F sum
+  local -F i
+  for i in "$@"; do
+    (( sum += $i ))
+  done
+  echo $(( sum / $# ))
+}
+
+function σ() {
+  local -F mean
+  mean=$(mean "$@")
+  local -F sum
+  local -i i
+  for i in "$@"; do
+    (( sum += ($i - mean) ** 2 ))
+  done
+  echo $(( (sum / $#) ** 0.5 ))
+}
+
 () {
   local name
-  for name in $stats; do
+  for name in $stats_single_value; do
     [[ -v $name ]] || continue
-    print -rn -- $name=
-    if [[ $parameters[$name] == array* ]]; then
+    print -r -- "$name=${(q-)${(P)name}[1]}"
+  done
+  for name in $stats_distribution; do
+    [[ -v $name ]] || continue
+    print -rn -- ${name}=
+    if (( $#raw )); then
       print -r -- "( ${(j: :)${(@q-)${(P)name}}} )"
     else
-      print -r -- "${(q-)${(P)name}}"
+      local -F3 mean=$(mean ${(P)name})
+      local -F2 stddev=$(σ ${(P)name})
+      print -r -- "$mean±$stddev"
     fi
   done
 }
