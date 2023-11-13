@@ -539,7 +539,7 @@ For best results, when using *Instant Prompt*, `.zshrc` should be structured lik
    - write to standard output, standard error or the TTY
    - occasionally (but rarely) may take unpredictably long time to execute
    ```zsh
-   # If not in tmux, start tmux: reads and writes the TTY.
+   # If not in tmux, start tmux: reads from and writes to the TTY.
    if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
      exec tmux
    fi
@@ -574,7 +574,7 @@ For best results, when using *Instant Prompt*, `.zshrc` should be structured lik
 
 Commands in the first section must be very fast to avoid delaying the first prompt.
 
-It's OK for commands in the last section to print in case of errors. The assumption is that you'll
+It's OK for commands in the last section to print *in case of errors*. The assumption is that you'll
 fix these errors, so in normal operation there won't be any output.
 
 If you need to use the TTY in the last section, there is `$TTY` for you. Just make sure you aren't
@@ -584,7 +584,7 @@ is OK:
 ```zsh
 # Let gpg know what our TTY is.
 export GPG_TTY=$TTY
-# Change cursor shape to "beam".
+# Change the cursor shape to "beam".
 print -n '\e[5 q' >$TTY
 # Display the current working directory in the terminal title.
 printf '\e]0;%s\a' ${(V)${(%):-%1~}} >$TTY
