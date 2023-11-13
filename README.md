@@ -468,7 +468,7 @@ shown only when they are relevant to the current command.
     https://raw.githubusercontent.com/romkatv/powerlevel10k-media/master/show-on-command.gif)
 </details>
 
-This feature requires parsing the command line as it changes, hence extra **input lag**. The impact
+This feature requires parsing the command line as it changes, hence extra *input lag*. The impact
 on latency is small, so it shouldn't cause any problems.
 
 #### Instant prompt
