@@ -3,13 +3,31 @@
 () {
   builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
 
-  if [[ -v _zb_benchmark_input_fd ]]; then
+  # There is a bug in zsh that sometimes causes `exec` to return 1 with no
+  # diagnostics when the call actually succeeds. This only happens when running
+  # `exec` from a zle widget with prompt_subst and command substitutions in
+  # prompt. For example, it happens when using ohmyzsh with ZSH_THEME=af-magic.
+  -zb-fd-open() {
+    builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
+    [[ ! -v _zb_benchmark_input_fd ]]
+    builtin typeset -gi _zb_benchmark_input_fd=-1
+    # This can spuriously return 1.
+    builtin exec {_zb_benchmark_input_fd} <$1 || builtin true
+    (( _zb_benchmark_input_fd >= 0 ))
+    builtin zle -F $_zb_benchmark_input_fd $2
+  }
+
+  -zb-fd-close() {
+    builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
+    [[ $_zb_benchmark_input_fd == <0-> ]]
     builtin zle -F $_zb_benchmark_input_fd
-    # This sometimes returns an error with no diagnostics even though
-    # the fd gets closed successfully. For example, it happens when
-    # using ohmyzsh with ZSH_THEME=af-magic.
+    # This can spuriously return 1.
     builtin exec {_zb_benchmark_input_fd}>&- || builtin true
-    unset _zb_benchmark_input_fd
+    builtin unset _zb_benchmark_input_fd
+  }
+
+  if [[ -v _zb_benchmark_input_fd ]]; then
+    -zb-fd-close
   else
     (( $# == 4 )) || builtin exit
     builtin typeset -gr  _zb_benchmark_input_output_file=$1
@@ -19,9 +37,7 @@
 
     builtin zmodload zsh/datetime zsh/zselect
     builtin zselect -t 70 || builtin true
-    builtin typeset -gi _zb_benchmark_input_fd
-    builtin exec {_zb_benchmark_input_fd} </dev/null
-    builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input
+    -zb-fd-open /dev/null -zb-benchmark-input
 
     -zb-benchmark-input-ready() {
       builtin emulate -L zsh -o no_unset -o warn_create_global || builtin exit
@@ -40,9 +56,7 @@
 [[ -v _zb_benchmark_input_fd ]] && builtin return
 
 if ! -zb-benchmark-input-ready; then
-  builtin typeset -gi _zb_benchmark_input_fd
-  builtin exec {_zb_benchmark_input_fd} < <(builtin zselect -t 10) || builtin exit
-  builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input || builtin exit
+  -zb-fd-open /dev/null <(builtin zselect -t 10) -zb-benchmark-input
   builtin return
 fi
 
@@ -63,9 +77,7 @@ builtin zle -N -- zle-line-pre-redraw -zb-benchmark-input-zle-line-pre-redraw
     builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
     [[ $_zb_benchmark_input_buffer == ${BUFFER}?* ]]
     if (( ! $+_zb_benchmark_input_fd && $#BUFFER + 1 == $#_zb_benchmark_input_buffer )); then
-      builtin typeset -gi _zb_benchmark_input_fd
-      builtin exec {_zb_benchmark_input_fd} </dev/null
-      builtin zle -F $_zb_benchmark_input_fd -zb-benchmark-input-start
+      -zb-fd-open /dev/null -zb-benchmark-input-start
     fi
   }
 }
@@ -96,9 +108,7 @@ builtin zle -N -- zle-line-pre-redraw -zb-benchmark-input-zle-line-pre-redraw
 
   builtin emulate -L zsh -o err_exit -o no_unset -o warn_create_global || builtin exit
 
-  builtin zle -F $_zb_benchmark_input_fd
-  builtin exec {_zb_benchmark_input_fd}>&-
-  builtin unset _zb_benchmark_input_fd
+  -zb-fd-close
 
   builtin local -F3 t='1e3 * (end_time - _zb_benchmark_input_start_time)'
   builtin print -rn -- " $t" >>| $_zb_benchmark_input_output_file
