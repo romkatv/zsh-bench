@@ -42,11 +42,21 @@
     -zb-benchmark-input-ready() {
       builtin emulate -L zsh -o no_unset -o warn_create_global || builtin exit
       if [[ -v ZINIT_SICE && -v ZINIT_REGISTERED_PLUGINS && -v ZINIT_SNIPPETS ]]; then
-        builtin local requested loaded missing
+        builtin local requested loaded missing sched_out line
         requested=(${(kou)ZINIT_SICE})
         loaded=(${(ou)ZINIT_REGISTERED_PLUGINS} ${(kou)ZINIT_SNIPPETS})
         missing=(${requested:|loaded})
-        (( ! $#missing )) || builtin return
+        if (( $#missing )); then
+          # Zinit turbo mode (wait ice) defers plugin loading until AFTER prompt display.
+          # Check if zinit is still in active loading mode (not following mode).
+          sched_out="$(sched 2>/dev/null)"
+          for line in ${(f)sched_out}; do
+            # If any non-following zinit-scheduler exists, wait for it
+            if [[ $line == *@zinit-scheduler* && $line != *following* ]]; then
+              builtin return 1
+            fi
+          done
+        fi
       fi
       [[ -z ${_zsh_defer_tasks-} ]]
     }
