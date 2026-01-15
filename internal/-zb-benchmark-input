@@ -56,7 +56,7 @@
 [[ -v _zb_benchmark_input_fd ]] && builtin return
 
 if ! -zb-benchmark-input-ready; then
-  -zb-fd-open /dev/null <(builtin zselect -t 10) -zb-benchmark-input
+  -zb-fd-open <(builtin zselect -t 10) -zb-benchmark-input
   builtin return
 fi
 
