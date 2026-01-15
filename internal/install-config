@@ -82,7 +82,7 @@ function delete-user() {
     if pids=($(command ps -u $user -o pid= 2>/dev/null)) && (( $#pids )); then
       local sig=
       (( delay > 2 )) && sig=-9
-      kill $sig -- $pids || true
+      kill $sig -- $pids 2>/dev/null || true
       (( delay < 4 )) && continue
     fi
     {
