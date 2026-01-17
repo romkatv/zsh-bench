@@ -43,12 +43,11 @@
       builtin emulate -L zsh -o no_unset -o warn_create_global || builtin exit
       if [[ -v ZINIT_SICE && -v ZINIT_REGISTERED_PLUGINS && -v ZINIT_SNIPPETS ]]; then
         builtin local requested loaded missing
-        requested=(${(kou)ZINIT_SICE})
+        requested=(${(kou)ZINIT_SICE:#/*})
         loaded=(${(ou)ZINIT_REGISTERED_PLUGINS} ${(kou)ZINIT_SNIPPETS})
         missing=(${requested:|loaded})
         (( ! $#missing )) || builtin return
       fi
-      [[ -z ${_zsh_defer_tasks-} ]]
     }
   fi
 } "$@"
